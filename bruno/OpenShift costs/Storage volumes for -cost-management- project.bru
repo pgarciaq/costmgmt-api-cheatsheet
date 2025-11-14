@@ -1,0 +1,27 @@
+meta {
+  name: Storage volumes for "cost-management" project
+  type: http
+  seq: 6
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/openshift/volumes/?currency=USD&filter[exact:project]=cost-management&filter[limit]=3&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[storageclass]=*&order_by[cost]=desc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  currency: USD
+  "filter[exact:project]": cost-management
+  filter[limit]: 3
+  filter[resolution]: monthly
+  filter[time_scope_units]: month
+  filter[time_scope_value]: -1
+  group_by[storageclass]: *
+  order_by[cost]: desc
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

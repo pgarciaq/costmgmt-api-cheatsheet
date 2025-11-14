@@ -1,0 +1,18 @@
+auth {
+  mode: oauth2
+}
+
+auth:oauth2 {
+  grant_type: client_credentials
+  access_token_url: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+  refresh_token_url: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+  client_id: {{process.env.CLIENT_ID}}
+  client_secret: {{process.env.CLIENT_SECRET}}
+  scope: api.console
+  credentials_placement: basic_auth_header
+  credentials_id: credentials
+  token_placement: header
+  token_header_prefix: Bearer
+  auto_fetch_token: true
+  auto_refresh_token: true
+}

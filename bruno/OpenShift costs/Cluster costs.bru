@@ -1,0 +1,22 @@
+meta {
+  name: Cluster costs
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/openshift/costs/?filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[resolution]=monthly&group_by[cluster]=*
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[time_scope_units]: month
+  filter[time_scope_value]: -1
+  filter[resolution]: monthly
+  group_by[cluster]: *
+}
+
+settings {
+  encodeUrl: true
+}

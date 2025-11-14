@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Red Hat Lightspeed cost management API cheat sheet",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

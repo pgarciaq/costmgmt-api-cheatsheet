@@ -1,0 +1,23 @@
+meta {
+  name: All OpenShift optimizations
+  type: http
+  seq: 7
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/recommendations/openshift?limit=10&offset=0&order_by=last_reported&order_how=desc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 10
+  offset: 0
+  order_by: last_reported
+  order_how: desc
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
