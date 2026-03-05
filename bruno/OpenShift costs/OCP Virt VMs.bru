@@ -1,0 +1,27 @@
+meta {
+  name: OCP Virt VMs
+  type: http
+  seq: 7
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/openshift/resources/virtual-machines/?currency=USD&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&limit=10&offset=0&order_by[cost]=desc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  currency: USD
+  filter[resolution]: monthly
+  filter[time_scope_units]: month
+  filter[time_scope_value]: -1
+  limit: 10
+  offset: 0
+  order_by[cost]: desc
+  ~"filter[exact:cluster]": 023d9b0e-7ca6-481d-b04f-ea606becd54e
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
