@@ -1,0 +1,24 @@
+meta {
+  name: Enabled Google Cloud tags
+  type: http
+  seq: 7
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/settings/tags/?filter[enabled]=true&filter[source_type]=GCP&limit=10&offset=0&order_by[key]=asc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[enabled]: true
+  filter[source_type]: GCP
+  limit: 10
+  offset: 0
+  order_by[key]: asc
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

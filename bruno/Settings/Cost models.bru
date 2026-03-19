@@ -1,0 +1,16 @@
+meta {
+  name: Cost models
+  type: http
+  seq: 8
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/cost-models/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

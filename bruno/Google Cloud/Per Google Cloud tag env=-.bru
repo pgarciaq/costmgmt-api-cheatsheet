@@ -1,0 +1,28 @@
+meta {
+  name: Per Google Cloud tag env=*
+  type: http
+  seq: 5
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/gcp/costs/?currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[tag:env]=*&order_by[cost]=desc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  currency: USD
+  delta: cost
+  filter[limit]: 10
+  filter[offset]: 0
+  filter[resolution]: monthly
+  filter[time_scope_units]: month
+  filter[time_scope_value]: -1
+  "group_by[tag:env]": *
+  order_by[cost]: desc
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
