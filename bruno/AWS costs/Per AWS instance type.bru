@@ -1,0 +1,16 @@
+meta {
+  name: Per AWS instance type
+  type: http
+  seq: 9
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/aws/instance-types/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

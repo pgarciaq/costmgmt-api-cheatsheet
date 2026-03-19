@@ -1,0 +1,16 @@
+meta {
+  name: All cloud filtered by OpenShift
+  type: http
+  seq: 11
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/openshift/infrastructures/all/costs/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

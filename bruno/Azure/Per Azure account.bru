@@ -1,0 +1,28 @@
+meta {
+  name: Per Azure account
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/azure/costs/?currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[subscription_guid]=*&order_by[cost]=desc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  currency: USD
+  delta: cost
+  filter[limit]: 10
+  filter[offset]: 0
+  filter[resolution]: monthly
+  filter[time_scope_units]: month
+  filter[time_scope_value]: -1
+  group_by[subscription_guid]: *
+  order_by[cost]: desc
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,16 @@
+meta {
+  name: Memory
+  type: http
+  seq: 8
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/openshift/memory/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

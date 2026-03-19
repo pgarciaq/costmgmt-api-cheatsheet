@@ -1,0 +1,16 @@
+meta {
+  name: Per Azure storage
+  type: http
+  seq: 7
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/azure/storage/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

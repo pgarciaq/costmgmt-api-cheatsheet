@@ -1,0 +1,24 @@
+meta {
+  name: Cluster cost breakdown for cluster 'demolab'
+  type: http
+  seq: 12
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/openshift/volumes/?filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[resolution]=monthly&group_by[cluster]=demolab&currency=USD
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[time_scope_units]: month
+  filter[time_scope_value]: -1
+  filter[resolution]: monthly
+  group_by[cluster]: demolab
+  currency: USD
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

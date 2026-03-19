@@ -1,0 +1,16 @@
+meta {
+  name: Per Google Cloud instance type
+  type: http
+  seq: 6
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/gcp/instance-types/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

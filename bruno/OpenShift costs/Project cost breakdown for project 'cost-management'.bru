@@ -1,0 +1,24 @@
+meta {
+  name: Project cost breakdown for project 'cost-management'
+  type: http
+  seq: 13
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/openshift/costs/?filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[project]=cost-management&currency=USD
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[resolution]: monthly
+  filter[time_scope_units]: month
+  filter[time_scope_value]: -1
+  group_by[project]: cost-management
+  currency: USD
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

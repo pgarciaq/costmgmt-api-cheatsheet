@@ -1,0 +1,20 @@
+meta {
+  name: AWS blended costs
+  type: http
+  seq: 12
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/aws/costs/?cost_type=blended_cost
+  body: none
+  auth: inherit
+}
+
+params:query {
+  cost_type: blended_cost
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
