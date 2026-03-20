@@ -485,9 +485,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_azure_costs">Azure Costs</a>
 <ul class="sectlevel2">
-<li><a href="#_per_azure_account">Per Azure account</a></li>
+<li><a href="#_per_azure_account_subscription">Per Azure account (subscription)</a></li>
 <li><a href="#_per_azure_region">Per Azure region</a></li>
-<li><a href="#_per_azure_subscription">Per Azure subscription</a></li>
 <li><a href="#_per_azure_service">Per Azure service</a></li>
 <li><a href="#_per_azure_tag">Per Azure tag</a></li>
 <li><a href="#_per_azure_instance_type">Per Azure instance type</a></li>
@@ -689,7 +688,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>GET /api/cost-management/v1/reports/openshift/volumes/?group_by[cluster]=demolab</pre>
+<pre>GET /api/cost-management/v1/reports/openshift/costs/?group_by[cluster]=demolab</pre>
 </div>
 </div>
 </div>
@@ -834,7 +833,7 @@ GET /api/cost-management/v1/reports/aws/costs/?cost_type=savingsplan_effective_c
 <h2 id="_azure_costs">Azure Costs</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_per_azure_account">Per Azure account</h3>
+<h3 id="_per_azure_account_subscription">Per Azure account (subscription)</h3>
 <div class="listingblock">
 <div class="content">
 <pre>GET /api/cost-management/v1/reports/azure/costs/?group_by[subscription_guid]=*</pre>
@@ -846,14 +845,6 @@ GET /api/cost-management/v1/reports/aws/costs/?cost_type=savingsplan_effective_c
 <div class="listingblock">
 <div class="content">
 <pre>GET /api/cost-management/v1/reports/azure/costs/?group_by[resource_location]=*</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_per_azure_subscription">Per Azure subscription</h3>
-<div class="listingblock">
-<div class="content">
-<pre>GET /api/cost-management/v1/reports/azure/costs/?group_by[subscription_guid]=*</pre>
 </div>
 </div>
 </div>
@@ -1351,7 +1342,7 @@ GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&amp;filter[sourc
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-03-20 03:14:47 +0100
+Last updated 2026-03-20 16:11:43 +0100
 </div>
 </div>
 </body>
