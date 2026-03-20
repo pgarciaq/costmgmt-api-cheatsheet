@@ -11,7 +11,11 @@
 :imagesdir: images
 :docinfo: shared
 
-The Cost Management API allows users to obtain all the data available in the UI, and even more since with the API it's possible to combine filters or to make several API calls and then combine the results.
+== Introduction
+
+The Cost Management API allows users to obtain all the data available in the UI, and even more since with the API it's possible to combine filters or to make several API calls and then combine the results. 
+
+The latest version of this cheat sheet, and its accompanying Bruno collection, are always available from `https://github.com/project-koku/costmgmt-api-cheatsheet`.
 
 Below are common scenarios with example API calls.
 
