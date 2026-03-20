@@ -125,7 +125,7 @@ GET /api/cost-management/v1/reports/openshift/volumes/?filter[exact:project]=cos
 Cost breakdown for the "demolab" cluster:
 
 ----
-GET /api/cost-management/v1/reports/openshift/volumes/?group_by[cluster]=demolab
+GET /api/cost-management/v1/reports/openshift/costs/?group_by[cluster]=demolab
 ----
 
 === Breakdown page: costs for a project
@@ -228,7 +228,7 @@ GET /api/cost-management/v1/reports/aws/costs/?cost_type=savingsplan_effective_c
 
 == Azure Costs
 
-=== Per Azure account
+=== Per Azure account (subscription)
 
 ----
 GET /api/cost-management/v1/reports/azure/costs/?group_by[subscription_guid]=*
@@ -238,12 +238,6 @@ GET /api/cost-management/v1/reports/azure/costs/?group_by[subscription_guid]=*
 
 ----
 GET /api/cost-management/v1/reports/azure/costs/?group_by[resource_location]=*
-----
-
-=== Per Azure subscription
-
-----
-GET /api/cost-management/v1/reports/azure/costs/?group_by[subscription_guid]=*
 ----
 
 === Per Azure service
