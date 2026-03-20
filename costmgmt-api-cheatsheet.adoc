@@ -1,4 +1,15 @@
-= Red Hat Lightspeed Cost Management API Cheat Sheet
+= Red Hat Lightspeed cost management API
+:subtitle: Cheat sheet
+:author: Pau Garcia Quiles, Senior Principal Product Manager, Red Hat Lightspeed
+:pdf-themesdir: theme
+:pdf-theme: redhat
+:pdf-fontsdir: fonts;GEM_FONTS_DIR
+:title-page:
+:title-logo-image: image:redhat-hat-icon-medium.png[pdfwidth=1.2in]
+:toc:
+:data-uri:
+:imagesdir: images
+:docinfo: shared
 
 The Cost Management API allows users to obtain all the data available in the UI, and even more since with the API it's possible to combine filters or to make several API calls and then combine the results.
 
