@@ -34,25 +34,31 @@ curl --location \
 === Cluster costs
 
 ----
-GET /api/cost-management/v1/reports/openshift/costs/?filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[resolution]=monthly&group_by[cluster]=*
+GET /api/cost-management/v1/reports/openshift/costs/?group_by[cluster]=*
+----
+
+Cluster costs only for the current month:
+
+----
+GET /api/cost-management/v1/reports/openshift/costs/?filter[time_scope_units]=month&group_by[cluster]=*
 ----
 
 === Project costs
 
 ----
-GET /api/cost-management/v1/reports/openshift/costs/?filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[resolution]=monthly&group_by[project]=*
+GET /api/cost-management/v1/reports/openshift/costs/?group_by[project]=*
 ----
 
 === Project costs grouped by cluster
 
 ----
-GET /api/cost-management/v1/reports/openshift/costs/?filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[resolution]=monthly&group_by[cluster]=*&group_by[project]=*
+GET /api/cost-management/v1/reports/openshift/costs/?group_by[cluster]=*&group_by[project]=*
 ----
 
 === Node costs
 
 ----
-GET /api/cost-management/v1/reports/openshift/costs/?filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[resolution]=monthly&group_by[node]=*
+GET /api/cost-management/v1/reports/openshift/costs/?group_by[node]=*
 ----
 
 === Tag costs
@@ -60,19 +66,19 @@ GET /api/cost-management/v1/reports/openshift/costs/?filter[time_scope_units]=mo
 Costs grouped by a tag key (e.g. `env`):
 
 ----
-GET /api/cost-management/v1/reports/openshift/costs/?filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[resolution]=monthly&group_by[tag:env]=*
+GET /api/cost-management/v1/reports/openshift/costs/?group_by[tag:env]=*
 ----
 
 === OpenShift Virtualization VMs
 
 ----
-GET /api/cost-management/v1/reports/openshift/resources/virtual-machines/?currency=USD&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&limit=10&offset=0&order_by[cost]=desc
+GET /api/cost-management/v1/reports/openshift/resources/virtual-machines/
 ----
 
 Optionally filter by cluster:
 
 ----
-GET /api/cost-management/v1/reports/openshift/resources/virtual-machines/?currency=USD&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[exact:cluster]=CLUSTER_UUID&limit=10&offset=0&order_by[cost]=desc
+GET /api/cost-management/v1/reports/openshift/resources/virtual-machines/?filter[exact:cluster]=CLUSTER_UUID
 ----
 
 === CPU
@@ -90,25 +96,29 @@ GET /api/cost-management/v1/reports/openshift/memory/
 === Storage volumes
 
 ----
-GET /api/cost-management/v1/reports/openshift/volumes/?currency=USD&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[storageclass]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/openshift/volumes/?group_by[storageclass]=*
 ----
 
 Storage volumes for a specific project (e.g. `cost-management`):
 
 ----
-GET /api/cost-management/v1/reports/openshift/volumes/?currency=USD&filter[exact:project]=cost-management&filter[limit]=3&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[storageclass]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/openshift/volumes/?filter[exact:project]=cost-management&group_by[storageclass]=*
 ----
 
 === Breakdown page: costs for a cluster
 
+Cost breakdown for the "demolab" cluster:
+
 ----
-GET /api/cost-management/v1/reports/openshift/volumes/?filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[resolution]=monthly&group_by[cluster]=demolab&currency=USD
+GET /api/cost-management/v1/reports/openshift/volumes/?group_by[cluster]=demolab
 ----
 
 === Breakdown page: costs for a project
 
+Cost breakdown for the "cost-management" project:
+
 ----
-GET /api/cost-management/v1/reports/openshift/costs/?filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[project]=cost-management&currency=USD
+GET /api/cost-management/v1/reports/openshift/costs/?group_by[project]=cost-management
 ----
 
 == Cloud Filtered by OpenShift
@@ -128,31 +138,31 @@ GET /api/cost-management/v1/reports/openshift/infrastructures/gcp/costs/
 === Per AWS account
 
 ----
-GET /api/cost-management/v1/reports/aws/costs/?cost_type=calculated_amortized_cost&currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[account]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/aws/costs/?group_by[account]=*
 ----
 
 === Per AWS region
 
 ----
-GET /api/cost-management/v1/reports/aws/costs/?cost_type=calculated_amortized_cost&currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[region]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/aws/costs/?group_by[region]=*
 ----
 
 === Per AWS service
 
 ----
-GET /api/cost-management/v1/reports/aws/costs/?cost_type=calculated_amortized_cost&currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[service]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/aws/costs/?group_by[service]=*
 ----
 
 === Per AWS EC2 VM
 
 ----
-GET /api/cost-management/v1/reports/aws/resources/ec2-compute/?cost_type=calculated_amortized_cost&currency=USD&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&limit=10&offset=0&order_by[cost]=desc
+GET /api/cost-management/v1/reports/aws/resources/ec2-compute/
 ----
 
 Filtering by operating system (e.g. Fedora):
 
 ----
-GET /api/cost-management/v1/reports/aws/resources/ec2-compute/?cost_type=calculated_amortized_cost&currency=USD&filter[operating_system]=Fedora&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&limit=10&offset=0&order_by[cost]=desc
+GET /api/cost-management/v1/reports/aws/resources/ec2-compute/?filter[operating_system]=Fedora
 ----
 
 === Per AWS tag
@@ -160,7 +170,7 @@ GET /api/cost-management/v1/reports/aws/resources/ec2-compute/?cost_type=calcula
 Costs grouped by an AWS tag key (e.g. `AppTeam`):
 
 ----
-GET /api/cost-management/v1/reports/aws/costs/?cost_type=calculated_amortized_cost&currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[tag:AppTeam]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/aws/costs/?group_by[tag:AppTeam]=*
 ----
 
 === Per AWS cost category
@@ -168,13 +178,15 @@ GET /api/cost-management/v1/reports/aws/costs/?cost_type=calculated_amortized_co
 Costs grouped by an AWS cost category (e.g. `CostCenter`):
 
 ----
-GET /api/cost-management/v1/reports/aws/costs/?cost_type=calculated_amortized_cost&currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[aws_category:CostCenter]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/aws/costs/?group_by[aws_category:CostCenter]=*
 ----
 
 === Per AWS Organizational Unit
 
+Group by root organizational unit "r-f22a":
+
 ----
-GET /api/cost-management/v1/reports/aws/costs/?cost_type=calculated_amortized_cost&currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[org_unit_id]=r-f22a&order_by[cost]=desc
+GET /api/cost-management/v1/reports/aws/costs/?group_by[org_unit_id]=r-f22a
 ----
 
 === Per AWS instance type
@@ -204,13 +216,13 @@ GET /api/cost-management/v1/reports/aws/costs/?cost_type=savingsplan_effective_c
 === Per Azure account
 
 ----
-GET /api/cost-management/v1/reports/azure/costs/?currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[subscription_guid]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/azure/costs/?group_by[subscription_guid]=*
 ----
 
 === Per Azure region
 
 ----
-GET /api/cost-management/v1/reports/azure/costs/?currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[resource_location]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/azure/costs/?group_by[resource_location]=*
 ----
 
 === Per Azure subscription
@@ -222,7 +234,7 @@ GET /api/cost-management/v1/reports/azure/costs/?group_by[subscription_guid]=*
 === Per Azure service
 
 ----
-GET /api/cost-management/v1/reports/azure/costs/?currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[service_name]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/azure/costs/?group_by[service_name]=*
 ----
 
 === Per Azure tag
@@ -230,7 +242,7 @@ GET /api/cost-management/v1/reports/azure/costs/?currency=USD&delta=cost&filter[
 Costs grouped by an Azure tag key (e.g. `ms-resource-usage`):
 
 ----
-GET /api/cost-management/v1/reports/azure/costs/?currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[tag:ms-resource-usage]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/azure/costs/?group_by[tag:ms-resource-usage]=*
 ----
 
 === Per Azure instance type
@@ -250,25 +262,25 @@ GET /api/cost-management/v1/reports/azure/storage/
 === Per Google Cloud account
 
 ----
-GET /api/cost-management/v1/reports/gcp/costs/?currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[account]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/gcp/costs/?group_by[account]=*
 ----
 
 === Per Google Cloud region
 
 ----
-GET /api/cost-management/v1/reports/gcp/costs/?currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[region]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/gcp/costs/?group_by[region]=*
 ----
 
 === Per Google Cloud service
 
 ----
-GET /api/cost-management/v1/reports/gcp/costs/?currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[service]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/gcp/costs/?group_by[service]=*
 ----
 
 === Per Google Cloud Project
 
 ----
-GET /api/cost-management/v1/reports/gcp/costs/?currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[gcp_project]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/gcp/costs/?group_by[gcp_project]=*
 ----
 
 === Per Google Cloud tag
@@ -276,7 +288,7 @@ GET /api/cost-management/v1/reports/gcp/costs/?currency=USD&delta=cost&filter[li
 Costs grouped by a Google Cloud label (e.g. `env`):
 
 ----
-GET /api/cost-management/v1/reports/gcp/costs/?currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[tag:env]=*&order_by[cost]=desc
+GET /api/cost-management/v1/reports/gcp/costs/?group_by[tag:env]=*
 ----
 
 === Per Google Cloud instance type
@@ -322,10 +334,10 @@ GET /api/cost-management/v1/tags/openshift/?filter[enabled]=False
 Show tags for a particular time frame:
 
 ----
-GET /api/cost-management/v1/tags/openshift/?start_date=2022-11-15&end_date=2022-11-17
+GET /api/cost-management/v1/tags/openshift/?start_date=2025-11-15&end_date=2025-12-17
 ----
 
-See tag values directly for a specific key by appending the key to the URL:
+See tag values directly for a specific key by appending the key ("my-tag-key") to the URL:
 
 ----
 GET /api/cost-management/v1/tags/openshift/my-tag-key/
@@ -336,7 +348,7 @@ GET /api/cost-management/v1/tags/openshift/my-tag-key/
 === All OpenShift optimizations
 
 ----
-GET /api/cost-management/v1/recommendations/openshift?limit=10&offset=0&order_by=last_reported&order_how=desc
+GET /api/cost-management/v1/recommendations/openshift/
 ----
 
 === Recommendations for a specific container
@@ -352,7 +364,7 @@ GET /api/cost-management/v1/recommendations/openshift/{recommendation_uuid}
 === Platform projects (cost groups)
 
 ----
-GET /api/cost-management/v1/settings/cost-groups/?limit=10&offset=0&order_by[group]=asc
+GET /api/cost-management/v1/settings/cost-groups/
 ----
 
 === Enabled tags
@@ -360,16 +372,16 @@ GET /api/cost-management/v1/settings/cost-groups/?limit=10&offset=0&order_by[gro
 All enabled tags:
 
 ----
-GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&limit=10&offset=0&order_by[key]=asc
+GET /api/cost-management/v1/settings/tags/?filter[enabled]=true
 ----
 
 Enabled tags filtered by source type:
 
 ----
-GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&filter[source_type]=OCP&limit=10&offset=0&order_by[key]=asc
-GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&filter[source_type]=AWS&limit=10&offset=0&order_by[key]=asc
-GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&filter[source_type]=Azure&limit=10&offset=0&order_by[key]=asc
-GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&filter[source_type]=GCP&limit=10&offset=0&order_by[key]=asc
+GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&filter[source_type]=OCP
+GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&filter[source_type]=AWS
+GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&filter[source_type]=Azure
+GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&filter[source_type]=GCP
 ----
 
 === Display currency
@@ -392,27 +404,29 @@ Get rates on a single cost model by adding the cost model UUID:
 GET /api/cost-management/v1/cost-models/{cost_model_uuid}/
 ----
 
-Cost model relations are set at a source level, meaning clusters/nodes/projects or accounts/services/regions all share the same cost model.
-A source can only be assigned to a single cost model, but multiple sources can be assigned to the same cost model.
+Cost model relations are set at an OpenShift integration level (which includes one OpenShift cluster), or AWS/Azure/GCP integration level (which includes the parent and all child accounts in the same cloud integration). Everything covered by one integration shares the same cost model.
+
+An integration can only be assigned to a single cost model, but multiple integrations (e. g. OpenShift clusters) can be assigned to the same cost model.
+
 Matching data back to a cost model requires looking at the `source_uuid` value for each line item in the report endpoints, then searching for it in the cost-models endpoint.
 
-== Sources
+== Integrations
 
-A source is a cloud account or OpenShift cluster added to Cost Management. You can use the API to list sources added to your account or see last ingest completion times per source.
+Formerly known as "sources", an integration is a cloud account or OpenShift cluster added to Cost Management. You can use the API to list sources added to your account or see last ingest completion times per source.
 
-List all sources:
+List all integrations:
 
 ----
 GET /api/cost-management/v1/sources/
 ----
 
-Get a specific source:
+Get a specific integration:
 
 ----
 GET /api/cost-management/v1/sources/{source_uuid}/
 ----
 
-Check the stats on a particular source:
+Check the stats on a particular integration:
 
 ----
 GET /api/cost-management/v1/sources/{source_uuid}/stats/
@@ -434,9 +448,11 @@ You can also use explicit start and end dates:
 ?start_date=2022-09-01&end_date=2022-09-10
 ----
 
-== Get CSV Reports
+== Get CSV or JSON Reports
 
 Any of the report endpoints can return CSV format by setting the `Accept` header to `text/csv`.
+
+Any of the report endpoints can return JSON format by setting the `Accept` header to `application/json`.
 
 Current month aggregation by cluster:
 
