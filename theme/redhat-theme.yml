@@ -72,7 +72,7 @@ heading:
   h1_font_size: floor($base_font_size * 2.4)
   h1_font_color: 151515
   h2_font_size: floor($base_font_size * 1.8)
-  h2_font_color: 151515
+  h2_font_color: EE0000
   h3_font_size: round($base_font_size * 1.4)
   h3_font_color: 3C3F42
   h4_font_size: round($base_font_size * 1.15)
