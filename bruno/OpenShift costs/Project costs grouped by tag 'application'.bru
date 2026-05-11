@@ -1,0 +1,24 @@
+meta {
+  name: Project costs grouped by tag 'application'
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://console.redhat.com/api/cost-management/v1/reports/openshift/costs/?filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[resolution]=monthly&group_by[project]=*&group_by[tag:application]=*
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[time_scope_units]: month
+  filter[time_scope_value]: -1
+  filter[resolution]: monthly
+  group_by[project]: *
+  "group_by[tag:application]": *
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
