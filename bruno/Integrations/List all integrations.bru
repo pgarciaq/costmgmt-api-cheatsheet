@@ -1,0 +1,16 @@
+meta {
+  name: List all integrations
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/sources/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

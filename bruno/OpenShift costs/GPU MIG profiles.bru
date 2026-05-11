@@ -1,0 +1,22 @@
+meta {
+  name: GPU MIG profiles
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseURL}}/reports/openshift/gpu/mig_profiles/?filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[resolution]=monthly
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[time_scope_units]: month
+  filter[time_scope_value]: -1
+  filter[resolution]: monthly
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

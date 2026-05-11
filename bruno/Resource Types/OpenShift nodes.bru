@@ -1,0 +1,16 @@
+meta {
+  name: OpenShift nodes
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseURL}}/resource-types/openshift-nodes/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

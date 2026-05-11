@@ -1,0 +1,16 @@
+meta {
+  name: Azure cost forecast
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseURL}}/forecasts/azure/costs/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,16 @@
+meta {
+  name: GCP accounts
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseURL}}/resource-types/gcp-accounts/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

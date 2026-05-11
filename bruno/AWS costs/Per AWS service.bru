@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://console.redhat.com/api/cost-management/v1/reports/aws/costs/?cost_type=calculated_amortized_cost&currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[service]=*&order_by[cost]=desc
+  url: {{baseURL}}/reports/aws/costs/?cost_type=calculated_amortized_cost&currency=USD&delta=cost&filter[limit]=10&filter[offset]=0&filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[service]=*&order_by[cost]=desc
   body: none
   auth: inherit
 }

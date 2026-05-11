@@ -1,0 +1,16 @@
+meta {
+  name: OpenShift GPU vendors
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseURL}}/resource-types/openshift-gpu-vendors/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

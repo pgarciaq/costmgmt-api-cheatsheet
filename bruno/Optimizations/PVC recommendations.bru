@@ -1,0 +1,16 @@
+meta {
+  name: PVC recommendations
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/pvcs
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

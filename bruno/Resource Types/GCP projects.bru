@@ -1,0 +1,16 @@
+meta {
+  name: GCP projects
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseURL}}/resource-types/gcp-projects/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,16 @@
+meta {
+  name: GCP services
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseURL}}/resource-types/gcp-services/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

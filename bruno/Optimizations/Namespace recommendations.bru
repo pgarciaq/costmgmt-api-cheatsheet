@@ -1,0 +1,16 @@
+meta {
+  name: Namespace recommendations
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseURL}}/openshift/namespace/recommendations
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

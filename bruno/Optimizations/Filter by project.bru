@@ -1,0 +1,22 @@
+meta {
+  name: Filter by project
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/?project={{project}}&order_by=last_reported&order_how=desc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  project: {{project}}
+  order_by: last_reported
+  order_how: desc
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

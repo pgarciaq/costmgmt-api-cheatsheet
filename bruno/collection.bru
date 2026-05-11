@@ -4,11 +4,11 @@ auth {
 
 auth:oauth2 {
   grant_type: client_credentials
-  access_token_url: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
-  refresh_token_url: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+  access_token_url: {{tokenUrl}}
+  refresh_token_url: {{tokenUrl}}
   client_id: {{process.env.CLIENT_ID}}
   client_secret: {{process.env.CLIENT_SECRET}}
-  scope: api.console
+  scope: {{scope}}
   credentials_placement: basic_auth_header
   credentials_id: credentials
   token_placement: header

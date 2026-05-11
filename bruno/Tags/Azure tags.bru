@@ -1,0 +1,16 @@
+meta {
+  name: Azure tags
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseURL}}/tags/azure/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

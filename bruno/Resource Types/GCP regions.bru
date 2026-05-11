@@ -1,0 +1,16 @@
+meta {
+  name: GCP regions
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseURL}}/resource-types/gcp-regions/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

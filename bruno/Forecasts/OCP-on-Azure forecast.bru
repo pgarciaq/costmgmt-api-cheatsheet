@@ -1,0 +1,16 @@
+meta {
+  name: OCP-on-Azure forecast
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseURL}}/forecasts/openshift/infrastructures/azure/costs/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

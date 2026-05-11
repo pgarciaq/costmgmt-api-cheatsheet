@@ -1,0 +1,16 @@
+meta {
+  name: OpenShift GPU models
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseURL}}/resource-types/openshift-gpu-models/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

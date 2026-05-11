@@ -1,0 +1,16 @@
+meta {
+  name: OCP-on-GCP forecast
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseURL}}/forecasts/openshift/infrastructures/gcp/costs/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

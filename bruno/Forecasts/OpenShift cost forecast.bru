@@ -1,0 +1,16 @@
+meta {
+  name: OpenShift cost forecast
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/forecasts/openshift/costs/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

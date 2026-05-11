@@ -1,0 +1,16 @@
+meta {
+  name: OpenShift tags
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseURL}}/tags/openshift/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

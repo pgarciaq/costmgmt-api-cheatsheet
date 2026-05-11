@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://console.redhat.com/api/cost-management/v1/reports/openshift/costs/?filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[project]=cost-management&currency=USD
+  url: {{baseURL}}/reports/openshift/costs/?filter[resolution]=monthly&filter[time_scope_units]=month&filter[time_scope_value]=-1&group_by[project]=cost-management&currency=USD
   body: none
   auth: inherit
 }

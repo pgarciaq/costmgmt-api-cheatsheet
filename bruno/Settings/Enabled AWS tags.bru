@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://console.redhat.com/api/cost-management/v1/settings/tags/?filter[enabled]=true&filter[source_type]=AWS&limit=10&offset=0&order_by[key]=asc
+  url: {{baseURL}}/settings/tags/?filter[enabled]=true&filter[source_type]=AWS&limit=10&offset=0&order_by[key]=asc
   body: none
   auth: inherit
 }

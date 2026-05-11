@@ -1,0 +1,16 @@
+meta {
+  name: AWS regions
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseURL}}/resource-types/aws-regions/
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
