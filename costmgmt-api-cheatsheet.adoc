@@ -70,6 +70,14 @@ GET /api/cost-management/v1/reports/openshift/costs/?group_by[project]=*
 GET /api/cost-management/v1/reports/openshift/costs/?group_by[cluster]=*&group_by[project]=*
 ----
 
+=== Project costs grouped by tag
+
+Costs by project, grouped by a tag key (e.g. `application`):
+
+----
+GET /api/cost-management/v1/reports/openshift/costs/?group_by[project]=*&group_by[tag:application]=*
+----
+
 === Node costs
 
 ----
@@ -94,6 +102,18 @@ Optionally filter by cluster:
 
 ----
 GET /api/cost-management/v1/reports/openshift/resources/virtual-machines/?filter[exact:cluster]=CLUSTER_UUID
+----
+
+=== GPU costs
+
+----
+GET /api/cost-management/v1/reports/openshift/gpu/
+----
+
+GPU costs by MIG profile:
+
+----
+GET /api/cost-management/v1/reports/openshift/gpu/mig_profiles/
 ----
 
 === CPU
@@ -352,21 +372,281 @@ See tag values directly for a specific key by appending the key ("my-tag-key") t
 GET /api/cost-management/v1/tags/openshift/my-tag-key/
 ----
 
-== Optimizations
+== Optimizations (Resource Optimization Service)
 
-=== All OpenShift optimizations
+=== Container recommendations
+
+All container-level CPU/memory right-sizing recommendations:
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/
 ----
 
-=== Recommendations for a specific container
-
-Use the recommendation UUID:
+Recommendations for a specific container (use the recommendation UUID):
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/{recommendation_uuid}
 ----
+
+The detail response includes per-term (short/medium/long) recommendations for two models:
+
+* **Cost model**: optimizes for resource savings (p60 CPU / p95 memory)
+* **Performance model**: optimizes for headroom (p98 CPU / p100 memory)
+
+Each recommendation includes CPU/memory requests and limits, notifications, and usage distribution box plots (min, Q1, median, Q3, max).
+
+==== Filtering and sorting
+
+Filter by cluster, project, workload, or container:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/?cluster_uuid=CLUSTER_UUID
+GET /api/cost-management/v1/recommendations/openshift/?project=my-namespace
+GET /api/cost-management/v1/recommendations/openshift/?workload=my-deployment
+GET /api/cost-management/v1/recommendations/openshift/?container=my-container
+----
+
+Filter by GPU:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/?has_gpu=true
+GET /api/cost-management/v1/recommendations/openshift/?gpu_model=A100
+GET /api/cost-management/v1/recommendations/openshift/?gpu_classification=underutilized
+----
+
+Sort by last reported or total savings:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/?order_by=last_reported&order_how=desc
+----
+
+==== Replica counts and total savings
+
+Container detail responses include replica information collected from `kube-state-metrics` (deployments, statefulsets, daemonsets):
+
+* `replica_info.desired` — spec-level replica count
+* `replica_info.available` — currently available/ready replicas
+* `replica_info.source` — `"kube_state_metrics"` (authoritative) or `"derived"` (pod count fallback)
+
+Total impact savings multiply per-container savings by replica count.
+
+=== Namespace recommendations
+
+Namespace-level CPU/memory recommendations (aggregated across all containers in a namespace):
+
+----
+GET /api/cost-management/v1/openshift/namespace/recommendations
+----
+
+Detail for a specific namespace recommendation:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/namespace/{recommendation_uuid}
+----
+
+=== NVIDIA MIG (Multi-Instance GPU) recommendations
+
+MIG bin-packing recommendations are part of the container detail response. When a container uses a MIG-capable GPU (A100, H100, H200, B200), the response includes a `gpu` object with:
+
+* `current_gpu_model` / `current_gpu_profile` — what the container currently uses
+* `recommended_gpu_profile` — smallest MIG profile whose resources cover p95 usage
+* `gpu_classification` — e.g. `compute_bound`, `memory_bound`, `underutilized`
+* `estimated_monthly_gpu_savings_usd` — dollar savings from MIG right-sizing
+
+----
+GET /api/cost-management/v1/recommendations/openshift/{recommendation_uuid}
+----
+
+=== NVIDIA GPU time-slicing recommendations
+
+Node-level GPU time-slicing consolidation guidance. Evaluates how many containers could share each physical GPU via `nvidia.com/gpu.replicas`:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/nodes
+----
+
+Returns per-node recommendations with:
+
+* `gpu_model` — NVIDIA GPU model on the node
+* `recommended_replicas` — suggested time-slicing replica count
+* `savings_per_gpu_usd` / `total_node_savings_usd` — estimated cost savings
+
+=== Node CPU/memory utilization recommendations
+
+Node-level right-sizing based on CPU and memory utilization patterns — identifies underutilized, overcommitted, and stranded resource nodes:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/nodes/utilization
+----
+
+Filter by underutilized or overcommitted nodes:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/nodes/utilization?is_underutilized=true
+GET /api/cost-management/v1/recommendations/openshift/nodes/utilization?is_overcommitted=true
+----
+
+Returns per-node metrics including CPU/memory utilization percentiles (p50, p95), overcommit ratio, trend slope, pod count, and stranded resource detection.
+
+=== PVC (Persistent Volume Claim) recommendations
+
+Right-sizing recommendations for persistent volumes — oversized, near-full, orphaned, and growth trend projection:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/pvcs
+----
+
+=== Snapshot staleness recommendations
+
+VolumeSnapshot analysis — orphaned, stale, never-restored, redundant snapshots with estimated storage savings:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/snapshots
+----
+
+Snapshot staleness settings (configurable thresholds):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/snapshot
+PUT /api/cost-management/v1/recommendations/openshift/settings/snapshot
+----
+
+=== Fleet summary
+
+Cross-cluster aggregated savings, adoption rates, and top optimization opportunities:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/fleet-summary
+----
+
+=== Recommendation term settings
+
+Customers can configure their own 3 recommendation term windows (1–90 days each), replacing the fixed short (1d) / medium (7d) / long (15d) defaults:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/terms
+PUT /api/cost-management/v1/recommendations/openshift/settings/terms
+DELETE /api/cost-management/v1/recommendations/openshift/settings/terms
+----
+
+=== Recommendation history and quality
+
+Historical tracking of recommendation changes over time:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/history
+----
+
+Recommendation quality metrics (accuracy of past predictions vs actual usage):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/quality
+----
+
+== Forecasts
+
+Cost forecasts predict future spending based on historical trends.
+
+=== OpenShift cost forecast
+
+----
+GET /api/cost-management/v1/forecasts/openshift/costs/
+----
+
+=== AWS cost forecast
+
+----
+GET /api/cost-management/v1/forecasts/aws/costs/
+----
+
+=== Azure cost forecast
+
+----
+GET /api/cost-management/v1/forecasts/azure/costs/
+----
+
+=== Google Cloud cost forecast
+
+----
+GET /api/cost-management/v1/forecasts/gcp/costs/
+----
+
+=== OCP-on-cloud cost forecasts
+
+----
+GET /api/cost-management/v1/forecasts/openshift/infrastructures/all/costs/
+GET /api/cost-management/v1/forecasts/openshift/infrastructures/aws/costs/
+GET /api/cost-management/v1/forecasts/openshift/infrastructures/azure/costs/
+GET /api/cost-management/v1/forecasts/openshift/infrastructures/gcp/costs/
+----
+
+== Resource Types
+
+Resource type endpoints return the available values for group_by and filter parameters. Useful for building dropdowns in UIs or discovering what filter values exist.
+
+=== OpenShift
+
+----
+GET /api/cost-management/v1/resource-types/openshift-clusters/
+GET /api/cost-management/v1/resource-types/openshift-projects/
+GET /api/cost-management/v1/resource-types/openshift-nodes/
+GET /api/cost-management/v1/resource-types/openshift-virtual-machines/
+GET /api/cost-management/v1/resource-types/openshift-gpu-vendors/
+GET /api/cost-management/v1/resource-types/openshift-gpu-models/
+----
+
+=== AWS
+
+----
+GET /api/cost-management/v1/resource-types/aws-accounts/
+GET /api/cost-management/v1/resource-types/aws-services/
+GET /api/cost-management/v1/resource-types/aws-regions/
+GET /api/cost-management/v1/resource-types/aws-organizational-units/
+GET /api/cost-management/v1/resource-types/aws-categories/
+----
+
+=== Azure
+
+----
+GET /api/cost-management/v1/resource-types/azure-subscription-guids/
+GET /api/cost-management/v1/resource-types/azure-services/
+GET /api/cost-management/v1/resource-types/azure-regions/
+----
+
+=== Google Cloud
+
+----
+GET /api/cost-management/v1/resource-types/gcp-accounts/
+GET /api/cost-management/v1/resource-types/gcp-projects/
+GET /api/cost-management/v1/resource-types/gcp-services/
+GET /api/cost-management/v1/resource-types/gcp-regions/
+----
+
+=== Cost models
+
+----
+GET /api/cost-management/v1/resource-types/cost-models/
+----
+
+== Cost Distribution Fields
+
+OpenShift cost report responses include distributed overhead costs when a cost model has platform/worker distribution enabled:
+
+[cols="1,3"]
+|===
+|Field |Definition
+
+|cost_platform_distributed
+|Platform project overhead distributed proportionally to user projects (by CPU or memory weighting)
+
+|cost_worker_unallocated_distributed
+|Worker node unallocated capacity distributed proportionally to user projects
+
+|cost_total
+|Total cost including raw + usage + markup + platform_distributed + worker_unallocated_distributed
+|===
+
+These fields appear in nested form in the API JSON response (e.g. `cost.platform_distributed`, `cost.worker_unallocated_distributed`, `cost.total`).
 
 == Settings
 
@@ -441,7 +721,9 @@ Check the stats on a particular integration:
 GET /api/cost-management/v1/sources/{source_uuid}/stats/
 ----
 
-== Time Scope Filters
+== Filtering and Pagination
+
+=== Time scope filters
 
 All cloud and OpenShift cost endpoints support the following filters:
 
@@ -456,6 +738,25 @@ You can also use explicit start and end dates:
 ----
 ?start_date=2022-09-01&end_date=2022-09-10
 ----
+
+=== Exclude filter
+
+Exclude specific values from results. Works with the same dimensions as `filter` and `group_by`:
+
+----
+GET /api/cost-management/v1/reports/openshift/costs/?group_by[project]=*&exclude[project]=openshift-monitoring
+GET /api/cost-management/v1/reports/aws/costs/?group_by[account]=*&exclude[account]=123456789012
+----
+
+=== Pagination
+
+All list endpoints support `limit` and `offset` for pagination:
+
+----
+?limit=10&offset=0
+----
+
+The response `meta` object includes `count` (total items) and `links` includes `first`, `next`, `previous`, `last` URLs.
 
 == Get CSV or JSON Reports
 
@@ -576,4 +877,13 @@ All of the above examples and additional parameter/filter options can be used wi
 
 |limit
 |Total hourly limit for a project/node/cluster and/or day/month depending on the query
+
+|gpu_request
+|Total GPU device requests for a project/node/cluster
+
+|gpu_limit
+|Total GPU device limits for a project/node/cluster
+
+|gpu_usage
+|Total GPU utilization for a project/node/cluster (in device-hours)
 |===
