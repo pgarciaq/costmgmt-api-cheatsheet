@@ -458,9 +458,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_cluster_costs">Cluster costs</a></li>
 <li><a href="#_project_costs">Project costs</a></li>
 <li><a href="#_project_costs_grouped_by_cluster">Project costs grouped by cluster</a></li>
+<li><a href="#_project_costs_grouped_by_tag">Project costs grouped by tag</a></li>
 <li><a href="#_node_costs">Node costs</a></li>
 <li><a href="#_tag_costs">Tag costs</a></li>
 <li><a href="#_openshift_virtualization_vms">OpenShift Virtualization VMs</a></li>
+<li><a href="#_gpu_costs">GPU costs</a></li>
 <li><a href="#_cpu">CPU</a></li>
 <li><a href="#_memory">Memory</a></li>
 <li><a href="#_storage_volumes">Storage volumes</a></li>
@@ -509,22 +511,55 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_list_tag_keys_and_values">List tag keys and values</a></li>
 </ul>
 </li>
-<li><a href="#_optimizations">Optimizations</a>
+<li><a href="#_optimizations_resource_optimization_service">Optimizations (Resource Optimization Service)</a>
 <ul class="sectlevel2">
-<li><a href="#_all_openshift_optimizations">All OpenShift optimizations</a></li>
-<li><a href="#_recommendations_for_a_specific_container">Recommendations for a specific container</a></li>
+<li><a href="#_container_recommendations">Container recommendations</a></li>
+<li><a href="#_namespace_recommendations">Namespace recommendations</a></li>
+<li><a href="#_nvidia_mig_multi_instance_gpu_recommendations">NVIDIA MIG (Multi-Instance GPU) recommendations</a></li>
+<li><a href="#_nvidia_gpu_time_slicing_recommendations">NVIDIA GPU time-slicing recommendations</a></li>
+<li><a href="#_node_cpumemory_utilization_recommendations">Node CPU/memory utilization recommendations</a></li>
+<li><a href="#_pvc_persistent_volume_claim_recommendations">PVC (Persistent Volume Claim) recommendations</a></li>
+<li><a href="#_snapshot_staleness_recommendations">Snapshot staleness recommendations</a></li>
+<li><a href="#_fleet_summary">Fleet summary</a></li>
+<li><a href="#_recommendation_term_settings">Recommendation term settings</a></li>
+<li><a href="#_recommendation_history_and_quality">Recommendation history and quality</a></li>
 </ul>
 </li>
+<li><a href="#_forecasts">Forecasts</a>
+<ul class="sectlevel2">
+<li><a href="#_openshift_cost_forecast">OpenShift cost forecast</a></li>
+<li><a href="#_aws_cost_forecast">AWS cost forecast</a></li>
+<li><a href="#_azure_cost_forecast">Azure cost forecast</a></li>
+<li><a href="#_google_cloud_cost_forecast">Google Cloud cost forecast</a></li>
+<li><a href="#_ocp_on_cloud_cost_forecasts">OCP-on-cloud cost forecasts</a></li>
+</ul>
+</li>
+<li><a href="#_resource_types">Resource Types</a>
+<ul class="sectlevel2">
+<li><a href="#_openshift">OpenShift</a></li>
+<li><a href="#_aws">AWS</a></li>
+<li><a href="#_azure">Azure</a></li>
+<li><a href="#_google_cloud">Google Cloud</a></li>
+<li><a href="#_cost_models">Cost models</a></li>
+</ul>
+</li>
+<li><a href="#_cost_distribution_fields">Cost Distribution Fields</a></li>
 <li><a href="#_settings">Settings</a>
 <ul class="sectlevel2">
 <li><a href="#_platform_projects_cost_groups">Platform projects (cost groups)</a></li>
 <li><a href="#_enabled_tags">Enabled tags</a></li>
 <li><a href="#_display_currency">Display currency</a></li>
-<li><a href="#_cost_models">Cost models</a></li>
+<li><a href="#_cost_models_2">Cost models</a></li>
 </ul>
 </li>
 <li><a href="#_integrations">Integrations</a></li>
-<li><a href="#_time_scope_filters">Time Scope Filters</a></li>
+<li><a href="#_filtering_and_pagination">Filtering and Pagination</a>
+<ul class="sectlevel2">
+<li><a href="#_time_scope_filters">Time scope filters</a></li>
+<li><a href="#_exclude_filter">Exclude filter</a></li>
+<li><a href="#_pagination">Pagination</a></li>
+</ul>
+</li>
 <li><a href="#_get_csv_or_json_reports">Get CSV or JSON Reports</a></li>
 <li><a href="#_basic_field_definitions">Basic Field Definitions</a></li>
 </ul>
@@ -615,6 +650,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
+<h3 id="_project_costs_grouped_by_tag">Project costs grouped by tag</h3>
+<div class="paragraph">
+<p>Costs by project, grouped by a tag key (e.g. <code>application</code>):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/reports/openshift/costs/?group_by[project]=*&amp;group_by[tag:application]=*</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_node_costs">Node costs</h3>
 <div class="listingblock">
 <div class="content">
@@ -646,6 +692,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="content">
 <pre>GET /api/cost-management/v1/reports/openshift/resources/virtual-machines/?filter[exact:cluster]=CLUSTER_UUID</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_gpu_costs">GPU costs</h3>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/reports/openshift/gpu/</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>GPU costs by MIG profile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/reports/openshift/gpu/mig_profiles/</pre>
 </div>
 </div>
 </div>
@@ -1006,26 +1068,416 @@ GET /api/cost-management/v1/tags/gcp/</pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_optimizations">Optimizations</h2>
+<h2 id="_optimizations_resource_optimization_service">Optimizations (Resource Optimization Service)</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_all_openshift_optimizations">All OpenShift optimizations</h3>
+<h3 id="_container_recommendations">Container recommendations</h3>
+<div class="paragraph">
+<p>All container-level CPU/memory right-sizing recommendations:</p>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre>GET /api/cost-management/v1/recommendations/openshift/</pre>
 </div>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_recommendations_for_a_specific_container">Recommendations for a specific container</h3>
 <div class="paragraph">
-<p>Use the recommendation UUID:</p>
+<p>Recommendations for a specific container (use the recommendation UUID):</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre>GET /api/cost-management/v1/recommendations/openshift/{recommendation_uuid}</pre>
 </div>
 </div>
+<div class="paragraph">
+<p>The detail response includes per-term (short/medium/long) recommendations for two models:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Cost model</strong>: optimizes for resource savings (p60 CPU / p95 memory)</p>
+</li>
+<li>
+<p><strong>Performance model</strong>: optimizes for headroom (p98 CPU / p100 memory)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Each recommendation includes CPU/memory requests and limits, notifications, and usage distribution box plots (min, Q1, median, Q3, max).</p>
+</div>
+<div class="sect3">
+<h4 id="_filtering_and_sorting">Filtering and sorting</h4>
+<div class="paragraph">
+<p>Filter by cluster, project, workload, or container:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/?cluster_uuid=CLUSTER_UUID
+GET /api/cost-management/v1/recommendations/openshift/?project=my-namespace
+GET /api/cost-management/v1/recommendations/openshift/?workload=my-deployment
+GET /api/cost-management/v1/recommendations/openshift/?container=my-container</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Filter by GPU:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/?has_gpu=true
+GET /api/cost-management/v1/recommendations/openshift/?gpu_model=A100
+GET /api/cost-management/v1/recommendations/openshift/?gpu_classification=underutilized</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Sort by last reported or total savings:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/?order_by=last_reported&amp;order_how=desc</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_replica_counts_and_total_savings">Replica counts and total savings</h4>
+<div class="paragraph">
+<p>Container detail responses include replica information collected from <code>kube-state-metrics</code> (deployments, statefulsets, daemonsets):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>replica_info.desired</code> — spec-level replica count</p>
+</li>
+<li>
+<p><code>replica_info.available</code> — currently available/ready replicas</p>
+</li>
+<li>
+<p><code>replica_info.source</code> — <code>"kube_state_metrics"</code> (authoritative) or <code>"derived"</code> (pod count fallback)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Total impact savings multiply per-container savings by replica count.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_namespace_recommendations">Namespace recommendations</h3>
+<div class="paragraph">
+<p>Namespace-level CPU/memory recommendations (aggregated across all containers in a namespace):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/openshift/namespace/recommendations</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Detail for a specific namespace recommendation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/namespace/{recommendation_uuid}</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_nvidia_mig_multi_instance_gpu_recommendations">NVIDIA MIG (Multi-Instance GPU) recommendations</h3>
+<div class="paragraph">
+<p>MIG bin-packing recommendations are part of the container detail response. When a container uses a MIG-capable GPU (A100, H100, H200, B200), the response includes a <code>gpu</code> object with:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>current_gpu_model</code> / <code>current_gpu_profile</code> — what the container currently uses</p>
+</li>
+<li>
+<p><code>recommended_gpu_profile</code> — smallest MIG profile whose resources cover p95 usage</p>
+</li>
+<li>
+<p><code>gpu_classification</code> — e.g. <code>compute_bound</code>, <code>memory_bound</code>, <code>underutilized</code></p>
+</li>
+<li>
+<p><code>estimated_monthly_gpu_savings_usd</code> — dollar savings from MIG right-sizing</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/{recommendation_uuid}</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_nvidia_gpu_time_slicing_recommendations">NVIDIA GPU time-slicing recommendations</h3>
+<div class="paragraph">
+<p>Node-level GPU time-slicing consolidation guidance. Evaluates how many containers could share each physical GPU via <code>nvidia.com/gpu.replicas</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/nodes</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Returns per-node recommendations with:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>gpu_model</code> — NVIDIA GPU model on the node</p>
+</li>
+<li>
+<p><code>recommended_replicas</code> — suggested time-slicing replica count</p>
+</li>
+<li>
+<p><code>savings_per_gpu_usd</code> / <code>total_node_savings_usd</code> — estimated cost savings</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_node_cpumemory_utilization_recommendations">Node CPU/memory utilization recommendations</h3>
+<div class="paragraph">
+<p>Node-level right-sizing based on CPU and memory utilization patterns — identifies underutilized, overcommitted, and stranded resource nodes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/nodes/utilization</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Filter by underutilized or overcommitted nodes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/nodes/utilization?is_underutilized=true
+GET /api/cost-management/v1/recommendations/openshift/nodes/utilization?is_overcommitted=true</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Returns per-node metrics including CPU/memory utilization percentiles (p50, p95), overcommit ratio, trend slope, pod count, and stranded resource detection.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_pvc_persistent_volume_claim_recommendations">PVC (Persistent Volume Claim) recommendations</h3>
+<div class="paragraph">
+<p>Right-sizing recommendations for persistent volumes — oversized, near-full, orphaned, and growth trend projection:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/pvcs</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_snapshot_staleness_recommendations">Snapshot staleness recommendations</h3>
+<div class="paragraph">
+<p>VolumeSnapshot analysis — orphaned, stale, never-restored, redundant snapshots with estimated storage savings:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/snapshots</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Snapshot staleness settings (configurable thresholds):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/settings/snapshot
+PUT /api/cost-management/v1/recommendations/openshift/settings/snapshot</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_fleet_summary">Fleet summary</h3>
+<div class="paragraph">
+<p>Cross-cluster aggregated savings, adoption rates, and top optimization opportunities:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/fleet-summary</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_recommendation_term_settings">Recommendation term settings</h3>
+<div class="paragraph">
+<p>Customers can configure their own 3 recommendation term windows (1–90 days each), replacing the fixed short (1d) / medium (7d) / long (15d) defaults:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/settings/terms
+PUT /api/cost-management/v1/recommendations/openshift/settings/terms
+DELETE /api/cost-management/v1/recommendations/openshift/settings/terms</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_recommendation_history_and_quality">Recommendation history and quality</h3>
+<div class="paragraph">
+<p>Historical tracking of recommendation changes over time:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/history</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Recommendation quality metrics (accuracy of past predictions vs actual usage):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/quality</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_forecasts">Forecasts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cost forecasts predict future spending based on historical trends.</p>
+</div>
+<div class="sect2">
+<h3 id="_openshift_cost_forecast">OpenShift cost forecast</h3>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/forecasts/openshift/costs/</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_aws_cost_forecast">AWS cost forecast</h3>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/forecasts/aws/costs/</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_azure_cost_forecast">Azure cost forecast</h3>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/forecasts/azure/costs/</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_google_cloud_cost_forecast">Google Cloud cost forecast</h3>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/forecasts/gcp/costs/</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ocp_on_cloud_cost_forecasts">OCP-on-cloud cost forecasts</h3>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/forecasts/openshift/infrastructures/all/costs/
+GET /api/cost-management/v1/forecasts/openshift/infrastructures/aws/costs/
+GET /api/cost-management/v1/forecasts/openshift/infrastructures/azure/costs/
+GET /api/cost-management/v1/forecasts/openshift/infrastructures/gcp/costs/</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_resource_types">Resource Types</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Resource type endpoints return the available values for group_by and filter parameters. Useful for building dropdowns in UIs or discovering what filter values exist.</p>
+</div>
+<div class="sect2">
+<h3 id="_openshift">OpenShift</h3>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/resource-types/openshift-clusters/
+GET /api/cost-management/v1/resource-types/openshift-projects/
+GET /api/cost-management/v1/resource-types/openshift-nodes/
+GET /api/cost-management/v1/resource-types/openshift-virtual-machines/
+GET /api/cost-management/v1/resource-types/openshift-gpu-vendors/
+GET /api/cost-management/v1/resource-types/openshift-gpu-models/</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_aws">AWS</h3>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/resource-types/aws-accounts/
+GET /api/cost-management/v1/resource-types/aws-services/
+GET /api/cost-management/v1/resource-types/aws-regions/
+GET /api/cost-management/v1/resource-types/aws-organizational-units/
+GET /api/cost-management/v1/resource-types/aws-categories/</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_azure">Azure</h3>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/resource-types/azure-subscription-guids/
+GET /api/cost-management/v1/resource-types/azure-services/
+GET /api/cost-management/v1/resource-types/azure-regions/</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_google_cloud">Google Cloud</h3>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/resource-types/gcp-accounts/
+GET /api/cost-management/v1/resource-types/gcp-projects/
+GET /api/cost-management/v1/resource-types/gcp-services/
+GET /api/cost-management/v1/resource-types/gcp-regions/</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cost_models">Cost models</h3>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/resource-types/cost-models/</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cost_distribution_fields">Cost Distribution Fields</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>OpenShift cost report responses include distributed overhead costs when a cost model has platform/worker distribution enabled:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cost_platform_distributed</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Platform project overhead distributed proportionally to user projects (by CPU or memory weighting)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cost_worker_unallocated_distributed</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Worker node unallocated capacity distributed proportionally to user projects</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cost_total</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total cost including raw + usage + markup + platform_distributed + worker_unallocated_distributed</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>These fields appear in nested form in the API JSON response (e.g. <code>cost.platform_distributed</code>, <code>cost.worker_unallocated_distributed</code>, <code>cost.total</code>).</p>
 </div>
 </div>
 </div>
@@ -1071,7 +1523,7 @@ GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&amp;filter[sourc
 </div>
 </div>
 <div class="sect2">
-<h3 id="_cost_models">Cost models</h3>
+<h3 id="_cost_models_2">Cost models</h3>
 <div class="paragraph">
 <p>List all cost models:</p>
 </div>
@@ -1133,8 +1585,10 @@ GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&amp;filter[sourc
 </div>
 </div>
 <div class="sect1">
-<h2 id="_time_scope_filters">Time Scope Filters</h2>
+<h2 id="_filtering_and_pagination">Filtering and Pagination</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_time_scope_filters">Time scope filters</h3>
 <div class="paragraph">
 <p>All cloud and OpenShift cost endpoints support the following filters:</p>
 </div>
@@ -1166,6 +1620,33 @@ GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&amp;filter[sourc
 <div class="listingblock">
 <div class="content">
 <pre>?start_date=2022-09-01&amp;end_date=2022-09-10</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_exclude_filter">Exclude filter</h3>
+<div class="paragraph">
+<p>Exclude specific values from results. Works with the same dimensions as <code>filter</code> and <code>group_by</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/reports/openshift/costs/?group_by[project]=*&amp;exclude[project]=openshift-monitoring
+GET /api/cost-management/v1/reports/aws/costs/?group_by[account]=*&amp;exclude[account]=123456789012</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_pagination">Pagination</h3>
+<div class="paragraph">
+<p>All list endpoints support <code>limit</code> and <code>offset</code> for pagination:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>?limit=10&amp;offset=0</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The response <code>meta</code> object includes <code>count</code> (total items) and <code>links</code> includes <code>first</code>, <code>next</code>, <code>previous</code>, <code>last</code> URLs.</p>
 </div>
 </div>
 </div>
@@ -1335,6 +1816,18 @@ GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&amp;filter[sourc
 <td class="tableblock halign-left valign-top"><p class="tableblock">limit</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Total hourly limit for a project/node/cluster and/or day/month depending on the query</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gpu_request</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total GPU device requests for a project/node/cluster</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gpu_limit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total GPU device limits for a project/node/cluster</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gpu_usage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total GPU utilization for a project/node/cluster (in device-hours)</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -1342,7 +1835,7 @@ GET /api/cost-management/v1/settings/tags/?filter[enabled]=true&amp;filter[sourc
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-03-20 16:11:43 +0100
+Last updated 2026-05-11 00:52:08 -0400
 </div>
 </div>
 </body>
