@@ -1,0 +1,31 @@
+meta {
+  name: GPU MIG recommendations
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/gpu/mig
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 20
+  offset: 0
+  order_by: estimated_monthly_gpu_savings_usd
+  order_how: desc
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Lists containers with MIG profile recommendations. See OpenAPI for additional filters and allowed `order_by` values.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

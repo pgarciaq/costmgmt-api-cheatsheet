@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/?cluster_uuid={{cluster_uuid}}&order_by=last_reported&order_how=desc
+  url: {{baseURL}}/recommendations/openshift?cluster_uuid={{cluster_uuid}}&order_by=last_reported&order_how=desc
   body: none
   auth: inherit
 }

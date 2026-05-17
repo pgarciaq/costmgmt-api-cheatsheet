@@ -1,0 +1,31 @@
+meta {
+  name: Node utilization — deprecated alias
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes/utilization
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 10
+  offset: 0
+  term: medium
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  DEPRECATED: Same payload as `GET .../recommendations/openshift/nodes`.
+  API sets `Deprecation: true` and `Link` to the canonical `/nodes` URL.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

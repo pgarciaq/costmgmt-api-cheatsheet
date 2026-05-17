@@ -1,0 +1,24 @@
+meta {
+  name: GPU summary (counts + links)
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/gpu
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Returns aggregate GPU recommendation counts and links to `/gpu/timeslicing` and `/gpu/mig`.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

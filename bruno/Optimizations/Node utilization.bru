@@ -1,13 +1,31 @@
 meta {
-  name: Node utilization
+  name: Node CPU/memory utilization
   type: http
   seq: 8
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/nodes/utilization
+  url: {{baseURL}}/recommendations/openshift/nodes
   body: none
   auth: inherit
+}
+
+params:query {
+  limit: 10
+  offset: 0
+  term: medium
+  ~cluster_uuid: 
+  ~node: 
+  ~is_underutilized: 
+  ~is_overcommitted: 
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Canonical path for node CPU and memory utilization recommendations (was previously documented under `/nodes/utilization`).
 }
 
 settings {

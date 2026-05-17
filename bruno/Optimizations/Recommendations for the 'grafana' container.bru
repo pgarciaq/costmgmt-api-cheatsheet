@@ -5,9 +5,17 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/318be493-405a-4e6d-b42b-b3b5cf980d49
+  url: {{baseURL}}/recommendations/openshift/{{container_id}}
   body: none
   auth: inherit
+}
+
+params:query {
+  : {{container_id}}
+}
+
+vars:pre-request {
+  container_id: a9c994cc-8a5f-5ac6-80bb-5712d86d6dfa
 }
 
 settings {

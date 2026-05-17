@@ -446,7 +446,9 @@ GET /api/cost-management/v1/recommendations/openshift/namespace/{recommendation_
 
 === NVIDIA MIG (Multi-Instance GPU) recommendations
 
-MIG bin-packing recommendations are part of the container detail response. When a container uses a MIG-capable GPU (A100, H100, H200, B200), the response includes a `gpu` object with:
+MIG bin-packing recommendations appear in the container detail response and in a dedicated list endpoint.
+
+Detail response — when a container uses a MIG-capable GPU (A100, H100, H200, B200), the response includes a `gpu` object with:
 
 * `current_gpu_model` / `current_gpu_profile` — what the container currently uses
 * `recommended_gpu_profile` — smallest MIG profile whose resources cover p95 usage
@@ -457,12 +459,32 @@ MIG bin-packing recommendations are part of the container detail response. When 
 GET /api/cost-management/v1/recommendations/openshift/{recommendation_uuid}
 ----
 
+List containers that have a non-full-GPU MIG recommendation:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/gpu/mig
+GET /api/cost-management/v1/recommendations/openshift/gpu/mig?limit=20&offset=0
+GET /api/cost-management/v1/recommendations/openshift/gpu/mig?order_by=estimated_monthly_gpu_savings_usd&order_how=desc
+----
+
+Supports pagination (`limit`, `offset`, capped by the API max), sorting (`order_by`, `order_how`), and filters consistent with the OpenAPI spec for this route.
+
+=== GPU recommendations hub (summary)
+
+Lightweight counts plus absolute links to the time-slicing and MIG listing endpoints:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/gpu
+----
+
 === NVIDIA GPU time-slicing recommendations
 
 Node-level GPU time-slicing consolidation guidance. Evaluates how many containers could share each physical GPU via `nvidia.com/gpu.replicas`:
 
 ----
-GET /api/cost-management/v1/recommendations/openshift/nodes
+GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing
+GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing?limit=25&offset=0
+GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing?node_name=my-gpu-node&gpu_model=T4
 ----
 
 Returns per-node recommendations with:
@@ -476,17 +498,29 @@ Returns per-node recommendations with:
 Node-level right-sizing based on CPU and memory utilization patterns — identifies underutilized, overcommitted, and stranded resource nodes:
 
 ----
-GET /api/cost-management/v1/recommendations/openshift/nodes/utilization
+GET /api/cost-management/v1/recommendations/openshift/nodes
+GET /api/cost-management/v1/recommendations/openshift/nodes?limit=10&offset=0
+GET /api/cost-management/v1/recommendations/openshift/nodes?term=medium
 ----
 
-Filter by underutilized or overcommitted nodes:
+Optional filters: `cluster_uuid`, `node`, `is_underutilized`, `is_overcommitted`.
 
 ----
-GET /api/cost-management/v1/recommendations/openshift/nodes/utilization?is_underutilized=true
-GET /api/cost-management/v1/recommendations/openshift/nodes/utilization?is_overcommitted=true
+GET /api/cost-management/v1/recommendations/openshift/nodes?is_underutilized=true
+GET /api/cost-management/v1/recommendations/openshift/nodes?is_overcommitted=true
 ----
 
 Returns per-node metrics including CPU/memory utilization percentiles (p50, p95), overcommit ratio, trend slope, pod count, and stranded resource detection.
+
+==== Deprecated path (backward compatibility)
+
+Historically, `/recommendations/openshift/nodes` served GPU time-slicing listings; that behavior now lives under `/recommendations/openshift/gpu/timeslicing`. The old CPU/memory listing path was `/recommendations/openshift/nodes/utilization`.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/nodes/utilization
+----
+
+Deprecated alias for `GET /api/cost-management/v1/recommendations/openshift/nodes`. Responses include a `Deprecation` header and a `Link` header pointing at the canonical `/nodes` URL.
 
 === PVC (Persistent Volume Claim) recommendations
 

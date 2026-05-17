@@ -1,13 +1,30 @@
 meta {
-  name: Node GPU time-slicing
+  name: GPU time-slicing recommendations
   type: http
   seq: 7
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/nodes
+  url: {{baseURL}}/recommendations/openshift/gpu/timeslicing
   body: none
   auth: inherit
+}
+
+params:query {
+  limit: 20
+  offset: 0
+  ~node_name:
+  ~gpu_model:
+  ~cluster_uuid:
+  ~term: medium
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Node-level GPU time-slicing recommendations. Evaluates how many containers could share each physical GPU via `nvidia.com/gpu.replicas`. Previously served at `/recommendations/openshift/nodes` (now repurposed for CPU/memory utilization).
 }
 
 settings {
