@@ -1,0 +1,27 @@
+meta {
+  name: PUT Settings Thresholds - PVC
+  type: http
+  seq: 29
+}
+
+put {
+  url: {{baseURL}}/recommendations/openshift/settings/thresholds?recommendation_type=pvc
+  body: json
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  content-type: application/json
+}
+
+body:json {
+  {
+    "oversized_threshold": 0.25
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

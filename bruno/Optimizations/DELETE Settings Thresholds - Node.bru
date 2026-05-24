@@ -1,0 +1,20 @@
+meta {
+  name: DELETE Settings Thresholds - Node
+  type: http
+  seq: 24
+}
+
+delete {
+  url: {{baseURL}}/recommendations/openshift/settings/thresholds?recommendation_type=node
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

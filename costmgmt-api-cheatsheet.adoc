@@ -563,6 +563,160 @@ PUT /api/cost-management/v1/recommendations/openshift/settings/terms
 DELETE /api/cost-management/v1/recommendations/openshift/settings/terms
 ----
 
+=== Recommendation threshold settings
+
+Per-organization sizing and classification thresholds for each recommendation plugin. The required query parameter `recommendation_type` accepts `container`, `namespace`, `node`, `gpu`, or `pvc`. PUT accepts partial updates; DELETE removes tenant overrides so environment and compiled defaults apply. Fields locked by environment variables are listed in `locked_fields` and return `403` if modified via the API.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/thresholds?recommendation_type={container|namespace|node|gpu|pvc}
+PUT /api/cost-management/v1/recommendations/openshift/settings/thresholds?recommendation_type={container|namespace|node|gpu|pvc}
+DELETE /api/cost-management/v1/recommendations/openshift/settings/thresholds?recommendation_type={container|namespace|node|gpu|pvc}
+----
+
+==== Container and namespace (`recommendation_type=container` or `namespace`)
+
+Container and namespace share the same response shape. Namespace defaults use a higher `mem_trend_slope_threshold` (500.0 vs 100.0 for containers).
+
+GET/PUT response (`recommendation_type=container`):
+
+[source,json]
+----
+{
+  "cpu_cost_percentile": 0.60,
+  "cpu_perf_percentile": 0.98,
+  "mem_cost_percentile": 0.95,
+  "mem_perf_percentile": 1.0,
+  "min_margin": 1.15,
+  "max_margin": 1.50,
+  "limit_multiplier": 1.05,
+  "cpu_floor_mc": 25,
+  "idle_cpu_threshold_mc": 10,
+  "idle_mem_threshold_kib": 10240,
+  "mem_trend_slope_threshold": 100.0,
+  "low_confidence_threshold": 0.5,
+  "locked_fields": []
+}
+----
+
+GET response (`recommendation_type=namespace`) — same fields, higher memory trend threshold:
+
+[source,json]
+----
+{
+  "cpu_cost_percentile": 0.60,
+  "cpu_perf_percentile": 0.98,
+  "mem_cost_percentile": 0.95,
+  "mem_perf_percentile": 1.0,
+  "min_margin": 1.15,
+  "max_margin": 1.50,
+  "limit_multiplier": 1.05,
+  "cpu_floor_mc": 25,
+  "idle_cpu_threshold_mc": 10,
+  "idle_mem_threshold_kib": 10240,
+  "mem_trend_slope_threshold": 500.0,
+  "low_confidence_threshold": 0.5,
+  "locked_fields": []
+}
+----
+
+Example PUT (container — override CPU percentile):
+
+[source,json]
+----
+{
+  "cpu_cost_percentile": 0.65
+}
+----
+
+==== Node (`recommendation_type=node`)
+
+[source,json]
+----
+{
+  "underutil_threshold": 0.30,
+  "overcommit_threshold": 1.50,
+  "allocatable_factor": 0.93,
+  "stranded_imbalance_threshold": 0.60,
+  "ema_alpha": 0.30,
+  "cost_target_utilization": 0.80,
+  "perf_target_utilization": 0.55,
+  "perf_consolidation_headroom_multiplier": 2.0,
+  "trend_min_days": 3,
+  "locked_fields": []
+}
+----
+
+Example PUT (node — override underutilization threshold):
+
+[source,json]
+----
+{
+  "underutil_threshold": 0.35
+}
+----
+
+==== GPU (`recommendation_type=gpu`)
+
+[source,json]
+----
+{
+  "idle_threshold": 0.02,
+  "underutilized_sm_threshold": 0.25,
+  "underutilized_tensor_threshold": 0.15,
+  "membound_dram_threshold": 0.60,
+  "membound_tensor_threshold": 0.15,
+  "fb_headroom_factor": 1.20,
+  "compute_bound_dram_threshold": 0.30,
+  "mig_fb_percentile": 0.98,
+  "confidence_days_tier1": 3,
+  "confidence_days_tier2": 7,
+  "confidence_days_tier3": 14,
+  "spike_ratio_threshold": 5.0,
+  "spike_confidence_penalty": 0.70,
+  "no_profiling_confidence_factor": 0.50,
+  "timeslicing_majority_threshold": 0.50,
+  "timeslicing_min_replicas": 2,
+  "timeslicing_max_replicas": 8,
+  "timeslicing_base_penalty": 0.70,
+  "timeslicing_impacted_weight": 0.30,
+  "node_freshness_days": 7,
+  "locked_fields": []
+}
+----
+
+Example PUT (GPU — override idle threshold):
+
+[source,json]
+----
+{
+  "idle_threshold": 0.03
+}
+----
+
+==== PVC (`recommendation_type=pvc`)
+
+[source,json]
+----
+{
+  "oversized_threshold": 0.20,
+  "near_full_threshold": 0.85,
+  "min_trend_days": 7,
+  "recommended_size_multiplier": 2,
+  "min_recommended_gib": 1,
+  "days_to_full_alert": 30,
+  "locked_fields": []
+}
+----
+
+Example PUT (PVC — override oversized threshold):
+
+[source,json]
+----
+{
+  "oversized_threshold": 0.25
+}
+----
+
 === Recommendation history and quality
 
 Historical tracking of recommendation changes over time:

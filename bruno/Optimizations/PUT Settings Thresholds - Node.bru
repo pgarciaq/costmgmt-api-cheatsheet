@@ -1,0 +1,27 @@
+meta {
+  name: PUT Settings Thresholds - Node
+  type: http
+  seq: 23
+}
+
+put {
+  url: {{baseURL}}/recommendations/openshift/settings/thresholds?recommendation_type=node
+  body: json
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  content-type: application/json
+}
+
+body:json {
+  {
+    "underutil_threshold": 0.35
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
