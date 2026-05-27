@@ -1,0 +1,20 @@
+meta {
+  name: Fleet summary by idle state
+  type: http
+  seq: 25
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/savings-summary?group_by[idle_state]=*
+  body: none
+  auth: inherit
+}
+
+params:query {
+  group_by[idle_state]: *
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

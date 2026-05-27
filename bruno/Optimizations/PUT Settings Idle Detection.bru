@@ -1,0 +1,41 @@
+meta {
+  name: PUT Settings Idle Detection
+  type: http
+  seq: 23
+}
+
+put {
+  url: {{baseURL}}/recommendations/openshift/settings/idle-detection
+  body: json
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  content-type: application/json
+}
+
+body:json {
+  {
+    "idle_detection": {
+      "enabled": true,
+      "thresholds": {
+        "cpu_utilization_percent": 2,
+        "memory_utilization_percent": 5,
+        "burst_ratio": 10,
+        "minimum_observation_days": 14,
+        "gpu_sm_active_basis_points": 500,
+        "gpu_dram_active_basis_points": 500
+      },
+      "exclusions": {
+        "namespaces": ["kube-system", "openshift-*"],
+        "workload_types": ["DaemonSet"]
+      }
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

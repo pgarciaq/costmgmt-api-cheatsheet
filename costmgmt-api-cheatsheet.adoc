@@ -414,6 +414,12 @@ GET /api/cost-management/v1/recommendations/openshift/?gpu_model=A100
 GET /api/cost-management/v1/recommendations/openshift/?gpu_classification=underutilized
 ----
 
+Filter by idle state (`active`, `idle`, or `zombie`; comma-separated values are ORed):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/?filter[idle_state]=zombie,idle
+----
+
 Sort by last reported or total savings:
 
 ----
@@ -716,6 +722,152 @@ Example PUT (PVC — override oversized threshold):
   "oversized_threshold": 0.25
 }
 ----
+
+=== Idle and zombie detection
+
+Classifies containers as `active`, `idle` (low request-relative utilization), or `zombie` (near-zero CPU with sustained observation). Idle workloads expose waste and terminate guidance on list/detail responses; rightsizing savings are omitted when `idle_state` is not `active`.
+
+==== Idle detection settings
+
+Per-organization idle detection configuration. PUT accepts partial updates inside `idle_detection`; DELETE removes tenant overrides and restores environment/compiled defaults. Fields locked by environment variables appear in `locked_fields` and return `403` if modified via the API.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/idle-detection
+PUT /api/cost-management/v1/recommendations/openshift/settings/idle-detection
+DELETE /api/cost-management/v1/recommendations/openshift/settings/idle-detection
+----
+
+GET response:
+
+[source,json]
+----
+{
+  "idle_detection": {
+    "enabled": true,
+    "thresholds": {
+      "cpu_utilization_percent": 2,
+      "memory_utilization_percent": 5,
+      "burst_ratio": 10,
+      "minimum_observation_days": 14,
+      "gpu_sm_active_basis_points": 500,
+      "gpu_dram_active_basis_points": 500
+    },
+    "exclusions": {
+      "namespaces": ["kube-system", "openshift-*"],
+      "workload_types": ["DaemonSet"]
+    }
+  },
+  "locked_fields": []
+}
+----
+
+Example PUT (enable idle detection with custom thresholds and exclusions):
+
+[source,json]
+----
+{
+  "idle_detection": {
+    "enabled": true,
+    "thresholds": {
+      "cpu_utilization_percent": 2,
+      "memory_utilization_percent": 5,
+      "burst_ratio": 10,
+      "minimum_observation_days": 14,
+      "gpu_sm_active_basis_points": 500,
+      "gpu_dram_active_basis_points": 500
+    },
+    "exclusions": {
+      "namespaces": ["kube-system", "openshift-*"],
+      "workload_types": ["DaemonSet"]
+    }
+  }
+}
+----
+
+==== Container list response fields
+
+When idle detection is enabled, each container recommendation row may include:
+
+[cols="1,3"]
+|===
+|Field |Definition
+
+|idle_state
+|Classification: `active`, `idle`, or `zombie`
+
+|idle_since
+|ISO date (`YYYY-MM-DD`) when the workload entered the current idle state
+
+|idle_duration_days
+|Days in the current `idle_state`
+
+|peak_cpu_millicores
+|Peak CPU usage (millicores) observed in the observation window
+
+|peak_memory_bytes
+|Peak memory usage (bytes) observed in the observation window
+
+|estimated_monthly_waste
+|Monthly cost of retained resources for idle/zombie workloads (same `{value, units}` shape as savings fields; 6-decimal string + `USD`)
+
+|idle_recommendation
+|Terminate guidance when `idle_state` is `idle` or `zombie` (`action`, `confidence`, `reason`)
+|===
+
+Example list row (idle/zombie):
+
+[source,json]
+----
+{
+  "idle_state": "zombie",
+  "idle_since": "2026-04-15",
+  "idle_duration_days": 42,
+  "peak_cpu_millicores": 2,
+  "peak_memory_bytes": 52428800,
+  "estimated_monthly_waste": {
+    "value": "89.500000",
+    "units": "USD"
+  },
+  "idle_recommendation": {
+    "action": "terminate",
+    "confidence": "high",
+    "reason": "No meaningful CPU or memory activity for 42 days"
+  }
+}
+----
+
+Omit `idle_recommendation` when `idle_state=active`. Omit `estimated_monthly_waste` when savings estimates are disabled or cost data is unavailable. Omit `estimated_monthly_savings` when `idle_state` is not `active` (rightsizing delta is not actionable for idle workloads).
+
+==== Savings summary by idle state
+
+Group fleet idle waste by state (query value is ignored; use `*`):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/savings-summary?group_by[idle_state]=*
+----
+
+Response (`FleetSavingsByIdleStateResponse`):
+
+[source,json]
+----
+{
+  "meta": { "count": 2 },
+  "data": [
+    {
+      "idle_state": "zombie",
+      "estimated_monthly_waste": { "value": "4200.000000", "units": "USD" },
+      "container_count": 12
+    },
+    {
+      "idle_state": "idle",
+      "estimated_monthly_waste": { "value": "8250.000000", "units": "USD" },
+      "container_count": 35
+    }
+  ]
+}
+----
+
+Report rightsizing savings and idle waste separately on dashboards so totals are not double-counted (idle = eliminate workload; rightsizing = reduce requests).
 
 === Recommendation history and quality
 
