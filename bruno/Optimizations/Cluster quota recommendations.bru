@@ -1,0 +1,16 @@
+meta {
+  name: Cluster quota recommendations
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/cluster-quota?filter[recommendation_type]=tighten&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
