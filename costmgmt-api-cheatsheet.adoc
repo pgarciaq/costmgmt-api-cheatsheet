@@ -597,6 +597,27 @@ Example response snippet:
 
 Requires the `quota` plugin (`ROS_ENABLED_PLUGINS`); when disabled the route returns `404`.
 
+Quota recommendation settings (per-organization thresholds; env vars lock fields in `locked_fields`):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/quota
+PUT /api/cost-management/v1/recommendations/openshift/settings/quota
+DELETE /api/cost-management/v1/recommendations/openshift/settings/quota
+----
+
+Example GET/PUT body:
+
+[source,json]
+----
+{
+  "headroom_percent": 10,
+  "high_risk_threshold_percent": 90,
+  "medium_risk_threshold_percent": 70
+}
+----
+
+PUT validation: `headroom_percent` 0–100; `high_risk_threshold_percent` 1–100 and greater than `medium_risk_threshold_percent`; `medium_risk_threshold_percent` 1–99. DELETE removes per-org overrides (falls back to `ROS_QUOTA_*` env or defaults 10/90/70).
+
 === Snapshot staleness recommendations
 
 VolumeSnapshot analysis — orphaned, stale, never-restored, redundant snapshots with estimated storage savings:
