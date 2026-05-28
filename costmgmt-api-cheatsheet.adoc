@@ -536,6 +536,67 @@ Right-sizing recommendations for persistent volumes — oversized, near-full, or
 GET /api/cost-management/v1/recommendations/openshift/pvcs
 ----
 
+=== ResourceQuota recommendations
+
+Namespace-level Kubernetes `ResourceQuota` right-sizing (distinct from namespace CPU/memory usage recommendations). Compares configured quota hard limits and used consumption against aggregated container recommendation totals.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/quota/
+GET /api/cost-management/v1/recommendations/openshift/quota/?filter[cluster]=550e8400-e29b-41d4-a716-446655440000
+GET /api/cost-management/v1/recommendations/openshift/quota/?filter[project]=production
+GET /api/cost-management/v1/recommendations/openshift/quota/?filter[recommendation_type]=tighten&filter[risk_level]=low
+GET /api/cost-management/v1/recommendations/openshift/quota/?group_by[cluster]=true&limit=20&offset=0
+----
+
+Available filters:
+
+* `filter[cluster]` — cluster UUID (exact match)
+* `filter[project]` — namespace name (exact match)
+* `filter[recommendation_type]` — `tighten`, `raise`, or `optimal`
+* `filter[risk_level]` — `high`, `medium`, or `low`
+* `group_by[cluster]` or `group_by[project]` — aggregate rows (mutually exclusive)
+* `limit` (1–100, default 20), `offset` (default 0)
+
+Example request:
+
+[source,bash]
+----
+curl -s -H "x-rh-identity: ${IDENTITY}" \
+  'http://localhost:8000/api/cost-management/v1/recommendations/openshift/quota/?filter[recommendation_type]=tighten&limit=10'
+----
+
+Example response snippet:
+
+[source,json]
+----
+{
+  "meta": { "count": 1, "limit": 10, "offset": 0, "currency": "USD" },
+  "links": { "first": "...", "last": "..." },
+  "data": [
+    {
+      "cluster_uuid": "550e8400-e29b-41d4-a716-446655440001",
+      "namespace": "production",
+      "recommendation_type": "tighten",
+      "risk_level": "low",
+      "quota_hard": {
+        "cpu_request_millicores": 100000,
+        "cpu_limit_millicores": null,
+        "memory_request_bytes": null,
+        "memory_limit_bytes": null
+      },
+      "quota_used": { "cpu_request_millicores": 25000 },
+      "quota_recommended": { "cpu_request_millicores": 36000 },
+      "utilization": { "cpu_request_percent": 25.0 },
+      "capacity_freed": { "cpu_millicores": 64000, "memory_bytes": 0 },
+      "estimated_savings": { "value": "12.340000", "units": "USD" },
+      "last_observed_at": "2026-05-28T12:00:00Z"
+    }
+  ]
+}
+----
+
+Requires the `quota` plugin (`ROS_ENABLED_PLUGINS`); when disabled the route returns `404`.
+
 === Snapshot staleness recommendations
 
 VolumeSnapshot analysis — orphaned, stale, never-restored, redundant snapshots with estimated storage savings:

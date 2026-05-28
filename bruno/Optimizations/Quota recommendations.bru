@@ -1,0 +1,16 @@
+meta {
+  name: Quota recommendations
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/quota?filter[recommendation_type]=tighten&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
