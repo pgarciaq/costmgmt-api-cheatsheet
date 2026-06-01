@@ -766,6 +766,8 @@ Filters (`filter[...]` or legacy query names where noted):
 
 Each list item includes `metadata.is_network_bound` (`true` when sustained network metrics qualify the VM for **n1** network-optimized instance types). Use `filter[is_network_bound]=true` or `false` to narrow the list server-side.
 
+Placement metadata (no list filters yet): `metadata.is_redundant_placement` (code **60**), `metadata.has_shared_storage` (code **62**), `metadata.numa_oversized` (code **63**). Code **61** is uneven node distribution (notification only).
+
 `order_by` (default `vm_name`): `vm_name`, `namespace`, `current_vcpu`, `current_memory_gib`, `guest_os`, `recommended_vcpu`, `recommended_memory_gib`, `is_idle`, `is_abandoned`, `is_oversized`, `confidence`, `last_recommended_at`. Use `order_how=asc` or `desc`.
 
 ==== VM detail
@@ -810,6 +812,9 @@ Example detail response (CPU/memory/disk sizing in `current` / `recommended`; GP
     "is_abandoned": false,
     "is_oversized": true,
     "is_network_bound": true,
+    "is_redundant_placement": false,
+    "has_shared_storage": false,
+    "numa_oversized": false,
     "preference_name": "small",
     "preference_class": "virtualmachineclusterpreference"
   },
@@ -946,11 +951,26 @@ Example GET response:
     "gpu_timeslice_fb_safety_threshold_bp": 8000,
     "gpu_timeslice_dram_penalty_threshold_bp": 5000
   },
+  "placement": {
+    "enable_placement_checks": true,
+    "placement_skew_ratio": 3,
+    "enable_shared_pvc_correlation": true,
+    "numa_node_memory_gib": 64
+  },
   "instance_type_matching": true,
   "locked_fields": [],
   "settings_locked": false
 }
 ----
+
+`placement` — cluster placement, correlated workloads, and NUMA fit (notifications **60**–**63**):
+
+* `enable_placement_checks` — same-node redundancy and node skew (default `true`)
+* `placement_skew_ratio` — max:min VM count per node before skew notification **61** (default `3`)
+* `enable_shared_pvc_correlation` — correlated profile peers in namespace (default `true`)
+* `numa_node_memory_gib` — single-NUMA memory cap for code **63** (default `64`)
+
+Env locks: `ROS_VM_ENABLE_PLACEMENT_CHECKS`, `ROS_VM_PLACEMENT_SKEW_RATIO`, `ROS_VM_ENABLE_SHARED_PVC_CORRELATION`, `ROS_VM_NUMA_NODE_MEMORY_GIB`.
 
 `network` — n1 network-optimized classification (defaults shown above):
 
@@ -1009,7 +1029,7 @@ Example PUT (partial update — I/O pattern, GPU classification, network, and ti
 
 `history_retention_days` is read-only (set by `ROS_VM_REC_HISTORY_RETENTION_DAYS`). DELETE removes per-org VM settings overrides (`204 No Content`).
 
-==== VM notification codes (55–59)
+==== VM notification codes (55–63)
 
 VM list/detail `notifications` arrays use lowercase `type` (`info`, `warning`, `critical`) and numeric `code`:
 
@@ -1020,6 +1040,10 @@ VM list/detail `notifications` arrays use lowercase `type` (`info`, `warning`, `
 | 57 | `VM_GPU_TIMESLICE_UNSAFE_FB` | warning | Frame-buffer usage too high for safe shared vGPU time-slicing |
 | 58 | `VM_IO_SEQUENTIAL` | info | `io_profile.pattern` is `sequential` — consider storage optimized for throughput |
 | 59 | `VM_IO_RANDOM` | info | `io_profile.pattern` is `random` — consider storage optimized for IOPS |
+| 60 | `VM_REDUNDANT_COLOCATION` | warning | `metadata.is_redundant_placement` is `true` — same-profile peers on same node |
+| 61 | `VM_UNEVEN_NODE_DISTRIBUTION` | info | Uneven spread of profile VMs across nodes |
+| 62 | `VM_SHARED_STORAGE` | info | `metadata.has_shared_storage` is `true` — correlated workload group |
+| 63 | `VM_NUMA_OVERSIZED` | warning | `metadata.numa_oversized` is `true` — memory exceeds `placement.numa_node_memory_gib` |
 
 ==== VM term settings
 

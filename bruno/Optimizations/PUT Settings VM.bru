@@ -41,6 +41,10 @@ body:json {
       "gpu_timeslice_max_replicas": 8,
       "gpu_timeslice_fb_safety_threshold_bp": 7500,
       "gpu_timeslice_dram_penalty_threshold_bp": 5000
+    },
+    "placement": {
+      "placement_skew_ratio": 4,
+      "numa_node_memory_gib": 48
     }
   }
 }
@@ -48,7 +52,7 @@ body:json {
 docs {
   Partial PUT for VM settings. `io` thresholds drive `io_profile.pattern` (sequential/random/mixed/low-io)
   and notifications 58/59. `gpu` classification thresholds drive VM GPU notifications 50–54;
-  time-slicing fields control codes 56–57.
+  time-slicing fields control codes 56–57. `placement` controls redundancy/NUMA checks (60–63).
 }
 
 settings {

@@ -16,7 +16,7 @@ headers {
 
 docs {
   VM sizing thresholds plus `io` (I/O profiling and pattern classification), `network` (n1 network-optimized),
-  and `gpu` (classification + vGPU time-slicing).
+  `gpu` (classification + vGPU time-slicing), and `placement` (codes 60–63).
 
   Example `io` defaults: high_iops_threshold=3000, sequential_threshold_bytes=65536,
   random_threshold_bytes=16384, min_iops_for_classification=100.
@@ -27,6 +27,9 @@ docs {
 
   Network defaults: throughput_threshold_bps=62500000, pps_threshold=100000, drop_ratio_bp=10,
   sustained_days=7, enable_network_series=true.
+
+  Placement defaults: enable_placement_checks=true, placement_skew_ratio=3,
+  enable_shared_pvc_correlation=true, numa_node_memory_gib=64.
 }
 
 settings {
