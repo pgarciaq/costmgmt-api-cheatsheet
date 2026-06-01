@@ -1,0 +1,33 @@
+meta {
+  name: Cluster quota recommendations filters
+  type: http
+  seq: 58
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/cluster-quota?filter[namespace]=crq-e2e-ns&filter[recommendation_type]=tighten&filter[risk_level]=high&order_by=utilization&order_how=desc&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  List filters (repeatable filter[] keys also work):
+  - filter[namespace] or filter[project] — CRQs whose namespaces membership includes the value
+  - filter[cluster] — cluster UUID
+  - filter[cluster_quota_name] — aliases: filter[cluster_resource_quota], filter[crq]
+  - filter[recommendation_type] — tighten | raise | optimal | none
+  - filter[risk_level] — high | medium | low | none
+
+  Sorting:
+  - order_by=cluster_quota_name | utilization | risk_level | estimated_monthly_savings
+  - order_how=asc | desc (default desc)
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

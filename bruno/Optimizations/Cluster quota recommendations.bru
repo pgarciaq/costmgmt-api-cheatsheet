@@ -10,6 +10,16 @@ get {
   auth: inherit
 }
 
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Paginated list of ClusterResourceQuota recommendations.
+  See "Cluster quota recommendations filters.bru" for filter[namespace], filter[risk_level], and order_by examples.
+  Response rows include namespaces[] membership when populated by the operator.
+}
+
 settings {
   encodeUrl: true
   timeout: 0
