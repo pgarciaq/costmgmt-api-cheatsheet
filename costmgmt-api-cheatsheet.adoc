@@ -104,18 +104,6 @@ Optionally filter by cluster:
 GET /api/cost-management/v1/reports/openshift/resources/virtual-machines/?filter[exact:cluster]=CLUSTER_UUID
 ----
 
-=== GPU costs
-
-----
-GET /api/cost-management/v1/reports/openshift/gpu/
-----
-
-GPU costs by MIG profile:
-
-----
-GET /api/cost-management/v1/reports/openshift/gpu/mig_profiles/
-----
-
 === CPU
 
 ----
@@ -138,6 +126,18 @@ Storage volumes for a specific project (e.g. `cost-management`):
 
 ----
 GET /api/cost-management/v1/reports/openshift/volumes/?filter[exact:project]=cost-management&group_by[storageclass]=*
+----
+
+=== GPU costs
+
+----
+GET /api/cost-management/v1/reports/openshift/gpu/
+----
+
+GPU costs by MIG profile:
+
+----
+GET /api/cost-management/v1/reports/openshift/gpu/mig_profiles/
 ----
 
 === Breakdown page: costs for a cluster
@@ -372,7 +372,16 @@ See tag values directly for a specific key by appending the key ("my-tag-key") t
 GET /api/cost-management/v1/tags/openshift/my-tag-key/
 ----
 
-== Optimizations (Resource Optimization Service)
+== Optimizations (Resource Optimization for OpenShift)
+
+=== Fleet summary
+
+Cross-cluster aggregated savings, adoption rates, and top optimization opportunities:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/fleet-summary
+----
+
 
 === Container recommendations
 
@@ -450,7 +459,15 @@ Detail for a specific namespace recommendation:
 GET /api/cost-management/v1/recommendations/openshift/namespace/{recommendation_uuid}
 ----
 
-=== NVIDIA MIG (Multi-Instance GPU) recommendations
+=== GPU recommendations hub (summary)
+
+Lightweight counts plus absolute links to the time-slicing and MIG listing endpoints:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/gpu
+----
+
+==== NVIDIA MIG (Multi-Instance GPU) recommendations
 
 MIG bin-packing recommendations appear in the container detail response and in a dedicated list endpoint.
 
@@ -475,15 +492,8 @@ GET /api/cost-management/v1/recommendations/openshift/gpu/mig?order_by=estimated
 
 Supports pagination (`limit`, `offset`, capped by the API max), sorting (`order_by`, `order_how`), and filters consistent with the OpenAPI spec for this route.
 
-=== GPU recommendations hub (summary)
 
-Lightweight counts plus absolute links to the time-slicing and MIG listing endpoints:
-
-----
-GET /api/cost-management/v1/recommendations/openshift/gpu
-----
-
-=== NVIDIA GPU time-slicing recommendations
+==== NVIDIA GPU time-slicing recommendations
 
 Node-level GPU time-slicing consolidation guidance. Evaluates how many containers could share each physical GPU via `nvidia.com/gpu.replicas`:
 
@@ -518,15 +528,15 @@ GET /api/cost-management/v1/recommendations/openshift/nodes?is_overcommitted=tru
 
 Returns per-node metrics including CPU/memory utilization percentiles (p50, p95), overcommit ratio, trend slope, pod count, and stranded resource detection.
 
-==== Deprecated path (backward compatibility)
-
-Historically, `/recommendations/openshift/nodes` served GPU time-slicing listings; that behavior now lives under `/recommendations/openshift/gpu/timeslicing`. The old CPU/memory listing path was `/recommendations/openshift/nodes/utilization`.
-
-----
-GET /api/cost-management/v1/recommendations/openshift/nodes/utilization
-----
-
-Deprecated alias for `GET /api/cost-management/v1/recommendations/openshift/nodes`. Responses include a `Deprecation` header and a `Link` header pointing at the canonical `/nodes` URL.
+//==== Deprecated path (backward compatibility)
+//
+//Historically, `/recommendations/openshift/nodes` served GPU time-slicing listings; that behavior now lives under `/recommendations/openshift/gpu/timeslicing`. The old CPU/memory listing path was `/recommendations/openshift/nodes/utilization`.
+//
+//----
+//GET /api/cost-management/v1/recommendations/openshift/nodes/utilization
+//----
+//
+//Deprecated alias for `GET /api/cost-management/v1/recommendations/openshift/nodes`. Responses include a `Deprecation` header and a `Link` header pointing at the canonical `/nodes` URL.
 
 === PVC (Persistent Volume Claim) recommendations
 
@@ -956,14 +966,6 @@ Example GET response:
   ],
   "settings_locked": false
 }
-----
-
-=== Fleet summary
-
-Cross-cluster aggregated savings, adoption rates, and top optimization opportunities:
-
-----
-GET /api/cost-management/v1/recommendations/openshift/fleet-summary
 ----
 
 === Recommendation term settings
