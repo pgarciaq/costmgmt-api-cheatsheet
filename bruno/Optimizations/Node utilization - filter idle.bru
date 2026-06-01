@@ -1,0 +1,24 @@
+meta {
+  name: Node utilization - filter idle
+  type: http
+  seq: 8.1
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[idle_state]=idle
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Nodes classified as idle (low CPU/memory utilization vs allocatable, moderate pod count).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

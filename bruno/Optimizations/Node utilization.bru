@@ -18,6 +18,7 @@ params:query {
   ~node: 
   ~is_underutilized: 
   ~is_overcommitted: 
+  ~filter[idle_state]: zombie
 }
 
 headers {
@@ -26,6 +27,14 @@ headers {
 
 docs {
   Canonical path for node CPU and memory utilization recommendations (was previously documented under `/nodes/utilization`).
+
+  Response includes `classification.idle_state` (`active`, `idle`, `zombie`) and per-engine `node_count_reduction`.
+  When the operator sends `instance_type`, consolidation is fleet-aware (grouped by instance type), not a single binary per cluster.
+
+  Examples:
+  - `filter[idle_state]=idle` — lightly used nodes
+  - `filter[idle_state]=zombie` — near-empty nodes (notification code 15)
+  - `filter[idle_state]=zombie,idle` — combine states
 }
 
 settings {
