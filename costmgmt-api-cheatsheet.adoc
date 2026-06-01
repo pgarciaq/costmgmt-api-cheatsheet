@@ -764,7 +764,7 @@ Filters (`filter[...]` or legacy query names where noted):
 | `is_idle`, `is_abandoned`, `is_oversized`, `guest_agent_detected`, `has_gpu` | `true` or `false` |
 | `gpu_classification` | Comma-separated GPU classes (e.g. `idle`, `underutilized`) |
 
-Each list item includes `metadata.is_network_bound` (`true` when sustained network metrics qualify the VM for **n1** network-optimized instance types). Server-side `filter[is_network_bound]` is not implemented; filter client-side on that field if needed.
+Each list item includes `metadata.is_network_bound` (`true` when sustained network metrics qualify the VM for **n1** network-optimized instance types). Use `filter[is_network_bound]=true` or `false` to narrow the list server-side.
 
 `order_by` (default `vm_name`): `vm_name`, `namespace`, `current_vcpu`, `current_memory_gib`, `guest_os`, `recommended_vcpu`, `recommended_memory_gib`, `is_idle`, `is_abandoned`, `is_oversized`, `confidence`, `last_recommended_at`. Use `order_how=asc` or `desc`.
 
