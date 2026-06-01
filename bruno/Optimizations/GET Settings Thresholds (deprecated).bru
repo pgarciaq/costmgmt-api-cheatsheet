@@ -1,0 +1,25 @@
+meta {
+  name: GET Settings Thresholds (deprecated)
+  type: http
+  seq: 26
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/settings/thresholds?recommendation_type=container
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Deprecated alias for GET /settings/container.
+  Expect Deprecation: true and Link: </api/cost-management/v1/recommendations/openshift/settings/container>; rel="successor-version"
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

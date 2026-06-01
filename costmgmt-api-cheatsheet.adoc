@@ -992,9 +992,33 @@ GET responses include `settings_locked: true` and `locked_fields: ["*"]`. Per-pl
 
 === Recommendation threshold settings
 
-Per-organization sizing and classification thresholds for container, namespace, node, GPU, and PVC plugins. OpenShift Virtualization (VM) thresholds are configured via `/settings/vm` (see <<OpenShift Virtualization (VM) recommendations>>), not this endpoint.
+Per-organization sizing and classification thresholds for container, namespace, node, GPU, and PVC plugins. OpenShift Virtualization (VM) thresholds are configured via `/settings/vm` (see <<OpenShift Virtualization (VM) recommendations>>), not these endpoints.
 
-The required query parameter `recommendation_type` accepts `container`, `namespace`, `node`, `gpu`, or `pvc`. PUT accepts partial updates; DELETE removes tenant overrides so environment and compiled defaults apply. Fields locked by environment variables are listed in `locked_fields` and return `403` if modified via the API.
+Each plugin has a dedicated path (no query parameter). PUT accepts partial updates; DELETE removes tenant overrides so environment and compiled defaults apply. Fields locked by environment variables are listed in `locked_fields` and return `403` if modified via the API.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/container
+PUT /api/cost-management/v1/recommendations/openshift/settings/container
+DELETE /api/cost-management/v1/recommendations/openshift/settings/container
+
+GET /api/cost-management/v1/recommendations/openshift/settings/namespace
+PUT /api/cost-management/v1/recommendations/openshift/settings/namespace
+DELETE /api/cost-management/v1/recommendations/openshift/settings/namespace
+
+GET /api/cost-management/v1/recommendations/openshift/settings/node
+PUT /api/cost-management/v1/recommendations/openshift/settings/node
+DELETE /api/cost-management/v1/recommendations/openshift/settings/node
+
+GET /api/cost-management/v1/recommendations/openshift/settings/gpu
+PUT /api/cost-management/v1/recommendations/openshift/settings/gpu
+DELETE /api/cost-management/v1/recommendations/openshift/settings/gpu
+
+GET /api/cost-management/v1/recommendations/openshift/settings/pvc
+PUT /api/cost-management/v1/recommendations/openshift/settings/pvc
+DELETE /api/cost-management/v1/recommendations/openshift/settings/pvc
+----
+
+*Deprecated alias* (still supported; responses include `Deprecation: true` and a `Link` header pointing to the canonical path above):
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/settings/thresholds?recommendation_type={container|namespace|node|gpu|pvc}
@@ -1002,11 +1026,11 @@ PUT /api/cost-management/v1/recommendations/openshift/settings/thresholds?recomm
 DELETE /api/cost-management/v1/recommendations/openshift/settings/thresholds?recommendation_type={container|namespace|node|gpu|pvc}
 ----
 
-==== Container and namespace (`recommendation_type=container` or `namespace`)
+==== Container and namespace (`/settings/container` or `/settings/namespace`)
 
 Container and namespace share the same response shape. Namespace defaults use a higher `mem_trend_slope_threshold` (500.0 vs 100.0 for containers).
 
-GET/PUT response (`recommendation_type=container`):
+GET/PUT response (`/settings/container`):
 
 [source,json]
 ----
@@ -1027,7 +1051,7 @@ GET/PUT response (`recommendation_type=container`):
 }
 ----
 
-GET response (`recommendation_type=namespace`) — same fields, higher memory trend threshold:
+GET response (`/settings/namespace`) — same fields, higher memory trend threshold:
 
 [source,json]
 ----
@@ -1057,7 +1081,7 @@ Example PUT (container — override CPU percentile):
 }
 ----
 
-==== Node (`recommendation_type=node`)
+==== Node (`/settings/node`)
 
 [source,json]
 ----
@@ -1084,7 +1108,7 @@ Example PUT (node — override underutilization threshold):
 }
 ----
 
-==== GPU (`recommendation_type=gpu`)
+==== GPU (`/settings/gpu`)
 
 [source,json]
 ----
@@ -1122,7 +1146,7 @@ Example PUT (GPU — override idle threshold):
 }
 ----
 
-==== PVC (`recommendation_type=pvc`)
+==== PVC (`/settings/pvc`)
 
 [source,json]
 ----
