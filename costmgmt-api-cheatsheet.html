@@ -992,8 +992,10 @@ DELETE /api/cost-management/v1/recommendations/openshift/settings/quota</pre>
 <pre>GET /api/cost-management/v1/recommendations/openshift/cluster-quota/
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[cluster]=550e8400-e29b-41d4-a716-446655440000
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[cluster_quota_name]=team-payments-quota
-GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[recommendation_type]=tighten&amp;filter[risk_level]=low
-GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?limit=20&amp;offset=0</pre>
+GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[namespace]=team-payments-ns
+GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[recommendation_type]=tighten&amp;filter[risk_level]=high
+GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?order_by=utilization&amp;order_how=desc&amp;limit=20&amp;offset=0
+GET /api/cost-management/v1/recommendations/openshift/cluster-quota/detail?cluster_uuid=550e8400-e29b-41d4-a716-446655440001&amp;cluster_quota_name=team-payments-quota</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1008,15 +1010,27 @@ GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?limit=20&am
 <p><code>filter[cluster_quota_name]</code> — CRQ object name (aliases: <code>filter[cluster_resource_quota]</code>, <code>filter[crq]</code>)</p>
 </li>
 <li>
+<p><code>filter[namespace]</code> — namespace in the CRQ selector (alias: <code>filter[project]</code>)</p>
+</li>
+<li>
 <p><code>filter[recommendation_type]</code> — <code>tighten</code>, <code>raise</code>, <code>optimal</code>, or <code>none</code></p>
 </li>
 <li>
 <p><code>filter[risk_level]</code> — <code>high</code>, <code>medium</code>, <code>low</code>, or <code>none</code></p>
 </li>
 <li>
+<p><code>order_by</code> — <code>cluster_quota_name</code>, <code>utilization</code>, <code>risk_level</code>, or <code>estimated_monthly_savings</code></p>
+</li>
+<li>
+<p><code>order_how</code> — <code>asc</code> or <code>desc</code> (default <code>desc</code> when <code>order_by</code> is set)</p>
+</li>
+<li>
 <p><code>limit</code> (1–100, default 20), <code>offset</code> (default 0)</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>Detail endpoint returns one CRQ object (not wrapped in <code>data</code>). The response includes a <code>history</code> array of per-resource snapshots (<code>recorded_at</code>, <code>resource</code>, <code>recommendation_type</code>, <code>risk_level</code>, and optional hard/used/utilization fields).</p>
 </div>
 <div class="paragraph">
 <p>Example request:</p>

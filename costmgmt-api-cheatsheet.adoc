@@ -665,17 +665,24 @@ OpenShift-only team/tenant **ClusterResourceQuota** right-sizing (distinct from 
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[cluster]=550e8400-e29b-41d4-a716-446655440000
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[cluster_quota_name]=team-payments-quota
-GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[recommendation_type]=tighten&filter[risk_level]=low
-GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?limit=20&offset=0
+GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[namespace]=team-payments-ns
+GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[recommendation_type]=tighten&filter[risk_level]=high
+GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?order_by=utilization&order_how=desc&limit=20&offset=0
+GET /api/cost-management/v1/recommendations/openshift/cluster-quota/detail?cluster_uuid=550e8400-e29b-41d4-a716-446655440001&cluster_quota_name=team-payments-quota
 ----
 
 Available filters:
 
 * `filter[cluster]` — cluster UUID (exact match)
 * `filter[cluster_quota_name]` — CRQ object name (aliases: `filter[cluster_resource_quota]`, `filter[crq]`)
+* `filter[namespace]` — namespace that belongs to the CRQ selector (alias: `filter[project]`)
 * `filter[recommendation_type]` — `tighten`, `raise`, `optimal`, or `none`
 * `filter[risk_level]` — `high`, `medium`, `low`, or `none`
+* `order_by` — `cluster_quota_name`, `utilization`, `risk_level`, or `estimated_monthly_savings`
+* `order_how` — `asc` or `desc` (default `desc` when `order_by` is set)
 * `limit` (1–100, default 20), `offset` (default 0)
+
+Detail endpoint returns one CRQ recommendation object (not wrapped in `data`). The response includes a `history` array of per-resource snapshots (`recorded_at`, `resource`, `recommendation_type`, `risk_level`, and optional hard/used/utilization fields) for trend charts.
 
 Example request:
 
