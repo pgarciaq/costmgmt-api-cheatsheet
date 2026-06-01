@@ -1,0 +1,24 @@
+meta {
+  name: DELETE Settings Thresholds - Cluster quota
+  type: http
+  seq: 60
+}
+
+delete {
+  url: {{baseURL}}/recommendations/openshift/settings/cluster-quota
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Reset cluster-quota settings to deployment defaults (headroom 10%, high 90%, medium 70%).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
