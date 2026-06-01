@@ -1,0 +1,16 @@
+meta {
+  name: Fleet savings summary
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/savings-summary?engine=cost
+  body: none
+  auth: inherit
+}
+
+docs {
+  Fleet rollup: by_plugin includes container, node, pvc, snapshot, vm (gpu=0).
+  VM totals need ROS_SAVINGS_ESTIMATES_ENABLED and KOKU_MASU_URL at ingestion.
+}

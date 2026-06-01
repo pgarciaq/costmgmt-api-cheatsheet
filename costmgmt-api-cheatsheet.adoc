@@ -382,6 +382,35 @@ Cross-cluster aggregated savings, adoption rates, and top optimization opportuni
 GET /api/cost-management/v1/recommendations/openshift/fleet-summary
 ----
 
+==== Fleet savings summary
+
+Aggregated monthly savings by plugin (container, node, PVC, snapshot, VM). Container, node, and VM totals honor `?engine=cost` (default) or `performance`. GPU dollar estimates are computed at API read time and are excluded from this rollup (`by_plugin.gpu` is always `0`; see `gpu_savings_note`).
+
+Requires persisted recommendations at medium term. VM rows need `ROS_SAVINGS_ESTIMATES_ENABLED=true` and `KOKU_MASU_URL` at ingestion time for non-zero `by_plugin.vm`.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/savings-summary
+GET /api/cost-management/v1/recommendations/openshift/savings-summary?engine=cost
+----
+
+Example response excerpt:
+
+[source,json]
+----
+{
+  "currency": "USD",
+  "estimated_monthly_savings": { "value": "12500.750000", "units": "USD" },
+  "by_plugin": {
+    "container": 5000.0,
+    "node": 3000.0,
+    "pvc": 1500.0,
+    "snapshot": 500.0,
+    "vm": 1200.0,
+    "gpu": 0.0
+  },
+  "gpu_savings_note": "GPU savings are computed at API read time..."
+}
+----
 
 === Container recommendations
 
@@ -729,6 +758,8 @@ DELETE /api/cost-management/v1/recommendations/openshift/settings/snapshot
 
 VM-level CPU, memory, disk, and GPU sizing for KubeVirt workloads. Requires the ROS `vm` plugin (`ROS_VM_RECOMMENDATIONS_ENABLED` / Helm `enabledPlugins` includes `vm`). When disabled, VM routes return `404`.
 
+Monthly `savings` on list/detail requires `ROS_SAVINGS_ESTIMATES_ENABLED=true` (default) and `KOKU_MASU_URL` with cost model rates at ingestion. When disabled or masu is unreachable, `savings` is JSON `null`. Values are fixed at generation time until the next recommendation cycle (rate or currency changes are not retroactive).
+
 ==== VM recommendations list
 
 ----
@@ -838,6 +869,10 @@ Example detail response (CPU/memory/disk sizing in `current` / `recommended`; GP
       "message": "Network-saturated workload: recommend n1 network-optimized instance type"
     }
   ],
+  "savings": {
+    "value": "18104.000000",
+    "units": "USD"
+  },
   "gpu": {
     "gpu_count": 1,
     "gpu_model": "NVIDIA-A100",
