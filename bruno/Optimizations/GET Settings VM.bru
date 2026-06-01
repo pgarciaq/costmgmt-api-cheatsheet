@@ -15,9 +15,18 @@ headers {
 }
 
 docs {
-  VM sizing thresholds plus `network` (n1 network-optimized classification) and `gpu` (vGPU time-slicing) blocks.
-  Defaults: throughput_threshold_bps=62500000, pps_threshold=100000, drop_ratio_bp=10, sustained_days=7, enable_network_series=true;
-  gpu_timeslice_min_replicas=2, gpu_timeslice_max_replicas=16, gpu_timeslice_fb_safety_threshold_bp=8000, gpu_timeslice_dram_penalty_threshold_bp=5000.
+  VM sizing thresholds plus `io` (I/O profiling and pattern classification), `network` (n1 network-optimized),
+  and `gpu` (classification + vGPU time-slicing).
+
+  Example `io` defaults: high_iops_threshold=3000, sequential_threshold_bytes=65536,
+  random_threshold_bytes=16384, min_iops_for_classification=100.
+
+  Example `gpu` defaults: idle_threshold_bp=500, underutil_threshold_bp=3000, fb_saturation_mib=0,
+  compute_saturation_threshold_bp=8500; gpu_timeslice_min_replicas=2, gpu_timeslice_max_replicas=16,
+  gpu_timeslice_fb_safety_threshold_bp=8000, gpu_timeslice_dram_penalty_threshold_bp=5000.
+
+  Network defaults: throughput_threshold_bps=62500000, pps_threshold=100000, drop_ratio_bp=10,
+  sustained_days=7, enable_network_series=true.
 }
 
 settings {

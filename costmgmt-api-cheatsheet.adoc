@@ -777,6 +777,8 @@ GET /api/cost-management/v1/recommendations/openshift/vm/detail?cluster_uuid=UUI
 
 Required: `cluster_uuid`, `vm_name`, `namespace`. Optional: `term` (default `medium_term`), `engine` (default `cost`).
 
+`io_profile.pattern` classifies disk I/O from peak p95 throughput and IOPS: `sequential`, `random`, `mixed`, `low-io`, or empty when metrics are missing. Codes **58** and **59** align with `sequential` and `random` patterns.
+
 Example detail response (CPU/memory/disk sizing in `current` / `recommended`; GPU in `gpu`; time series in `daily_digests`):
 
 [source,json]
@@ -814,7 +816,10 @@ Example detail response (CPU/memory/disk sizing in `current` / `recommended`; GP
   "io_profile": {
     "read_iops_p95": 1200,
     "write_iops_p95": 800,
-    "hint": "balanced"
+    "read_bps_p95": 125829120,
+    "write_bps_p95": 83886080,
+    "hint": "balanced",
+    "pattern": "sequential"
   },
   "disk_projection": {
     "days_until_full": 45,
@@ -919,7 +924,10 @@ Example GET response:
     "min_growth_mib_per_day": 10
   },
   "io": {
-    "high_iops_threshold": 10000
+    "high_iops_threshold": 3000,
+    "sequential_threshold_bytes": 65536,
+    "random_threshold_bytes": 16384,
+    "min_iops_for_classification": 100
   },
   "network": {
     "throughput_threshold_bps": 62500000,
@@ -929,6 +937,10 @@ Example GET response:
     "enable_network_series": true
   },
   "gpu": {
+    "idle_threshold_bp": 500,
+    "underutil_threshold_bp": 3000,
+    "fb_saturation_mib": 0,
+    "compute_saturation_threshold_bp": 8500,
     "gpu_timeslice_min_replicas": 2,
     "gpu_timeslice_max_replicas": 16,
     "gpu_timeslice_fb_safety_threshold_bp": 8000,
@@ -948,8 +960,19 @@ Example GET response:
 * `sustained_days` — days in the term window meeting throughput or PPS+drop criteria (default `7`)
 * `enable_network_series` — when `true`, network-bound VMs may receive **n1.*** instance types (default `true`)
 
-`gpu` — production vGPU time-slicing tunables:
+`io` — disk I/O profiling and pattern classification:
 
+* `high_iops_threshold` — total read+write p95 IOPS above this triggers code **39** (`VM_HIGH_IO`) (default `3000`)
+* `sequential_threshold_bytes` — average I/O size (peak BPS / peak IOPS) ≥ this → `io_profile.pattern` `sequential` and code **58** (default `65536` = 64 KiB)
+* `random_threshold_bytes` — average I/O size &lt; this → `random` and code **59** (default `16384` = 16 KiB); values between random and sequential thresholds yield `mixed`
+* `min_iops_for_classification` — peak IOPS below this → `low-io` (no pattern codes) (default `100`)
+
+`gpu` — VM GPU classification and vGPU time-slicing tunables:
+
+* `idle_threshold_bp` — SM utilization below this → idle classification (default `500` = 5%)
+* `underutil_threshold_bp` — below this but above idle → underutilized (default `3000` = 30%)
+* `fb_saturation_mib` — frame-buffer saturation threshold in MiB; `0` auto-detects from GPU catalog (default `0`)
+* `compute_saturation_threshold_bp` — SM fraction at or above this → compute-saturated (default `8500` = 85%)
 * `gpu_timeslice_min_replicas` — minimum `recommended_time_slice_count` when time-slicing is advised (default `2`)
 * `gpu_timeslice_max_replicas` — upper cap on slice count; reduced when DRAM exceeds penalty threshold (default `16`)
 * `gpu_timeslice_fb_safety_threshold_bp` — do not recommend time-slicing when frame-buffer fraction ≥ this (default `8000` = 80%)
@@ -957,7 +980,7 @@ Example GET response:
 
 Detail responses may include GPU fields `gpu_timeslice_confidence` (`high`, `moderate`, `low`, or empty), `gpu_timeslice_rationale`, and `recommended_vgpu_profile` when time-slicing or vGPU profile selection applies.
 
-Example PUT (partial update — network + GPU thresholds):
+Example PUT (partial update — I/O pattern, GPU classification, network, and time-slicing):
 
 [source,json]
 ----
@@ -965,11 +988,19 @@ Example PUT (partial update — network + GPU thresholds):
   "thresholds": {
     "cpu_margin_min": 1.18
   },
+  "io": {
+    "sequential_threshold_bytes": 131072,
+    "random_threshold_bytes": 8192,
+    "min_iops_for_classification": 200
+  },
   "network": {
     "throughput_threshold_bps": 100000000,
     "sustained_days": 5
   },
   "gpu": {
+    "idle_threshold_bp": 300,
+    "underutil_threshold_bp": 2500,
+    "compute_saturation_threshold_bp": 9000,
     "gpu_timeslice_max_replicas": 8,
     "gpu_timeslice_fb_safety_threshold_bp": 7500
   }
@@ -978,7 +1009,7 @@ Example PUT (partial update — network + GPU thresholds):
 
 `history_retention_days` is read-only (set by `ROS_VM_REC_HISTORY_RETENTION_DAYS`). DELETE removes per-org VM settings overrides (`204 No Content`).
 
-==== VM notification codes (55–57)
+==== VM notification codes (55–59)
 
 VM list/detail `notifications` arrays use lowercase `type` (`info`, `warning`, `critical`) and numeric `code`:
 
@@ -987,6 +1018,8 @@ VM list/detail `notifications` arrays use lowercase `type` (`info`, `warning`, `
 | 55 | `VM_NETWORK_SATURATED` | warning | `metadata.is_network_bound` is `true` — recommend **n1** network-optimized instance type |
 | 56 | `VM_VGPU_PROFILE_RECOMMENDED` | info | vGPU profile recommended — see `recommended_vgpu_profile` in the `gpu` object |
 | 57 | `VM_GPU_TIMESLICE_UNSAFE_FB` | warning | Frame-buffer usage too high for safe shared vGPU time-slicing |
+| 58 | `VM_IO_SEQUENTIAL` | info | `io_profile.pattern` is `sequential` — consider storage optimized for throughput |
+| 59 | `VM_IO_RANDOM` | info | `io_profile.pattern` is `random` — consider storage optimized for IOPS |
 
 ==== VM term settings
 
