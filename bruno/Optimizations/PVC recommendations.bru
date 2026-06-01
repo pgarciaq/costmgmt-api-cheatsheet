@@ -5,9 +5,26 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/pvcs
+  url: {{baseURL}}/recommendations/openshift/pvcs?filter[term]=medium&filter[storageclass]=gp3-csi&order_by=usage_ratio&order_how=desc&limit=20&offset=0
   body: none
   auth: inherit
+}
+
+params:query {
+  filter[term]: medium
+  filter[storageclass]: gp3-csi
+  order_by: usage_ratio
+  order_how: desc
+  limit: 20
+  offset: 0
+}
+
+docs {
+  List returns one row per PVC for the selected term (default medium).
+  Filters: filter[cluster], filter[project], filter[recommendation_type], filter[term], filter[storageclass].
+  Sort: order_by (usage_ratio, estimated_monthly_savings, pvc_name, capacity_bytes) + order_how.
+  Each row may include mounted_by (last observed mounting pod from storage CSV).
+  Use PVC recommendations detail for all terms and historical_usage.
 }
 
 settings {

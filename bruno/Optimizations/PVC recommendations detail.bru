@@ -1,0 +1,26 @@
+meta {
+  name: PVC recommendations detail
+  type: http
+  seq: 56
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/pvcs/detail?cluster_uuid=CLUSTER_UUID&namespace=my-namespace&persistentvolumeclaim=my-pvc
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Required: cluster_uuid, namespace, persistentvolumeclaim (or filter[cluster] / filter[project]).
+  Response: terms map (short, medium, long), historical_usage daily points, mounted_by on summary.
+  mounted_by is display context only (virt-launcher pod name when reported by operator).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
