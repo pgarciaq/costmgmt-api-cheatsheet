@@ -1,0 +1,20 @@
+meta {
+  name: VM recommendations list
+  type: http
+  seq: 31
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm?limit=20&offset=0&filter[confidence]=high&order_by=last_recommended_at&order_how=desc
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

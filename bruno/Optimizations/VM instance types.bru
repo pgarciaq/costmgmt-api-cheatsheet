@@ -1,0 +1,20 @@
+meta {
+  name: VM instance types
+  type: http
+  seq: 34
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/instance-types?cluster_uuid=CLUSTER_UUID
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,20 @@
+meta {
+  name: GET Settings VM
+  type: http
+  seq: 35
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/settings/vm
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

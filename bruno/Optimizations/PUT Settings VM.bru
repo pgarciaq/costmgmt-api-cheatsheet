@@ -1,0 +1,29 @@
+meta {
+  name: PUT Settings VM
+  type: http
+  seq: 36
+}
+
+put {
+  url: {{baseURL}}/recommendations/openshift/settings/vm
+  body: json
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  content-type: application/json
+}
+
+body:json {
+  {
+    "thresholds": {
+      "cpu_margin_min": 1.18
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

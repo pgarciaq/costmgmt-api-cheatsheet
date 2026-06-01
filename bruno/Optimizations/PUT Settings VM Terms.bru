@@ -1,0 +1,43 @@
+meta {
+  name: PUT Settings VM Terms
+  type: http
+  seq: 39
+}
+
+put {
+  url: {{baseURL}}/recommendations/openshift/settings/vm/terms
+  body: json
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  content-type: application/json
+}
+
+body:json {
+  {
+    "terms": [
+      {
+        "name": "short_term",
+        "window_days": 10,
+        "min_data_days": 5
+      },
+      {
+        "name": "medium_term",
+        "window_days": 35,
+        "min_data_days": 14
+      },
+      {
+        "name": "long_term",
+        "window_days": 95,
+        "min_data_days": 30
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

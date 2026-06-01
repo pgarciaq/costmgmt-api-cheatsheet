@@ -1,0 +1,20 @@
+meta {
+  name: DELETE Settings VM Terms
+  type: http
+  seq: 40
+}
+
+delete {
+  url: {{baseURL}}/recommendations/openshift/settings/vm/terms
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

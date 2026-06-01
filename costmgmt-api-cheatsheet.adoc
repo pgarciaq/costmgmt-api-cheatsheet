@@ -712,6 +712,250 @@ Snapshot staleness settings (configurable thresholds):
 ----
 GET /api/cost-management/v1/recommendations/openshift/settings/snapshot
 PUT /api/cost-management/v1/recommendations/openshift/settings/snapshot
+DELETE /api/cost-management/v1/recommendations/openshift/settings/snapshot
+----
+
+=== OpenShift Virtualization (VM) recommendations
+
+VM-level CPU, memory, disk, and GPU sizing for KubeVirt workloads. Requires the ROS `vm` plugin (`ROS_VM_RECOMMENDATIONS_ENABLED` / Helm `enabledPlugins` includes `vm`). When disabled, VM routes return `404`.
+
+==== VM recommendations list
+
+----
+GET /api/cost-management/v1/recommendations/openshift/vm
+GET /api/cost-management/v1/recommendations/openshift/vm?limit=20&offset=0
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[cluster]=CLUSTER_UUID
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[namespace]=my-namespace
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[vm_name]=my-vm
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[term]=medium_term
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[confidence]=high
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[is_idle]=true
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[is_abandoned]=true
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[is_oversized]=true
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[guest_agent_detected]=true
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[has_gpu]=true
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[gpu_classification]=underutilized
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[engine]=cost
+GET /api/cost-management/v1/recommendations/openshift/vm?order_by=last_recommended_at&order_how=desc
+----
+
+Pagination: `limit` (1–100, default 10), `offset` (default 0).
+
+Filters (`filter[...]` or legacy query names where noted):
+
+| Filter | Values / notes |
+|--------|----------------|
+| `cluster` | Cluster UUID (RBAC-scoped) |
+| `namespace` | VM namespace |
+| `vm_name` | KubeVirt VM name |
+| `term` | `short_term`, `medium_term`, or `long_term` |
+| `engine` | `cost` or `performance` |
+| `confidence` | `high`, `moderate`, or `low` |
+| `is_idle`, `is_abandoned`, `is_oversized`, `guest_agent_detected`, `has_gpu` | `true` or `false` |
+| `gpu_classification` | Comma-separated GPU classes (e.g. `idle`, `underutilized`) |
+
+`order_by` (default `vm_name`): `vm_name`, `namespace`, `current_vcpu`, `current_memory_gib`, `guest_os`, `recommended_vcpu`, `recommended_memory_gib`, `is_idle`, `is_abandoned`, `is_oversized`, `confidence`, `last_recommended_at`. Use `order_how=asc` or `desc`.
+
+==== VM detail
+
+----
+GET /api/cost-management/v1/recommendations/openshift/vm/detail?cluster_uuid=UUID&vm_name=NAME&namespace=NS
+GET /api/cost-management/v1/recommendations/openshift/vm/detail?cluster_uuid=UUID&vm_name=NAME&namespace=NS&term=medium_term&engine=cost
+----
+
+Required: `cluster_uuid`, `vm_name`, `namespace`. Optional: `term` (default `medium_term`), `engine` (default `cost`).
+
+Example detail response (CPU/memory/disk sizing in `current` / `recommended`; GPU in `gpu`; time series in `daily_digests`):
+
+[source,json]
+----
+{
+  "vm_name": "my-vm",
+  "namespace": "my-namespace",
+  "cluster_uuid": "550e8400-e29b-41d4-a716-446655440000",
+  "guest_os": "linux",
+  "current": {
+    "vcpu": 4,
+    "memory_gib": 16,
+    "disk_gib": 100,
+    "instance_type": "u1.medium"
+  },
+  "recommended": {
+    "vcpu": 2,
+    "memory_gib": 8,
+    "disk_gib": 100,
+    "instance_type": "u1.small",
+    "series": "u1"
+  },
+  "metadata": {
+    "guest_agent_detected": true,
+    "confidence": "high",
+    "term": "medium_term",
+    "engine": "cost",
+    "is_idle": false,
+    "is_abandoned": false,
+    "is_oversized": true,
+    "preference_name": "small",
+    "preference_class": "virtualmachineclusterpreference"
+  },
+  "io_profile": {
+    "read_iops_p95": 1200,
+    "write_iops_p95": 800,
+    "hint": "balanced"
+  },
+  "disk_projection": {
+    "days_until_full": 45,
+    "growth_gib_per_day": 0.12,
+    "recommended_expand_gib": 0
+  },
+  "notifications": [],
+  "gpu": {
+    "gpu_count": 1,
+    "gpu_model": "NVIDIA-A100",
+    "gpu_classification": "underutilized",
+    "gpu_devices": []
+  },
+  "last_recommended_at": "2026-05-01T12:00:00Z",
+  "daily_digests": [
+    {
+      "bucket_date": "2026-04-30",
+      "cpu_usage_p95_mc": 1800,
+      "mem_usage_p95_kib": 8388608,
+      "sample_count": 24
+    }
+  ]
+}
+----
+
+==== VM recommendation history
+
+Per-VM history of past sizing recommendations:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/vms/{vm_name}/history?cluster_uuid=UUID&namespace=NS&limit=20&offset=0
+GET /api/cost-management/v1/recommendations/openshift/vms/{vm_name}/history?cluster_uuid=UUID&namespace=NS&term=short_term&engine=cost
+----
+
+Required query params: `cluster_uuid` (or `cluster_id`), `namespace`. Path param: `vm_name`. Optional: `term` (default `short_term`), `engine` (default `cost`), `limit`, `offset`.
+
+==== VM instance types
+
+Catalog of instance types and VM preference summary for a cluster:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/instance-types?cluster_uuid=UUID
+----
+
+==== VM settings
+
+Dedicated VM threshold, disk, I/O, memory floor, and stability settings (not the generic `/settings/thresholds` endpoint):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/vm
+PUT /api/cost-management/v1/recommendations/openshift/settings/vm
+DELETE /api/cost-management/v1/recommendations/openshift/settings/vm
+----
+
+Example GET response:
+
+[source,json]
+----
+{
+  "enabled": true,
+  "cpu_adaptive_margin_enabled": true,
+  "history_retention_days": 90,
+  "thresholds": {
+    "cpu_percentile_cost": 0.60,
+    "cpu_percentile_perf": 0.98,
+    "cpu_margin_min": 1.15,
+    "cpu_margin_max": 1.50,
+    "mem_margin_min": 1.10,
+    "downsize_hysteresis_ratio": 0.85,
+    "min_vcpu_change": 1,
+    "min_gib_change": 1,
+    "idle_cpu_mc": 50,
+    "idle_memory_mib": 256,
+    "idle_cpu_mc_windows": 100,
+    "idle_memory_mib_windows": 512,
+    "abandoned_min_days": 14
+  },
+  "memory_floors": {
+    "linux_gib": 2,
+    "windows_gib": 4,
+    "windows_kernel_reserve_gib": 0.5
+  },
+  "stability": {
+    "downsize_stability_days": 3,
+    "crash_loop_restart_threshold": 5
+  },
+  "disk": {
+    "projection_window_days": 14,
+    "headroom_pct": 0.20,
+    "round_step_gib": 10,
+    "min_growth_mib_per_day": 10
+  },
+  "io": {
+    "high_iops_threshold": 10000
+  },
+  "instance_type_matching": true,
+  "locked_fields": [],
+  "settings_locked": false
+}
+----
+
+Example PUT (partial update):
+
+[source,json]
+----
+{
+  "thresholds": {
+    "cpu_margin_min": 1.18
+  }
+}
+----
+
+`history_retention_days` is read-only (set by `ROS_VM_REC_HISTORY_RETENTION_DAYS`). DELETE removes per-org VM settings overrides (`204 No Content`).
+
+==== VM term settings
+
+Separate from generic `/settings/terms` — controls short/medium/long windows for VM recommendations only:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/vm/terms
+PUT /api/cost-management/v1/recommendations/openshift/settings/vm/terms
+DELETE /api/cost-management/v1/recommendations/openshift/settings/vm/terms
+----
+
+Example GET response:
+
+[source,json]
+----
+{
+  "terms": [
+    {
+      "name": "short_term",
+      "window_days": 1,
+      "min_data_days": 1,
+      "locked": false,
+      "is_default": true
+    },
+    {
+      "name": "medium_term",
+      "window_days": 7,
+      "min_data_days": 3,
+      "locked": false,
+      "is_default": true
+    },
+    {
+      "name": "long_term",
+      "window_days": 15,
+      "min_data_days": 7,
+      "locked": false,
+      "is_default": true
+    }
+  ],
+  "settings_locked": false
+}
 ----
 
 === Fleet summary
@@ -732,9 +976,25 @@ PUT /api/cost-management/v1/recommendations/openshift/settings/terms
 DELETE /api/cost-management/v1/recommendations/openshift/settings/terms
 ----
 
+=== Platform settings lock
+
+When `ROS_SETTINGS_LOCKED=true`, tenant settings overrides are ignored on read and all settings `PUT`/`DELETE` requests return `403 Forbidden`:
+
+[source,json]
+----
+{
+  "error": "settings are locked by platform administrator",
+  "locked": true
+}
+----
+
+GET responses include `settings_locked: true` and `locked_fields: ["*"]`. Per-plugin opt-outs use `ROS_SETTINGS_LOCKED_VM`, `ROS_SETTINGS_LOCKED_TERMS`, etc. VM sizing thresholds use the dedicated `/settings/vm` endpoint (not `/settings/thresholds?recommendation_type=vm`).
+
 === Recommendation threshold settings
 
-Per-organization sizing and classification thresholds for each recommendation plugin. The required query parameter `recommendation_type` accepts `container`, `namespace`, `node`, `gpu`, or `pvc`. PUT accepts partial updates; DELETE removes tenant overrides so environment and compiled defaults apply. Fields locked by environment variables are listed in `locked_fields` and return `403` if modified via the API.
+Per-organization sizing and classification thresholds for container, namespace, node, GPU, and PVC plugins. OpenShift Virtualization (VM) thresholds are configured via `/settings/vm` (see <<OpenShift Virtualization (VM) recommendations>>), not this endpoint.
+
+The required query parameter `recommendation_type` accepts `container`, `namespace`, `node`, `gpu`, or `pvc`. PUT accepts partial updates; DELETE removes tenant overrides so environment and compiled defaults apply. Fields locked by environment variables are listed in `locked_fields` and return `403` if modified via the API.
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/settings/thresholds?recommendation_type={container|namespace|node|gpu|pvc}
@@ -885,6 +1145,52 @@ Example PUT (PVC — override oversized threshold):
   "oversized_threshold": 0.25
 }
 ----
+
+=== Business hours settings
+
+Optional schedule-aware CPU recommendations (requires `ROS_BUSINESS_HOURS_ENABLED` and `business_hours: true` in `/recommendations/openshift/settings/capabilities`). Enabling a schedule triggers digest re-shipping for affected scopes and approximately doubles digest storage.
+
+Org-default schedule:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/business-hours
+PUT /api/cost-management/v1/recommendations/openshift/settings/business-hours
+DELETE /api/cost-management/v1/recommendations/openshift/settings/business-hours
+----
+
+Cluster override (`:cluster_id` is the cluster UUID):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/business-hours/clusters/:cluster_id
+PUT /api/cost-management/v1/recommendations/openshift/settings/business-hours/clusters/:cluster_id
+DELETE /api/cost-management/v1/recommendations/openshift/settings/business-hours/clusters/:cluster_id
+----
+
+Namespace override (most specific wins):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/business-hours/clusters/:cluster_id/namespaces/:namespace
+PUT /api/cost-management/v1/recommendations/openshift/settings/business-hours/clusters/:cluster_id/namespaces/:namespace
+DELETE /api/cost-management/v1/recommendations/openshift/settings/business-hours/clusters/:cluster_id/namespaces/:namespace
+----
+
+Example PUT body:
+
+[source,json]
+----
+{
+  "timezone": "America/New_York",
+  "schedule": {
+    "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+    "start_time": "08:00",
+    "end_time": "17:00"
+  },
+  "off_hours_weight": 0.0,
+  "enabled": true
+}
+----
+
+`days` uses lowercase English day names. `start_time` / `end_time` are 24-hour `HH:MM` (UTC interpretation per stored timezone). PUT responses may include a storage warning and `reship_status` while digests are rebuilt. Container and namespace recommendation payloads include a nested `business_hours` object when a schedule applies.
 
 === Idle and zombie detection
 

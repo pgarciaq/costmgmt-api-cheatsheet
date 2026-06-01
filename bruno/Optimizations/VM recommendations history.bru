@@ -1,0 +1,20 @@
+meta {
+  name: VM recommendations history
+  type: http
+  seq: 33
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vms/my-vm/history?cluster_uuid=CLUSTER_UUID&namespace=my-namespace&term=short_term&engine=cost&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
