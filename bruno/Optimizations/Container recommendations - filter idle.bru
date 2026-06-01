@@ -1,0 +1,31 @@
+meta {
+  name: Container recommendations - filter idle
+  type: http
+  seq: 63
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[idle_state]=idle&order_by=last_reported&order_how=desc&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[idle_state]: idle
+  order_by: last_reported
+  order_how: desc
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[idle_state] — comma-separated include list: active, idle, zombie.
+
+  Idle rows expose estimated_monthly_waste and idle_recommendation; rightsizing
+  estimated_monthly_savings is omitted when idle_state is not active.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

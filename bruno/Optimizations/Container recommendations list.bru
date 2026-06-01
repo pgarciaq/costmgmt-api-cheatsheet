@@ -1,0 +1,30 @@
+meta {
+  name: Container recommendations list
+  type: http
+  seq: 61
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?limit=20&offset=0&order_by=last_reported&order_how=desc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 20
+  offset: 0
+  order_by: last_reported
+  order_how: desc
+}
+
+docs {
+  GET /recommendations/openshift — container recommendations (default resource on the base path).
+
+  Pagination: limit (1–1000, default 100), offset.
+  Default JSON; use format=csv or Accept: text/csv for export (see Container recommendations CSV export).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

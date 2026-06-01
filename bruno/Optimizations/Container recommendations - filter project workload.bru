@@ -1,0 +1,34 @@
+meta {
+  name: Container recommendations - filter project workload
+  type: http
+  seq: 62
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[project]={{project}}&filter[workload]={{workload}}&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[project]: {{project}}
+  filter[workload]: {{workload}}
+  limit: 20
+  offset: 0
+}
+
+vars:pre-request {
+  project: openshift-monitoring
+  workload: prometheus-k8s
+}
+
+docs {
+  Koku-aligned bracket filters (exact match; comma-separated OR within a key).
+
+  Aliases: filter[project] ↔ namespace/project; filter[workload] ↔ workload.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
