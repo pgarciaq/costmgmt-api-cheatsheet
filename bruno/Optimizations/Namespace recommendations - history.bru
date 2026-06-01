@@ -1,0 +1,35 @@
+meta {
+  name: Namespace recommendations - history
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/namespaces/{{namespaceRecommendationId}}/history?filter[term]=short_term&filter[engine]=cost&limit=30
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~filter[term]: short_term
+  ~filter[engine]: cost
+  limit: 30
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Historical namespace recommendation snapshots from `historical_namespace_recommendation_sets`.
+
+  Each snapshot expands to two rows (`resource`: `cpu` or `memory`) with `recommendation_type`
+  (cost/performance), `recommended`, `current`, `utilization`, and `recorded_at`.
+
+  Optional filters: `filter[term]`, `filter[engine]`. Default `limit` is 30 (max 90).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

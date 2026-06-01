@@ -1,0 +1,26 @@
+meta {
+  name: Namespace recommendations - filter project
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/namespaces?filter[project]={{project}}&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~filter[project]: {{project}}
+  limit: 20
+  offset: 0
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

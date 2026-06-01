@@ -1,0 +1,28 @@
+meta {
+  name: Namespace recommendations - detail
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/namespaces/{{namespaceRecommendationId}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Single namespace recommendation by deterministic UUID (`namespace_id`).
+
+  Copy `id` from the list response (`GET .../namespaces`). Detail includes
+  `recommendations.recommendation_terms` with cost/performance engines and optional
+  `business_hours` blocks when configured.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
