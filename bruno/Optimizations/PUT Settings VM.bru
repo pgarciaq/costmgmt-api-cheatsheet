@@ -19,6 +19,19 @@ body:json {
   {
     "thresholds": {
       "cpu_margin_min": 1.18
+    },
+    "network": {
+      "throughput_threshold_bps": 100000000,
+      "pps_threshold": 150000,
+      "drop_ratio_bp": 10,
+      "sustained_days": 5,
+      "enable_network_series": true
+    },
+    "gpu": {
+      "gpu_timeslice_min_replicas": 2,
+      "gpu_timeslice_max_replicas": 8,
+      "gpu_timeslice_fb_safety_threshold_bp": 7500,
+      "gpu_timeslice_dram_penalty_threshold_bp": 5000
     }
   }
 }

@@ -14,6 +14,11 @@ headers {
   x-rh-identity: {{xRhIdentity}}
 }
 
+docs {
+  Detail includes `metadata.is_network_bound`, GPU time-slicing fields (`gpu_timeslice_confidence`, `gpu_timeslice_rationale`, `recommended_vgpu_profile`),
+  and VM notifications (e.g. 55 network-saturated, 56 vGPU profile, 57 unsafe FB for time-slice).
+}
+
 settings {
   encodeUrl: true
   timeout: 0

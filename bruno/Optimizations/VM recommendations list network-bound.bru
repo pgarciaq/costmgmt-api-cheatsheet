@@ -1,0 +1,26 @@
+meta {
+  name: VM recommendations list (network-bound)
+  type: http
+  seq: 41
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm?limit=50&offset=0&order_by=last_recommended_at&order_how=desc
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Lists VM recommendations; inspect `metadata.is_network_bound` on each item.
+  Network-saturated VMs (`is_network_bound: true`) may recommend **n1** instance types and emit notification code **55** (`VM_NETWORK_SATURATED`).
+  Server-side `filter[is_network_bound]` is not implemented — filter client-side on `metadata.is_network_bound` if needed.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

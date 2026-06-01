@@ -14,6 +14,12 @@ headers {
   x-rh-identity: {{xRhIdentity}}
 }
 
+docs {
+  VM sizing thresholds plus `network` (n1 network-optimized classification) and `gpu` (vGPU time-slicing) blocks.
+  Defaults: throughput_threshold_bps=62500000, pps_threshold=100000, drop_ratio_bp=10, sustained_days=7, enable_network_series=true;
+  gpu_timeslice_min_replicas=2, gpu_timeslice_max_replicas=16, gpu_timeslice_fb_safety_threshold_bp=8000, gpu_timeslice_dram_penalty_threshold_bp=5000.
+}
+
 settings {
   encodeUrl: true
   timeout: 0
