@@ -1,0 +1,25 @@
+meta {
+  name: Cluster quota recommendations detail
+  type: http
+  seq: 57
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/cluster-quota/detail?cluster_uuid=CLUSTER_UUID&cluster_quota_name=team-payments-quota
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Required: cluster_uuid, cluster_quota_name (aliases: filter[cluster], filter[cluster_resource_quota], filter[crq]).
+  Response includes quota_hard/used/recommended, utilization, notifications (codes 70-73), and history[] per resource.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
