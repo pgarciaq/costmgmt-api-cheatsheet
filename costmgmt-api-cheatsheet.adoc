@@ -741,6 +741,8 @@ GET /api/cost-management/v1/recommendations/openshift/pvcs
 
 Namespace-level Kubernetes `ResourceQuota` right-sizing (distinct from namespace CPU/memory usage recommendations). Compares configured quota hard limits and used consumption against aggregated container recommendation totals.
 
+Quota savings (`estimated_savings`) are per-recommendation only. They are NOT included in the fleet `GET /savings-summary` rollup (which covers container, node, PVC, snapshot, and VM plugins).
+
 ----
 GET /api/cost-management/v1/recommendations/openshift/quota/
 GET /api/cost-management/v1/recommendations/openshift/quota/?filter[cluster]=550e8400-e29b-41d4-a716-446655440000
