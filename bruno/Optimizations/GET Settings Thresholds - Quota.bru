@@ -1,0 +1,24 @@
+meta {
+  name: GET Settings Thresholds - Quota
+  type: http
+  seq: 65
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/settings/quota
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Read namespace ResourceQuota recommendation thresholds and locked_fields (env-locked values cannot be changed via PUT).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

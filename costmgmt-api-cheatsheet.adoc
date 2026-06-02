@@ -574,9 +574,9 @@ GET /api/cost-management/v1/recommendations/openshift/nodes?filter[cluster]=CLUS
 GET /api/cost-management/v1/recommendations/openshift/nodes?format=csv
 ----
 
-List filters (bracket syntax preferred): `filter[cluster]`, `filter[node]`, `filter[term]` (`short`|`medium`|`long`), `filter[engine]` (`cost`|`performance`), `filter[is_underutilized]`, `filter[is_overcommitted]`, `filter[idle_state]` (comma-separated `active`, `idle`, `zombie`), `filter[stranded_resource]` (`cpu`, `memory`, `none`), `filter[instance_type]`, `filter[machineset_name]`. Legacy flat params `?term=`, `?engine=`, `?cluster_uuid=` still work.
+List filters (bracket syntax preferred): `filter[cluster]`, `filter[node]`, `filter[term]` (`short`|`medium`|`long`), `filter[engine]` (`cost`|`performance`), `filter[is_underutilized]`, `filter[is_overcommitted]`, `filter[idle_state]` (comma-separated `active`, `idle`, `zombie`), `filter[stranded_resource]` (`cpu`, `memory`, `none`), `filter[instance_type]`, `filter[machineset_name]`. Sort: `order_by` (`estimated_monthly_savings` default, or `node`), `order_how` (`asc`|`desc`). Pagination: `limit`, `offset`. Legacy flat params `?term=`, `?engine=`, `?cluster_uuid=` still work.
 
-Single-node detail today: `filter[node]` + `filter[cluster]` with `limit=1` (same response shape as list). Path-style `GET .../nodes/{node}` is planned in requirements but not registered yet.
+Single-node detail: `GET .../nodes/{node}?filter[cluster]=CLUSTER_UUID` (registered). List-filter equivalent: `filter[node]` + `filter[cluster]` with `limit=1` (same response shape).
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/nodes?filter[is_underutilized]=true
@@ -589,6 +589,21 @@ Response fields (per node): `classification` (including `idle_state`, `stranded_
 CSV export (`?format=csv` or `Accept: text/csv`): one row per node × term × engine; columns include `pod_capacity`, `pod_scheduling_headroom`, classification, and savings.
 
 Fleet consolidation groups underutilized nodes by `instance_type` when the operator provides it; otherwise by similar allocatable CPU/memory capacity.
+
+=== MachineSet aggregation recommendations
+
+Groups per-node recommendations by OpenShift MachineSet name (Tier 2 list API; aggregation only — no separate engine table):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/machinesets
+GET /api/cost-management/v1/recommendations/openshift/machinesets?filter[term]=medium&limit=10&offset=0
+GET /api/cost-management/v1/recommendations/openshift/machinesets?filter[cluster]=CLUSTER_UUID
+GET /api/cost-management/v1/recommendations/openshift/machinesets?filter[machineset_name]=worker*
+----
+
+Filters: `filter[cluster]` / `cluster_uuid`, `filter[machineset_name]` (exact or `*` wildcard), `filter[term]` / `term` (`short`|`medium`|`long`, default `medium`). Sorted by `total_monthly_savings_usd` descending.
+
+Response fields (per MachineSet): `machineset_name`, `cluster_uuid`, `cluster_alias`, `instance_type`, `current_node_count`, `recommended_node_count`, `excess_nodes`, `total_monthly_savings_usd`, `avg_cpu_utilization`, `avg_memory_utilization`, `nodes`.
 
 //==== Deprecated path (backward compatibility)
 //
@@ -616,17 +631,23 @@ Namespace-level Kubernetes `ResourceQuota` right-sizing (distinct from namespace
 GET /api/cost-management/v1/recommendations/openshift/quota/
 GET /api/cost-management/v1/recommendations/openshift/quota/?filter[cluster]=550e8400-e29b-41d4-a716-446655440000
 GET /api/cost-management/v1/recommendations/openshift/quota/?filter[project]=production
+GET /api/cost-management/v1/recommendations/openshift/quota/?filter[quota_name]=compute-quota
 GET /api/cost-management/v1/recommendations/openshift/quota/?filter[recommendation_type]=tighten&filter[risk_level]=low
+GET /api/cost-management/v1/recommendations/openshift/quota/?order_by=utilization&order_how=desc&limit=20&offset=0
 GET /api/cost-management/v1/recommendations/openshift/quota/?group_by[cluster]=true&limit=20&offset=0
+GET /api/cost-management/v1/recommendations/openshift/quota/detail?cluster_uuid=550e8400-e29b-41d4-a716-446655440001&namespace=production&quota_name=compute-quota
 ----
 
 Available filters:
 
 * `filter[cluster]` — cluster UUID (exact match)
 * `filter[project]` — namespace name (exact match)
+* `filter[quota_name]` — ResourceQuota object name (alias `filter[resource_quota_name]`)
 * `filter[recommendation_type]` — `tighten`, `raise`, or `optimal`
 * `filter[risk_level]` — `high`, `medium`, or `low`
 * `group_by[cluster]` or `group_by[project]` — aggregate rows (mutually exclusive)
+* `order_by` — `quota_name`, `utilization`, `risk_level`, `namespace`, or `estimated_monthly_savings`
+* `order_how` — `asc` or `desc` (default `desc` for utilization)
 * `limit` (1–100, default 20), `offset` (default 0)
 
 Example request:
@@ -648,6 +669,7 @@ Example response snippet:
     {
       "cluster_uuid": "550e8400-e29b-41d4-a716-446655440001",
       "namespace": "production",
+      "quota_name": "compute-quota",
       "recommendation_type": "tighten",
       "risk_level": "low",
       "quota_hard": {

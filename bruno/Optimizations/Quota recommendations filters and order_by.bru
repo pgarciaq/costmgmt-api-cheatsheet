@@ -1,0 +1,26 @@
+meta {
+  name: Quota recommendations filters and order_by
+  type: http
+  seq: 62
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/quota?filter[quota_name]=compute-quota&filter[recommendation_type]=tighten&order_by=utilization&order_how=desc&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  filter[quota_name] — Kubernetes ResourceQuota object name (alias filter[resource_quota_name]).
+  order_by — quota_name, utilization, risk_level, namespace, or estimated_monthly_savings.
+  order_how — asc or desc (default desc for utilization).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

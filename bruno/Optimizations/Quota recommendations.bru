@@ -10,6 +10,15 @@ get {
   auth: inherit
 }
 
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Namespace ResourceQuota list. See Quota recommendations detail/filters Bruno files for detail, order_by, and settings.
+  Requires ROS_ENABLED_PLUGINS quota.
+}
+
 settings {
   encodeUrl: true
   timeout: 0

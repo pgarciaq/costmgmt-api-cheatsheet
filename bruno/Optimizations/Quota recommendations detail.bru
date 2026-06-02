@@ -1,0 +1,26 @@
+meta {
+  name: Quota recommendations detail
+  type: http
+  seq: 61
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/quota/detail?cluster_uuid=CLUSTER_UUID&namespace=production&quota_name=compute-quota
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Required: cluster_uuid, namespace (aliases: filter[cluster], filter[project]).
+  Optional: quota_name (alias filter[resource_quota_name]) when multiple ResourceQuota objects exist in a namespace.
+  Response includes quota_hard/used/recommended (CPU, memory, storage, pods), utilization, notifications (codes 70-72), and history[] per resource.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

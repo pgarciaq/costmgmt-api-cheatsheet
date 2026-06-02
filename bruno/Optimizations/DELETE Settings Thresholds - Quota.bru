@@ -1,0 +1,24 @@
+meta {
+  name: DELETE Settings Thresholds - Quota
+  type: http
+  seq: 64
+}
+
+delete {
+  url: {{baseURL}}/recommendations/openshift/settings/quota
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Remove per-org quota threshold overrides (falls back to ROS_QUOTA_* env or defaults 10/90/70).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
