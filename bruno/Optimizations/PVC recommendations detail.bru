@@ -16,8 +16,9 @@ headers {
 
 docs {
   Required: cluster_uuid, namespace, persistentvolumeclaim (or filter[cluster] / filter[project]).
-  Response: terms map (short, medium, long), historical_usage daily points, mounted_by on summary.
-  mounted_by is display context only (virt-launcher pod name when reported by operator).
+  Response: terms map (short, medium, long), historical_usage daily points, mounted_by and vm_name on summary.
+  mounted_by: last observed mounting pod (virt-launcher-* when VM-backed).
+  vm_name: authoritative KubeVirt VM name from operator storage CSV when pod is virt-launcher.
 }
 
 settings {

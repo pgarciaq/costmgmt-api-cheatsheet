@@ -23,7 +23,7 @@ docs {
   List returns one row per PVC for the selected term (default medium).
   Filters: filter[cluster], filter[project], filter[recommendation_type], filter[term], filter[storageclass].
   Sort: order_by (usage_ratio, estimated_monthly_savings, pvc_name, capacity_bytes) + order_how.
-  Each row may include mounted_by (last observed mounting pod from storage CSV).
+  Each row may include mounted_by (last observed mounting pod) and vm_name (KubeVirt VM when virt-launcher).
   Use PVC recommendations detail for all terms and historical_usage.
 }
 
