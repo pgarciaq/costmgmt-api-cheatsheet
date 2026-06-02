@@ -1,0 +1,34 @@
+meta {
+  name: Container recommendations - filter idle state zombie
+  type: http
+  seq: 64
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[idle_state]=zombie&order_by=last_reported&order_how=desc&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[idle_state]: zombie
+  order_by: last_reported
+  order_how: desc
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[idle_state]=zombie — abandoned workloads with zero CPU and memory across all digest rows.
+
+  The API value is zombie; the UI may label these workloads as "Abandoned".
+  Zombie rows expose estimated_monthly_waste (100% recoverable when cost data exists)
+  and idle_recommendation guidance instead of rightsizing savings.
+
+  Combine values with comma separation: filter[idle_state]=active,idle
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

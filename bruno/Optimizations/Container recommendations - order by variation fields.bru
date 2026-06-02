@@ -17,9 +17,12 @@ params:query {
 }
 
 docs {
-  Sort container list by variation fields (percent change vs current request).
+  Sort container list by any OpenAPI order_by key (flat order_by + order_how or bracket form).
 
-  Examples (flat order_by + order_how):
+  Non-variation example:
+    ?order_by=last_reported&order_how=desc
+
+  Variation examples (percent change vs current request):
     ?order_by=cpu_variation_medium_cost&order_how=desc
     ?order_by=memory_variation_long_performance&order_how=asc
     ?order_by=cpu_variation_short_cost&order_how=desc
@@ -27,8 +30,15 @@ docs {
   Bracket form also accepted:
     ?order_by[memory_variation_medium_cost]=desc
 
-  Full enum: cluster, project, workload_type, workload, container, last_reported,
-  cpu_request_current, memory_request_current, and all cpu_/memory_variation_{short,medium,long}_{cost,performance} keys.
+  Full enum (19 values):
+    cluster, project, workload_type, workload, container, last_reported,
+    cpu_request_current, memory_request_current,
+    cpu_variation_short_cost, cpu_variation_short_performance,
+    cpu_variation_medium_cost, cpu_variation_medium_performance,
+    cpu_variation_long_cost, cpu_variation_long_performance,
+    memory_variation_short_cost, memory_variation_short_performance,
+    memory_variation_medium_cost, memory_variation_medium_performance,
+    memory_variation_long_cost, memory_variation_long_performance
 }
 
 settings {
