@@ -15,8 +15,9 @@ headers {
 }
 
 docs {
-  Required: cluster_uuid, cluster_quota_name (aliases: filter[cluster], filter[cluster_resource_quota], filter[crq]).
-  Response includes quota_hard/used/recommended, utilization, notifications (codes 70-73), and history[] per resource.
+  Required query params: cluster_uuid (cluster UUID), cluster_quota_name (CRQ object name).
+  Returns one CRQ recommendation (not wrapped in data[]) with quota_hard/used/recommended,
+  utilization, notifications (codes 70-73), and history[] per resource.
 }
 
 settings {

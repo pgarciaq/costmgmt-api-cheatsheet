@@ -773,14 +773,27 @@ Example response snippet:
       "risk_level": "low",
       "quota_hard": {
         "cpu_request_millicores": 500000,
-        "memory_request_bytes": 1099511627776
+        "memory_request_bytes": 1099511627776,
+        "storage_request_bytes": 107374182400,
+        "pods": 500
       },
-      "quota_used": { "cpu_request_millicores": 175000 },
+      "quota_used": {
+        "cpu_request_millicores": 175000,
+        "storage_request_bytes": 53687091200,
+        "pods": 120
+      },
       "quota_recommended": {
         "cpu_request_millicores": 396000,
-        "memory_request_bytes": 496125722624
+        "memory_request_bytes": 496125722624,
+        "storage_request_bytes": 85899345920,
+        "pods": 400
       },
-      "utilization": { "cpu_request_percent": 35, "memory_request_percent": 12 },
+      "utilization": {
+        "cpu_request_percent": 35,
+        "memory_request_percent": 12,
+        "storage_request_percent": 50,
+        "pods_percent": 24
+      },
       "capacity_freed": { "cpu_cores_freed": 104, "memory_bytes": 603387187152 },
       "estimated_savings": { "value": 420, "units": "USD" }
     }
