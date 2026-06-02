@@ -603,13 +603,26 @@ Total impact savings multiply per-container savings by replica count.
 Namespace-level CPU/memory recommendations (aggregated across all containers in a namespace):
 
 ----
-GET /api/cost-management/v1/openshift/namespace/recommendations
+GET /api/cost-management/v1/recommendations/openshift/namespaces
+GET /api/cost-management/v1/recommendations/openshift/namespaces?limit=100&offset=0
+GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[stale]=false
+GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[stale]=true
 ----
+
+Canonical list path. Legacy alias (identical behavior): `GET /api/cost-management/v1/openshift/namespace/recommendations`.
+
+* `filter[stale]` — `false` (default, exclude stale clusters), `true` (include stale and fresh), or `only` (only stale). Stale when the cluster has not reported within `ROS_STALENESS_THRESHOLD_HOURS` (default 48).
 
 Detail for a specific namespace recommendation:
 
 ----
-GET /api/cost-management/v1/recommendations/openshift/namespace/{recommendation_uuid}
+GET /api/cost-management/v1/recommendations/openshift/namespaces/{recommendation_uuid}
+----
+
+History for a namespace recommendation:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/namespaces/{recommendation_uuid}/history?filter[term]=short_term&filter[engine]=cost&limit=10
 ----
 
 === GPU recommendations hub (summary)
@@ -734,7 +747,7 @@ GET /api/cost-management/v1/recommendations/openshift/quota/?filter[project]=pro
 GET /api/cost-management/v1/recommendations/openshift/quota/?filter[quota_name]=compute-quota
 GET /api/cost-management/v1/recommendations/openshift/quota/?filter[recommendation_type]=tighten&filter[risk_level]=low
 GET /api/cost-management/v1/recommendations/openshift/quota/?order_by=utilization&order_how=desc&limit=20&offset=0
-GET /api/cost-management/v1/recommendations/openshift/quota/?group_by[cluster]=true&limit=20&offset=0
+GET /api/cost-management/v1/recommendations/openshift/quota/?group_by[cluster]=*&limit=20&offset=0
 GET /api/cost-management/v1/recommendations/openshift/quota/detail?cluster_uuid=550e8400-e29b-41d4-a716-446655440001&namespace=production&quota_name=compute-quota
 ----
 
@@ -743,8 +756,8 @@ Available filters:
 * `filter[cluster]` — cluster UUID (exact match)
 * `filter[project]` — namespace name (exact match)
 * `filter[quota_name]` — ResourceQuota object name (alias `filter[resource_quota_name]`)
-* `filter[recommendation_type]` — `tighten`, `raise`, or `optimal`
-* `filter[risk_level]` — `high`, `medium`, or `low`
+* `filter[recommendation_type]` — `tighten`, `raise`, `optimal`, or `none` (no recommendation generated yet)
+* `filter[risk_level]` — `high`, `medium`, `low`, or `none`
 * `group_by[cluster]` or `group_by[project]` — aggregate rows (mutually exclusive)
 * `order_by` — `quota_name`, `utilization`, `risk_level`, `namespace`, or `estimated_monthly_savings`
 * `order_how` — `asc` or `desc` (default `desc` for utilization)
@@ -787,6 +800,35 @@ Example response snippet:
     }
   ]
 }
+----
+
+==== Notification codes
+
+Namespace ResourceQuota rows may emit notification codes **70–72**. Filter the catalog with
+`GET /api/cost-management/v1/recommendations/openshift/notification-codes/?filter[plugin]=quota`.
+Code **73** (`CLUSTER_QUOTA_AT_CAPACITY`) applies to ClusterResourceQuota rows only.
+
+[cols="1,2,3", options="header"]
+|===
+| Code | Name | Description
+
+| 70 | QUOTA_NEAR_CAPACITY | Quota at high utilization risk (near capacity)
+| 71 | QUOTA_OVERSIZED | Tighten recommendation — quota has significant unused headroom
+| 72 | QUOTA_BLOCKING | Quota at or over hard limit — pods may be pending
+|===
+
+==== Detail and history
+
+`GET /api/cost-management/v1/recommendations/openshift/quota/detail` returns one recommendation object (not wrapped in `data`). Required query parameters: `cluster_uuid`, `namespace` (alias `filter[project]`). Optional: `quota_name` (alias `filter[resource_quota_name]`) when multiple ResourceQuota objects exist in the namespace.
+
+The response includes the same fields as a list row plus `headroom_basis_points` and a `history[]` array of per-resource snapshots for trend charts. Each history entry includes `recorded_at`, `resource`, `recommendation_type`, `risk_level`, and optional `recommended_hard`, `current_hard`, `current_used`, and `utilization_percent` from the previous observation.
+
+Example detail request:
+
+[source,bash]
+----
+curl -s -H "x-rh-identity: ${IDENTITY}" \
+  'http://localhost:8000/api/cost-management/v1/recommendations/openshift/quota/detail?cluster_uuid=550e8400-e29b-41d4-a716-446655440001&namespace=production&quota_name=compute-quota'
 ----
 
 Requires the `quota` plugin (`ROS_ENABLED_PLUGINS`); when disabled the route returns `404`.
