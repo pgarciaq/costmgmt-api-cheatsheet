@@ -398,7 +398,7 @@ GET /api/cost-management/v1/recommendations/openshift/savings-summary?engine=cos
 
 ==== Savings recalculation (internal)
 
-After a Koku cost model update, masu notifies ROS to refresh persisted dollar savings without re-ingestion. Service-account bearer token required (same auth as tag sync). Requires `ROS_SAVINGS_ESTIMATES_ENABLED` and `ROS_SAVINGS_RECALCULATION_ENABLED`.
+After a Koku cost model update, masu notifies ROS to refresh persisted dollar savings without re-ingestion. Supported types: `container`, `node`, `pvc`, `quota`, `cluster-quota`. Service-account bearer token required (same auth as tag sync). Requires `ROS_SAVINGS_ESTIMATES_ENABLED` and `ROS_SAVINGS_RECALCULATION_ENABLED`.
 
 ----
 POST /api/cost-management/v1/internal/recalculate-savings
@@ -411,7 +411,7 @@ Example body:
 {
   "org_id": "1234567",
   "cluster_uuid": "02059694-68ab-4d58-8809-de1e91f1d0e5",
-  "recommendation_types": ["container", "node", "pvc"]
+  "recommendation_types": ["container", "node", "pvc", "quota", "cluster-quota"]
 }
 ----
 
@@ -806,6 +806,17 @@ VolumeSnapshot analysis — orphaned, stale, never-restored, redundant snapshots
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/snapshots
+----
+
+Namespace/cluster rollup for prioritizing cleanup (reclaimable cost and size exclude `active` and `managed`):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/snapshots/summary
+GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?group_by=project
+GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?group_by=cluster
+GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[cluster]=CLUSTER_UUID
+GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[project]=payments-*
+GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?order_by=reclaimable_restore_size_gib&order_how=desc&limit=20
 ----
 
 Snapshot staleness settings (configurable thresholds):

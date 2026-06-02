@@ -1,7 +1,7 @@
 meta {
-  name: POST internal recalculate-savings
+  name: POST internal recalculate-savings (quota only)
   type: http
-  seq: 50
+  seq: 51
 }
 
 post {
@@ -22,18 +22,14 @@ body:json {
   {
     "org_id": "1234567",
     "cluster_uuid": "02059694-68ab-4d58-8809-de1e91f1d0e5",
-    "recommendation_types": ["container", "node", "pvc", "quota", "cluster-quota"]
+    "recommendation_types": ["quota", "cluster-quota"]
   }
 }
 
 docs {
-  Service-account only (same auth as tag sync). Called by Koku after cost model updates.
+  Recalculate quota and cluster-quota tighten savings only (no classification re-run).
 
   Requires ROS_SAVINGS_ESTIMATES_ENABLED and ROS_SAVINGS_RECALCULATION_ENABLED.
-
-  Returns 202 Accepted; work runs asynchronously.
-
-  Set serviceAccountToken in environment (projected SA JWT or ROS_SERVICE_TOKEN).
 }
 
 vars:pre-request {
