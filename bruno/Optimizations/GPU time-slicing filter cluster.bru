@@ -1,0 +1,38 @@
+meta {
+  name: GPU time-slicing filter cluster
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/gpu/timeslicing?filter[cluster]={{cluster}}&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~filter[cluster]: {{cluster}}
+  limit: 20
+  offset: 0
+  ~node_name:
+  ~gpu_model:
+  ~term: medium
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Node-level GPU time-slicing recommendations scoped to one cluster.
+
+  Use `filter[cluster]` with the OpenShift cluster UUID (same value as `cluster_uuid` on list rows).
+  Legacy flat param `?cluster_uuid=` is also accepted.
+
+  Do not confuse with VM guest GPU time-slicing (`gpu_timeslice_*` on `GET .../vms/{id}`) — that is vGPU profile selection for virtual machines, not node device-plugin replica sharing.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
