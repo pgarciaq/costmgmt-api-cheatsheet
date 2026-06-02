@@ -1,0 +1,37 @@
+meta {
+  name: Container recommendations - filter namespace alias
+  type: http
+  seq: 70
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[namespace]={{project}}&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[namespace]: {{project}}
+  limit: 20
+  offset: 0
+}
+
+vars:pre-request {
+  project: openshift-monitoring
+}
+
+docs {
+  filter[namespace] is an alias for filter[project] — both filter by OpenShift namespace (exact match).
+
+  Equivalent requests:
+    ?filter[namespace]=openshift-monitoring
+    ?filter[project]=openshift-monitoring
+
+  Legacy flat form ?namespace=openshift-monitoring is also accepted.
+  See Container recommendations - filter project workload for bracket filter[project].
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -380,6 +380,7 @@ Machine-readable catalog of all notification codes (no auth required). Optional 
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/notification-codes
+GET /api/cost-management/v1/recommendations/openshift/notification-codes?filter[plugin]=container
 GET /api/cost-management/v1/recommendations/openshift/notification-codes?filter[plugin]=namespace
 ----
 

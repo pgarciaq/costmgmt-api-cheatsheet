@@ -1,0 +1,37 @@
+meta {
+  name: Container recommendations - savings shape
+  type: http
+  seq: 69
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?order_by=cpu_variation_medium_cost&order_how=desc&limit=5&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  order_by: cpu_variation_medium_cost
+  order_how: desc
+  limit: 5
+  offset: 0
+}
+
+docs {
+  List container recommendations sorted by medium-term CPU cost variation.
+
+  Each active row may include estimated_monthly_savings — a currency object, not a bare number:
+
+    "estimated_monthly_savings": { "value": "12500.750000", "units": "USD" }
+
+  - value — decimal string (rightsizing delta for the row's recommendation term/engine)
+  - units — ISO 4217 currency code (matches tenant currency settings)
+
+  Omitted when idle_state is not active (see Container recommendations - filter idle).
+  Detail GET /recommendations/openshift/{id} uses the same shape when present.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
