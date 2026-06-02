@@ -1,0 +1,43 @@
+meta {
+  name: PUT Settings Terms - Namespace
+  type: http
+  seq: 86
+}
+
+put {
+  url: {{baseURL}}/recommendations/openshift/settings/terms?recommendation_type=namespace
+  body: json
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  content-type: application/json
+}
+
+body:json {
+  {
+    "terms": [
+      {
+        "name": "short",
+        "window_days": 3,
+        "min_data_days": 2
+      },
+      {
+        "name": "medium",
+        "window_days": 14,
+        "min_data_days": 7
+      },
+      {
+        "name": "long",
+        "window_days": 30,
+        "min_data_days": 15
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

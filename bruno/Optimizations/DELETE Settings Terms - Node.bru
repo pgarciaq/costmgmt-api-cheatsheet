@@ -1,0 +1,20 @@
+meta {
+  name: DELETE Settings Terms - Node
+  type: http
+  seq: 89
+}
+
+delete {
+  url: {{baseURL}}/recommendations/openshift/settings/terms?recommendation_type=node
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
