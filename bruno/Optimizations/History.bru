@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/history?cluster={{clusterUuid}}&container=grafana&engine=cost&term=medium&limit=10
+  url: {{baseURL}}/recommendations/openshift/history?cluster={{clusterUuid}}&container=grafana&filter[engine]=cost&term=medium&limit=10
   body: none
   auth: inherit
 }
@@ -13,7 +13,7 @@ get {
 params:query {
   cluster: {{clusterUuid}}
   container: grafana
-  engine: cost
+  filter[engine]: cost
   term: medium
   limit: 10
 }
@@ -22,7 +22,9 @@ docs {
   Container recommendation snapshot history (fleet-wide).
 
   Optional filters: cluster, project, workload, container, term (short|medium|long),
-  engine (cost|performance), start_date, end_date.
+  filter[engine] (cost|performance), start_date, end_date.
+
+  Legacy flat ?engine=cost is also accepted (same behavior as filter[engine]).
 
   Each row includes recorded_at, namespace, container_name, term, engine,
   rec_cpu_request_millicores, rec_memory_request_kib, and estimated_monthly_savings.

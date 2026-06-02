@@ -1,0 +1,28 @@
+meta {
+  name: Container recommendations - detail dual engine
+  type: http
+  seq: 67
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/{{recommendationUuid}}
+  body: none
+  auth: inherit
+}
+
+docs {
+  Container detail includes nested dual engines under each recommendation term.
+
+  Inspect:
+  recommendations.recommendation_terms.<term>.recommendation_engines.cost
+  recommendations.recommendation_terms.<term>.recommendation_engines.performance
+
+  Cost engine uses lower usage percentiles (e.g. P60 CPU); performance uses higher
+  percentiles (e.g. P98 CPU) for headroom. List endpoints accept filter[engine] to
+  return only one engine block per term; detail always returns both when data exists.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -467,6 +467,22 @@ The detail response includes per-term (short/medium/long) recommendations for tw
 
 Each recommendation includes CPU/memory requests and limits, notifications, and usage distribution box plots (min, Q1, median, Q3, max).
 
+Detail responses nest both engines under each term:
+
+----
+recommendations.recommendation_terms.medium_term.recommendation_engines.cost
+recommendations.recommendation_terms.medium_term.recommendation_engines.performance
+----
+
+==== How engines differ (cost vs performance)
+
+* **Cost** — lower usage percentiles (e.g. P60 CPU, P95 memory) to right-size for savings
+* **Performance** — higher percentiles (e.g. P98 CPU, max memory) to preserve headroom
+
+On list endpoints, `filter[engine]=cost` or `filter[engine]=performance` returns only the
+selected engine under each term and omits the other from `recommendation_engines`.
+When the filter is omitted, both engines are returned.
+
 ==== Filtering and sorting
 
 Filter by cluster, project, workload, workload type, or container:
@@ -488,12 +504,14 @@ comma-separated values are ORed): `daemonset`, `deployment`, `deploymentconfig`,
 `replicaset`, `replicationcontroller`, `statefulset`. Legacy flat form
 `?workload_type=deployment` is also accepted.
 
-Filter by recommendation engine (limits nested `recommendation_engines` to cost or performance):
+Filter by recommendation engine (limits nested `recommendation_engines` to cost or performance; omits the non-selected engine from each item):
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/?filter[engine]=cost
 GET /api/cost-management/v1/recommendations/openshift/?filter[engine]=performance
 ----
+
+Legacy flat `?engine=cost` is also accepted on container, namespace, node, VM, quality, and history endpoints.
 
 Filter by GPU:
 
@@ -581,15 +599,20 @@ Recommendation snapshot history (fleet-wide, native engine):
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/history?limit=10
-GET /api/cost-management/v1/recommendations/openshift/history?container=my-container&engine=cost&term=medium
+GET /api/cost-management/v1/recommendations/openshift/history?container=my-container&filter[engine]=cost&term=medium
 ----
+
+History accepts `filter[engine]=cost|performance` (preferred) or legacy flat `?engine=cost`.
 
 Recommendation quality metrics (stability, adoption, OOM after rec):
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/quality?limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality?filter[engine]=cost&limit=10
 GET /api/cost-management/v1/recommendations/openshift/quality?order_by=stability&order_how=desc
 ----
+
+Quality defaults to the cost engine when `filter[engine]` is omitted.
 
 ==== Replica counts and total savings
 
@@ -615,6 +638,12 @@ GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[stale]=t
 Canonical list path. Legacy alias (identical behavior): `GET /api/cost-management/v1/openshift/namespace/recommendations`.
 
 * `filter[stale]` — `false` (default, exclude stale clusters), `true` (include stale and fresh), or `only` (only stale). Stale when the cluster has not reported within `ROS_STALENESS_THRESHOLD_HOURS` (default 48).
+* `filter[engine]` — `cost` or `performance`; omits the other engine from `recommendation_engines` on each item (legacy `?engine=` also accepted)
+
+----
+GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[engine]=cost
+GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[engine]=performance
+----
 
 Detail for a specific namespace recommendation:
 
@@ -1065,8 +1094,10 @@ GET /api/cost-management/v1/recommendations/openshift/vm?filter[guest_agent_dete
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[has_gpu]=true
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[gpu_classification]=underutilized
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[engine]=cost
-GET /api/cost-management/v1/recommendations/openshift/vm?order_by=last_recommended_at&order_how=desc
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[engine]=performance
 ----
+
+Each list row includes `metadata.engine` matching the filter (one row per VM per engine when unfiltered).
 
 Pagination: `limit` (1–100, default 10), `offset` (default 0).
 

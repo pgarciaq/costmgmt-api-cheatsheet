@@ -1,0 +1,32 @@
+meta {
+  name: Namespace recommendations - filter engine
+  type: http
+  seq: 68
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/namespaces?filter[engine]=cost&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[engine]: cost
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[engine]=cost — return only the cost engine under each recommendation term.
+
+  Also accepted: filter[engine]=performance, or legacy flat ?engine=cost.
+
+  When a list filter is set, the non-selected engine is omitted from
+  recommendation_terms.<term>.recommendation_engines on each namespace item.
+  When omitted, both cost and performance are returned.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

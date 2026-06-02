@@ -1,0 +1,31 @@
+meta {
+  name: VM recommendations - filter engine
+  type: http
+  seq: 70
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm?filter[engine]=cost&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[engine]: cost
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[engine]=cost — list returns only rows for the cost sizing engine.
+
+  Also accepted: filter[engine]=performance, or legacy flat ?engine=cost.
+
+  Each list row includes metadata.engine matching the filter. Cost uses lower CPU
+  percentiles (P95); performance uses P99 and may hold aggressive downsizes.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
