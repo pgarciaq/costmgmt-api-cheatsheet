@@ -30,15 +30,27 @@ docs {
   Bracket form also accepted:
     ?order_by[memory_variation_medium_cost]=desc
 
-  Full enum (19 values):
-    cluster, project, workload_type, workload, container, last_reported,
-    cpu_request_current, memory_request_current,
-    cpu_variation_short_cost, cpu_variation_short_performance,
-    cpu_variation_medium_cost, cpu_variation_medium_performance,
-    cpu_variation_long_cost, cpu_variation_long_performance,
-    memory_variation_short_cost, memory_variation_short_performance,
-    memory_variation_medium_cost, memory_variation_medium_performance,
-    memory_variation_long_cost, memory_variation_long_performance
+  Full order_by enum (OpenAPI GET /recommendations/openshift):
+    1. cluster
+    2. project
+    3. workload_type
+    4. workload
+    5. container
+    6. last_reported
+    7. cpu_request_current
+    8. memory_request_current
+    9. cpu_variation_short_cost
+    10. cpu_variation_short_performance
+    11. cpu_variation_medium_cost
+    12. cpu_variation_medium_performance
+    13. cpu_variation_long_cost
+    14. cpu_variation_long_performance
+    15. memory_variation_short_cost
+    16. memory_variation_short_performance
+    17. memory_variation_medium_cost
+    18. memory_variation_medium_performance
+    19. memory_variation_long_cost
+    20. memory_variation_long_performance
 }
 
 settings {

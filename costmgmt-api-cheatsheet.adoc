@@ -505,6 +505,8 @@ GET /api/cost-management/v1/recommendations/openshift/?filter[gpu_classification
 
 Filter by idle state (`active`, `idle`, or `zombie`; comma-separated values are ORed):
 
+NOTE: The API uses `idle_state=zombie` which the UI displays as "Abandoned".
+
 ----
 GET /api/cost-management/v1/recommendations/openshift/?filter[idle_state]=zombie,idle
 ----
