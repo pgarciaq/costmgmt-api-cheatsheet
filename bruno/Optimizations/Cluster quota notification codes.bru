@@ -1,0 +1,32 @@
+meta {
+  name: Cluster quota notification codes
+  type: http
+  seq: 59
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/notification-codes?filter[plugin]=cluster-quota
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  ClusterResourceQuota (CRQ) notification codes returned when filter[plugin]=cluster-quota:
+
+  - **70** — QUOTA_NEAR_CAPACITY: high utilization risk (risk_level high)
+  - **71** — QUOTA_OVERSIZED: tighten recommendation (unused quota headroom)
+  - **72** — QUOTA_BLOCKING: resource blocking (used >= hard on CPU, memory, storage, pods, or object counts)
+  - **73** — CLUSTER_QUOTA_AT_CAPACITY: at-capacity alert (risk_level high)
+
+  Object-count resources (e.g. count/deployments.apps) contribute to risk_level and code 72 only;
+  they are not included in utilization response fields or order_by=utilization sorting.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
