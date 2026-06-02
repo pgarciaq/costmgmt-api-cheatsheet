@@ -1,0 +1,20 @@
+meta {
+  name: GET Settings Business Hours - Namespace
+  type: http
+  seq: 82
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/settings/business-hours/clusters/{{cluster_uuid}}/namespaces/{{project}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

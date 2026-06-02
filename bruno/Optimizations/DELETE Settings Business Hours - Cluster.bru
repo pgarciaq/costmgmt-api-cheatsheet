@@ -1,0 +1,20 @@
+meta {
+  name: DELETE Settings Business Hours - Cluster
+  type: http
+  seq: 81
+}
+
+delete {
+  url: {{baseURL}}/recommendations/openshift/settings/business-hours/clusters/{{cluster_uuid}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

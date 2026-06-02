@@ -1,11 +1,11 @@
 meta {
-  name: Term settings
+  name: DELETE Settings Business Hours
   type: http
-  seq: 13
+  seq: 78
 }
 
-get {
-  url: {{baseURL}}/recommendations/openshift/settings/terms?recommendation_type=container
+delete {
+  url: {{baseURL}}/recommendations/openshift/settings/business-hours
   body: none
   auth: inherit
 }

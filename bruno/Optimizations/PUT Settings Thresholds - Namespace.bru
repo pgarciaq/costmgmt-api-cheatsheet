@@ -1,0 +1,27 @@
+meta {
+  name: PUT Settings Thresholds - Namespace
+  type: http
+  seq: 71
+}
+
+put {
+  url: {{baseURL}}/recommendations/openshift/settings/namespace
+  body: json
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  content-type: application/json
+}
+
+body:json {
+  {
+    "cpu_cost_percentile": 0.65
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

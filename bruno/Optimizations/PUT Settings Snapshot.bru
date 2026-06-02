@@ -1,0 +1,28 @@
+meta {
+  name: PUT Settings Snapshot
+  type: http
+  seq: 75
+}
+
+put {
+  url: {{baseURL}}/recommendations/openshift/settings/snapshot
+  body: json
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  content-type: application/json
+}
+
+body:json {
+  {
+    "stale_days": 30,
+    "orphan_age_days": 7
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

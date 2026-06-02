@@ -1,11 +1,11 @@
 meta {
-  name: Term settings
+  name: GET Settings Business Hours - Cluster
   type: http
-  seq: 13
+  seq: 79
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/settings/terms?recommendation_type=container
+  url: {{baseURL}}/recommendations/openshift/settings/business-hours/clusters/{{cluster_uuid}}
   body: none
   auth: inherit
 }
