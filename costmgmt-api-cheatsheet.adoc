@@ -374,6 +374,15 @@ GET /api/cost-management/v1/tags/openshift/my-tag-key/
 
 == Optimizations (Resource Optimization for OpenShift)
 
+==== Notification codes (reference)
+
+Machine-readable catalog of all notification codes (no auth required). Optional `filter[plugin]` for `container`, `namespace`, `node`, `gpu`, `pvc`, `snapshot`, `vm`, `quota`, or `cluster-quota`.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/notification-codes
+GET /api/cost-management/v1/recommendations/openshift/notification-codes?filter[plugin]=namespace
+----
+
 === Fleet summary
 
 Cross-cluster aggregated savings, adoption rates, and top optimization opportunities:
@@ -722,6 +731,7 @@ GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[clus
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[cluster_quota_name]=team-payments-quota
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[namespace]=team-payments-ns
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[recommendation_type]=tighten&filter[risk_level]=high
+GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?group_by[cluster]=*&limit=20&offset=0
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?order_by=utilization&order_how=desc&limit=20&offset=0
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/detail?cluster_uuid=550e8400-e29b-41d4-a716-446655440001&cluster_quota_name=team-payments-quota
 ----
@@ -733,6 +743,7 @@ Available filters:
 * `filter[namespace]` — namespace that belongs to the CRQ selector (alias: `filter[project]`)
 * `filter[recommendation_type]` — `tighten`, `raise`, `optimal`, or `none`
 * `filter[risk_level]` — `high`, `medium`, `low`, or `none`
+* `group_by[cluster]` — aggregate rows per cluster (returns `count`, summed `estimated_savings`, and summed `capacity_freed` per cluster; mutually exclusive with per-CRQ list fields such as `cluster_quota_name`)
 * `order_by` — `cluster_quota_name`, `utilization`, `risk_level`, or `estimated_monthly_savings`
 * `order_how` — `asc` or `desc` (default `desc` when `order_by` is set)
 * `limit` (1–100, default 20), `offset` (default 0)
@@ -778,6 +789,28 @@ Example response snippet:
 ----
 
 Requires the `cluster-quota` plugin (`ROS_ENABLED_PLUGINS`); when disabled the route returns `404`. Clusters without ClusterResourceQuota objects return an empty `data` array (not an error).
+
+Example `group_by[cluster]` response snippet:
+
+[source,json]
+----
+{
+  "meta": { "count": 2, "limit": 20, "offset": 0 },
+  "data": [
+    {
+      "cluster_uuid": "550e8400-e29b-41d4-a716-446655440001",
+      "count": 3,
+      "capacity_freed": {
+        "cpu_cores_freed": 12,
+        "memory_bytes": 85899345920,
+        "storage_request_bytes": 10737418240,
+        "pods_freed": 5
+      },
+      "estimated_savings": { "value": 840, "units": "USD" }
+    }
+  ]
+}
+----
 
 Cluster-quota recommendation settings (per-organization thresholds; env vars lock fields in `locked_fields`):
 
