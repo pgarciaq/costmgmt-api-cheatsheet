@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/cluster-quota?order_by=cluster_quota_name&order_how=asc&limit=20&offset=0
+  url: {{baseURL}}/recommendations/openshift/cluster-quota?order_by={{orderBy}}&order_how={{orderHow}}&limit=20&offset=0
   body: none
   auth: inherit
 }
@@ -14,15 +14,22 @@ headers {
   x-rh-identity: {{xRhIdentity}}
 }
 
+vars:pre-request {
+  orderBy: utilization
+  orderHow: desc
+}
+
 docs {
-  All four order_by values (repeat request with each order_by):
+  Switch order_by via vars:pre-request (Bruno pre-request vars):
 
-  1. order_by=cluster_quota_name&order_how=asc  (default sort key)
-  2. order_by=utilization&order_how=desc       (max CPU/memory/storage/pods %)
-  3. order_by=risk_level&order_how=desc         (high → medium → low → none)
-  4. order_by=estimated_monthly_savings&order_how=desc  (tighten rows only)
+  | orderBy | orderHow | Sort key |
+  |---------|----------|----------|
+  | cluster_quota_name | asc | CRQ object name (default sort key) |
+  | utilization | desc | Max CPU/memory/storage/pods % (object-count excluded) |
+  | risk_level | desc | high → medium → low → none |
+  | estimated_monthly_savings | desc | tighten rows only |
 
-  order_how=asc | desc (default desc when order_by is set)
+  order_how: asc | desc (default desc when order_by is set)
 }
 
 settings {
