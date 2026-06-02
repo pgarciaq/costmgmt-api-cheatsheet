@@ -1,0 +1,25 @@
+meta {
+  name: Quota recommendations group_by project
+  type: http
+  seq: 67
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/quota?group_by[project]=*&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Aggregate namespace ResourceQuota recommendations per namespace (project).
+  Each row includes namespace, count, and summed estimated_savings and capacity_freed when present.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

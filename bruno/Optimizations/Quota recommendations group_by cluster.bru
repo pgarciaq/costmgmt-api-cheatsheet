@@ -1,0 +1,26 @@
+meta {
+  name: Quota recommendations group_by cluster
+  type: http
+  seq: 66
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/quota?group_by[cluster]=*&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Aggregate namespace ResourceQuota recommendations per cluster.
+  Each row includes cluster_uuid, count (quota rows in cluster), and summed
+  estimated_savings and capacity_freed when present.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,26 @@
+meta {
+  name: GET Notification codes - Quota
+  type: http
+  seq: 68
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/notification-codes?filter[plugin]=quota
+  body: none
+  auth: none
+}
+
+docs {
+  Namespace ResourceQuota notification codes when filter[plugin]=quota:
+
+  - **70** — QUOTA_NEAR_CAPACITY: high utilization risk (risk_level high)
+  - **71** — QUOTA_OVERSIZED: tighten recommendation (unused quota headroom)
+  - **72** — QUOTA_BLOCKING: resource blocking (used >= hard; pods may be pending)
+
+  Code **73** (CLUSTER_QUOTA_AT_CAPACITY) is for cluster-quota plugin only.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
