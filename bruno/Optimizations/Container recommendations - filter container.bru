@@ -1,0 +1,32 @@
+meta {
+  name: Container recommendations - filter container
+  type: http
+  seq: 64
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[container]={{container}}&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[container]: {{container}}
+  limit: 20
+  offset: 0
+}
+
+vars:pre-request {
+  container: app
+}
+
+docs {
+  Koku-aligned bracket filter for container name (partial match).
+
+  Aliases: filter[container] ↔ container.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

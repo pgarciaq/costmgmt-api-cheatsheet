@@ -471,12 +471,16 @@ Each recommendation includes CPU/memory requests and limits, notifications, and 
 Filter by cluster, project, workload, workload type, or container:
 
 ----
-GET /api/cost-management/v1/recommendations/openshift/?cluster_uuid=CLUSTER_UUID
-GET /api/cost-management/v1/recommendations/openshift/?project=my-namespace
-GET /api/cost-management/v1/recommendations/openshift/?workload=my-deployment
+GET /api/cost-management/v1/recommendations/openshift/?filter[cluster]=CLUSTER_UUID
+GET /api/cost-management/v1/recommendations/openshift/?filter[project]=my-namespace
+GET /api/cost-management/v1/recommendations/openshift/?filter[namespace]=my-namespace
+GET /api/cost-management/v1/recommendations/openshift/?filter[workload]=my-deployment
 GET /api/cost-management/v1/recommendations/openshift/?filter[workload_type]=deployment
-GET /api/cost-management/v1/recommendations/openshift/?container=my-container
+GET /api/cost-management/v1/recommendations/openshift/?filter[container]=my-container
 ----
+
+`filter[namespace]` is an alias for `filter[project]` (both filter by OpenShift namespace).
+Legacy flat forms (`cluster_uuid`, `project`, `namespace`, `container`) are also accepted.
 
 `filter[workload_type]` accepts lowercase Kubernetes controller kinds (exact match;
 comma-separated values are ORed): `daemonset`, `deployment`, `deploymentconfig`,
@@ -493,9 +497,9 @@ GET /api/cost-management/v1/recommendations/openshift/?filter[engine]=performanc
 Filter by GPU:
 
 ----
-GET /api/cost-management/v1/recommendations/openshift/?has_gpu=true
-GET /api/cost-management/v1/recommendations/openshift/?gpu_model=A100
-GET /api/cost-management/v1/recommendations/openshift/?gpu_classification=underutilized
+GET /api/cost-management/v1/recommendations/openshift/?filter[has_gpu]=true
+GET /api/cost-management/v1/recommendations/openshift/?filter[gpu_model]=A100
+GET /api/cost-management/v1/recommendations/openshift/?filter[gpu_classification]=underutilized
 ----
 
 Filter by idle state (`active`, `idle`, or `zombie`; comma-separated values are ORed):
