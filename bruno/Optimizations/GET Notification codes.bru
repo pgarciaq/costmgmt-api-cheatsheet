@@ -1,0 +1,15 @@
+meta {
+  name: GET Notification codes
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/notification-codes
+  body: none
+  auth: none
+}
+
+docs {
+  Full notification code catalog (sorted by code). Optional filter[plugin]=namespace for plugin-specific codes.
+}

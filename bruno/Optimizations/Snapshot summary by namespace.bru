@@ -1,0 +1,26 @@
+meta {
+  name: Snapshot summary by namespace
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/snapshots/summary
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~group_by: project
+  ~order_by: reclaimable_monthly_holding_cost_usd
+  ~order_how: desc
+  ~limit: 10
+  ~offset: 0
+  ~filter[cluster]:
+  ~filter[project]:
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

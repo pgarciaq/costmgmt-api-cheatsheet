@@ -1,0 +1,31 @@
+meta {
+  name: Container recommendations - filter gpu model
+  type: http
+  seq: 67
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[gpu_model]=A100&filter[has_gpu]=true&limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[gpu_model]: A100
+  filter[has_gpu]: true
+  limit: 20
+}
+
+docs {
+  Filter GPU-enabled containers by model name (case-insensitive substring match).
+
+  filter[gpu_model]=A100 matches "NVIDIA A100-SXM4-80GB" and similar model strings.
+  Combine with filter[has_gpu]=true to exclude non-GPU workloads.
+
+  Flat syntax also works: ?gpu_model=A100&has_gpu=true
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Node utilization - sort by node
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 20
+  offset: 0
+  filter[term]: medium
+  filter[engine]: cost
+  order_by: node
+  order_how: asc
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Sort node list by node name (asc) or use order_by=estimated_monthly_savings (default) with order_how=desc.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

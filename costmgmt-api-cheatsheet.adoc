@@ -498,6 +498,25 @@ Filter by idle state (`active`, `idle`, or `zombie`; comma-separated values are 
 GET /api/cost-management/v1/recommendations/openshift/?filter[idle_state]=zombie,idle
 ----
 
+Filter by OpenShift labels (requires `ROS_TAGS_ENABLED=true`; tags synced from Koku):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/?filter[tag:environment]=production
+GET /api/cost-management/v1/recommendations/openshift/?filter[tag:environment]=production,staging
+GET /api/cost-management/v1/recommendations/openshift/?filter[tag:team]=platform
+----
+
+Tag filter syntax follows Koku report conventions:
+
+* `filter[tag:<key>]=<value>` — exact value match
+* `filter[tag:<key>]=a,b` — OR within the same key (comma-separated)
+* Multiple `filter[tag:*]` keys — AND across keys
+* `filter[tag:<key>]=*` — key present with any value
+* Legacy flat form `?tag=<key>:<value>` is also accepted
+
+When a tag key is unknown or has no matching containers, `meta.count` is `0` and
+`meta.warnings` may describe the empty result.
+
 ==== Pagination
 
 Offset pagination (default):
@@ -527,6 +546,21 @@ Allowed `order_by` values: `cluster`, `project`, `workload_type`, `workload`, `c
 GET /api/cost-management/v1/recommendations/openshift/?order_by=last_reported&order_how=desc
 GET /api/cost-management/v1/recommendations/openshift/?order_by=cpu_variation_medium_cost&order_how=desc
 ----
+
+==== CSV export
+
+Export container recommendations as CSV (one row per container × term × engine):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/?format=csv
+GET /api/cost-management/v1/recommendations/openshift/?format=csv&limit=100&order_by=last_reported&order_how=desc
+----
+
+Prefer `Accept: text/csv` for explicit content negotiation. Response `Content-Type`
+is `text/csv`. The export is capped at 1000 list records (up to 6000 CSV rows when
+all three terms and both engines are present). Columns include cluster, project,
+workload, container, savings, idle state, and per-term CPU/memory requests and limits.
+Use the same filters and `order_by` parameters as the JSON list endpoint.
 
 ==== History and quality
 

@@ -1,0 +1,36 @@
+meta {
+  name: MachineSet recommendations
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/machinesets
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 10
+  offset: 0
+  filter[term]: medium
+  ~filter[cluster]: 
+  ~filter[machineset_name]: worker*
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Aggregates per-node cost-engine recommendations by OpenShift MachineSet name.
+  Requires machineset_name on node rows (operator or nise). Default term: medium.
+
+  Response: current/recommended node counts, excess_nodes (sum of node_count_reduction),
+  total_monthly_savings_usd, average CPU/memory P95 util, and member node names.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -5,9 +5,27 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/quality
+  url: {{baseURL}}/recommendations/openshift/quality?cluster={{clusterUuid}}&container=grafana&order_by=stability&order_how=desc&limit=10
   body: none
   auth: inherit
+}
+
+params:query {
+  cluster: {{clusterUuid}}
+  container: grafana
+  order_by: stability
+  order_how: desc
+  limit: 10
+}
+
+docs {
+  Recommendation quality metrics (stability, adoption, OOM-after-rec).
+
+  Optional filters: cluster, project, workload, container.
+  Sort: order_by=stability|adoption|oom_after_rec with order_how=asc|desc.
+
+  Each row includes measured_at, namespace, container_name, stability_pct,
+  adoption_pct, and oom_after_rec when populated.
 }
 
 settings {

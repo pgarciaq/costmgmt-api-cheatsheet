@@ -1,0 +1,35 @@
+meta {
+  name: Container recommendations - filter tag
+  type: http
+  seq: 66
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[tag:environment]=production&limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[tag:environment]: production
+  limit: 20
+}
+
+docs {
+  Filter container recommendations by OpenShift label (requires ROS_TAGS_ENABLED=true).
+
+  Syntax:
+    filter[tag:<key>]=<value>           — exact value match
+    filter[tag:<key>]=a,b                — OR within the same key
+    filter[tag:team]=platform             — AND with other filter[tag:*] keys
+    filter[tag:<key>]=*                   — key present (any value)
+
+  Legacy flat form: ?tag=environment:production
+
+  When no containers match, meta.count is 0 and meta.warnings may describe the empty result.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
