@@ -795,7 +795,12 @@ Example response snippet:
         "storage_request_percent": 50,
         "pods_percent": 24
       },
-      "capacity_freed": { "cpu_cores_freed": 104, "memory_bytes": 603387187152 },
+      "capacity_freed": {
+        "cpu_cores_freed": 104,
+        "memory_bytes": 603387187152,
+        "storage_request_bytes": 21474836480,
+        "pods_freed": 100
+      },
       "estimated_savings": { "value": 420, "units": "USD" }
     }
   ]
@@ -1271,9 +1276,45 @@ Example GET response:
 Customers can configure their own 3 recommendation term windows (1–90 days each), replacing the fixed short (1d) / medium (7d) / long (15d) defaults:
 
 ----
-GET /api/cost-management/v1/recommendations/openshift/settings/terms
-PUT /api/cost-management/v1/recommendations/openshift/settings/terms
-DELETE /api/cost-management/v1/recommendations/openshift/settings/terms
+GET /api/cost-management/v1/recommendations/openshift/settings/terms?recommendation_type={container|namespace|node|gpu|pvc}
+PUT /api/cost-management/v1/recommendations/openshift/settings/terms?recommendation_type={container|namespace|node|gpu|pvc}
+DELETE /api/cost-management/v1/recommendations/openshift/settings/terms?recommendation_type={container|namespace|node|gpu|pvc}
+----
+
+Required query parameter `recommendation_type` selects the plugin whose short/medium/long windows are read or updated. VM term windows use `/settings/vm/terms` instead. Use `GET /settings/capabilities` to see which types are enabled and support terms.
+
+=== Settings capabilities
+
+Discover which recommendation plugins are enabled for the deployment and whether each supports configurable terms. Use each item's `name` as `recommendation_type` for `/settings/terms`. The top-level `business_hours` flag indicates whether business-hours settings endpoints are available (`ROS_BUSINESS_HOURS_ENABLED`).
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/capabilities
+----
+
+GET response:
+
+[source,json]
+----
+{
+  "recommendation_types": [
+    {
+      "name": "container",
+      "enabled": true,
+      "supports_terms": true
+    },
+    {
+      "name": "namespace",
+      "enabled": true,
+      "supports_terms": true
+    },
+    {
+      "name": "pvc",
+      "enabled": true,
+      "supports_terms": true
+    }
+  ],
+  "business_hours": false
+}
 ----
 
 === Platform settings lock
