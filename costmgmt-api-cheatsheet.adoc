@@ -769,6 +769,7 @@ Example response snippet:
     {
       "cluster_uuid": "550e8400-e29b-41d4-a716-446655440001",
       "cluster_quota_name": "team-payments-quota",
+      "namespaces": ["namespace-a", "namespace-b"],
       "recommendation_type": "tighten",
       "risk_level": "low",
       "quota_hard": {
@@ -802,6 +803,30 @@ Example response snippet:
 ----
 
 Requires the `cluster-quota` plugin (`ROS_ENABLED_PLUGINS`); when disabled the route returns `404`. Clusters without ClusterResourceQuota objects return an empty `data` array (not an error).
+
+==== Notification codes
+
+CRQ rows may emit notification codes **70–73**. Filter the catalog with
+`GET /api/cost-management/v1/recommendations/openshift/notification-codes/?filter[plugin]=cluster-quota`.
+
+[cols="1,2,3", options="header"]
+|===
+| Code | Name | Description
+
+| 70 | QUOTA_NEAR_CAPACITY | CRQ at high utilization risk
+| 71 | QUOTA_OVERSIZED | CRQ tighten recommendation generated
+| 72 | QUOTA_BLOCKING | CRQ resource blocking (used >= hard)
+| 73 | CLUSTER_QUOTA_AT_CAPACITY | CRQ at capacity alert
+|===
+
+Object-count resources (`count/deployments.apps`, `count/secrets`, etc.) contribute to
+`risk_level` and blocking notifications (code 72) only — they are not exposed in API
+`utilization` fields or used in `order_by=utilization`.
+
+When Koku cost model rates change, masu triggers
+`POST /api/cost-management/v1/internal/recalculate-savings` with
+`recommendation_types` including `cluster-quota` to refresh `estimated_savings` on
+existing tighten rows.
 
 Example `group_by[cluster]` response snippet:
 
