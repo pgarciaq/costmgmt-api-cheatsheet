@@ -1,0 +1,35 @@
+meta {
+  name: Container recommendations - filter workload type
+  type: http
+  seq: 69
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[workload_type]=deployment&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[workload_type]: deployment
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[workload_type] — exact match on the workload controller kind (lowercase).
+
+  Supported values (mirrors sorted_workloadtype DB enum):
+    daemonset, deployment, deploymentconfig, replicaset,
+    replicationcontroller, statefulset
+
+  Comma-separated values are ORed: filter[workload_type]=deployment,statefulset
+
+  Legacy flat form ?workload_type=deployment is also accepted.
+  Invalid values return 400 with an error listing allowed types.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
