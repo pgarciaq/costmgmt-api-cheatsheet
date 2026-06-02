@@ -1,0 +1,28 @@
+meta {
+  name: Node utilization detail
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[cluster]=CLUSTER_UUID&filter[node]=worker-0&limit=1
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Single-node view: use filter[node] + filter[cluster] with limit=1 (same payload shape as list).
+
+  Returns one node object with nested recommendation_terms and dual engines (cost / performance).
+
+  Planned path alias (not registered yet): GET .../recommendations/openshift/nodes/{node}?filter[cluster]=...
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

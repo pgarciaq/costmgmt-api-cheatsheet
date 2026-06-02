@@ -1,0 +1,27 @@
+meta {
+  name: Node utilization CSV export
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?format=csv&filter[term]=medium&limit=100
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  Accept: text/csv
+}
+
+docs {
+  Flattened export: one row per node × term × engine.
+
+  Columns include pod_count, pod_capacity, pod_scheduling_headroom, classification, savings.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

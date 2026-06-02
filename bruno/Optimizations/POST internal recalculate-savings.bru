@@ -1,0 +1,46 @@
+meta {
+  name: POST internal recalculate-savings
+  type: http
+  seq: 50
+}
+
+post {
+  url: {{baseURL}}/internal/recalculate-savings
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{serviceAccountToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "org_id": "1234567",
+    "cluster_uuid": "02059694-68ab-4d58-8809-de1e91f1d0e5",
+    "recommendation_types": ["container", "node", "pvc"]
+  }
+}
+
+docs {
+  Service-account only (same auth as tag sync). Called by Koku after cost model updates.
+
+  Requires ROS_SAVINGS_ESTIMATES_ENABLED and ROS_SAVINGS_RECALCULATION_ENABLED.
+
+  Returns 202 Accepted; work runs asynchronously.
+
+  Set serviceAccountToken in environment (projected SA JWT or ROS_SERVICE_TOKEN).
+}
+
+vars:pre-request {
+  serviceAccountToken: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

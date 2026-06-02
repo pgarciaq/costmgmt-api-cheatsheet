@@ -17,7 +17,14 @@ headers {
 
 body:json {
   {
-    "underutil_threshold": 0.35
+    "underutil_threshold": 0.35,
+    "zombie_cpu_p95_mc": 200,
+    "zombie_max_pods": 5,
+    "idle_cpu_util_pct": 10,
+    "idle_mem_util_pct": 10,
+    "idle_max_pods": 10,
+    "pod_headroom_consolidation_gate": 0.15,
+    "pod_headroom_notification_threshold": 0.10
   }
 }
 

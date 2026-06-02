@@ -386,12 +386,36 @@ GET /api/cost-management/v1/recommendations/openshift/fleet-summary
 
 Aggregated monthly savings by plugin (container, node, PVC, snapshot, VM). Container, node, and VM totals honor `?engine=cost` (default) or `performance`. GPU dollar estimates are computed at API read time and are excluded from this rollup (`by_plugin.gpu` is always `0`; see `gpu_savings_note`).
 
-Requires persisted recommendations at medium term. VM rows need `ROS_SAVINGS_ESTIMATES_ENABLED=true` and `KOKU_MASU_URL` at ingestion time for non-zero `by_plugin.vm`.
+Use `?term=short`, `?term=medium` (default), or `?term=long` to align node/container/PVC rollups with the same term window as list APIs. VM savings use mapped term keys (`short_term`, `medium_term`, `long_term`).
+
+Requires persisted recommendations for the selected term. VM rows need `ROS_SAVINGS_ESTIMATES_ENABLED=true` and `KOKU_MASU_URL` at ingestion time for non-zero `by_plugin.vm`.
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/savings-summary
 GET /api/cost-management/v1/recommendations/openshift/savings-summary?engine=cost
+GET /api/cost-management/v1/recommendations/openshift/savings-summary?engine=cost&term=short
 ----
+
+==== Savings recalculation (internal)
+
+After a Koku cost model update, masu notifies ROS to refresh persisted dollar savings without re-ingestion. Service-account bearer token required (same auth as tag sync). Requires `ROS_SAVINGS_ESTIMATES_ENABLED` and `ROS_SAVINGS_RECALCULATION_ENABLED`.
+
+----
+POST /api/cost-management/v1/internal/recalculate-savings
+----
+
+Example body:
+
+[source,json]
+----
+{
+  "org_id": "1234567",
+  "cluster_uuid": "02059694-68ab-4d58-8809-de1e91f1d0e5",
+  "recommendation_types": ["container", "node", "pvc"]
+}
+----
+
+Returns `202 Accepted` with `status: "accepted"`; work runs asynchronously.
 
 Example response excerpt:
 
@@ -540,22 +564,31 @@ Returns per-node recommendations with:
 
 === Node CPU/memory utilization recommendations
 
-Node-level right-sizing based on CPU and memory utilization patterns — identifies underutilized, overcommitted, and stranded resource nodes:
+Node-level right-sizing based on CPU and memory utilization patterns — identifies underutilized, overcommitted, stranded-resource, idle, and zombie nodes. One JSON object per node with nested `recommendation_terms` and dual engines (`cost`, `performance`).
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/nodes
 GET /api/cost-management/v1/recommendations/openshift/nodes?limit=10&offset=0
-GET /api/cost-management/v1/recommendations/openshift/nodes?term=medium
+GET /api/cost-management/v1/recommendations/openshift/nodes?filter[term]=medium&filter[engine]=cost
+GET /api/cost-management/v1/recommendations/openshift/nodes?filter[cluster]=CLUSTER_UUID&filter[node]=worker-0&limit=1
+GET /api/cost-management/v1/recommendations/openshift/nodes?format=csv
 ----
 
-Optional filters: `cluster_uuid`, `node`, `is_underutilized`, `is_overcommitted`.
+List filters (bracket syntax preferred): `filter[cluster]`, `filter[node]`, `filter[term]` (`short`|`medium`|`long`), `filter[engine]` (`cost`|`performance`), `filter[is_underutilized]`, `filter[is_overcommitted]`, `filter[idle_state]` (comma-separated `active`, `idle`, `zombie`), `filter[stranded_resource]` (`cpu`, `memory`, `none`), `filter[instance_type]`, `filter[machineset_name]`. Legacy flat params `?term=`, `?engine=`, `?cluster_uuid=` still work.
+
+Single-node detail today: `filter[node]` + `filter[cluster]` with `limit=1` (same response shape as list). Path-style `GET .../nodes/{node}` is planned in requirements but not registered yet.
 
 ----
-GET /api/cost-management/v1/recommendations/openshift/nodes?is_underutilized=true
-GET /api/cost-management/v1/recommendations/openshift/nodes?is_overcommitted=true
+GET /api/cost-management/v1/recommendations/openshift/nodes?filter[is_underutilized]=true
+GET /api/cost-management/v1/recommendations/openshift/nodes?filter[stranded_resource]=memory
+GET /api/cost-management/v1/recommendations/openshift/nodes?filter[machineset_name]=worker
 ----
 
-Returns per-node metrics including CPU/memory utilization percentiles (p50, p95), overcommit ratio, trend slope, pod count, and stranded resource detection.
+Response fields (per node): `classification` (including `idle_state`, `stranded_resource`), `metrics` (CPU/memory P50/P95), `pod_count`, `pod_capacity`, `pod_scheduling_headroom`, `instance_type`, `machineset_name`, `suggested_instance_type`, `instance_type_reason`, `cpu_overcommit_ratio`, `trend_slope`, nested `recommendation_terms.<term>.recommendation_engines.{cost,performance}` with sizing, `node_count_reduction`, savings, and notifications (code **13** includes `suggested_direction` for stranded CPU/memory).
+
+CSV export (`?format=csv` or `Accept: text/csv`): one row per node × term × engine; columns include `pod_capacity`, `pod_scheduling_headroom`, classification, and savings.
+
+Fleet consolidation groups underutilized nodes by `instance_type` when the operator provides it; otherwise by similar allocatable CPU/memory capacity.
 
 //==== Deprecated path (backward compatibility)
 //
@@ -1258,6 +1291,13 @@ Example PUT (container — override CPU percentile):
   "perf_target_utilization": 0.55,
   "perf_consolidation_headroom_multiplier": 2.0,
   "trend_min_days": 3,
+  "zombie_cpu_p95_mc": 200,
+  "zombie_max_pods": 5,
+  "idle_cpu_util_pct": 10,
+  "idle_mem_util_pct": 10,
+  "idle_max_pods": 10,
+  "pod_headroom_consolidation_gate": 0.15,
+  "pod_headroom_notification_threshold": 0.10,
   "locked_fields": []
 }
 ----

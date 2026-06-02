@@ -1,0 +1,44 @@
+meta {
+  name: Node utilization - filters
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 20
+  offset: 0
+  filter[term]: medium
+  filter[engine]: cost
+  ~filter[cluster]: 
+  ~filter[node]: 
+  ~filter[is_underutilized]: true
+  ~filter[is_overcommitted]: 
+  ~filter[idle_state]: zombie,idle
+  ~filter[stranded_resource]: cpu
+  ~filter[instance_type]: m5.2xlarge
+  ~filter[machineset_name]: worker
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Canonical list endpoint with bracket filters (preferred over flat `?term=` / `?engine=`).
+
+  Filters: stranded_resource (cpu|memory|none), instance_type, machineset_name, idle_state, term, engine.
+
+  Response fields: pod_capacity, pod_scheduling_headroom, machineset_name, suggested_instance_type,
+  instance_type_reason (when stranded and another instance type exists in the cluster).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

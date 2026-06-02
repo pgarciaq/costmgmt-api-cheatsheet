@@ -1,0 +1,26 @@
+meta {
+  name: Fleet savings summary - term
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/savings-summary?engine=cost&term=short
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Fleet rollup honors ?term=short|medium|long (default medium) for container, node, and PVC persisted savings.
+
+  Compare with node list filtered to the same term. VM uses mapped term keys (short_term, medium_term, long_term).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
