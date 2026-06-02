@@ -1,0 +1,30 @@
+meta {
+  name: Container recommendations - filter engine
+  type: http
+  seq: 66
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[engine]=cost&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[engine]: cost
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[engine]=cost — return only the cost engine under each recommendation term.
+
+  Also accepted: filter[engine]=performance, or legacy flat ?engine=cost.
+
+  When omitted, both cost and performance engines are nested under each term.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

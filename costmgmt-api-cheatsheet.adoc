@@ -477,6 +477,13 @@ GET /api/cost-management/v1/recommendations/openshift/?workload=my-deployment
 GET /api/cost-management/v1/recommendations/openshift/?container=my-container
 ----
 
+Filter by recommendation engine (limits nested `recommendation_engines` to cost or performance):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/?filter[engine]=cost
+GET /api/cost-management/v1/recommendations/openshift/?filter[engine]=performance
+----
+
 Filter by GPU:
 
 ----
@@ -491,10 +498,50 @@ Filter by idle state (`active`, `idle`, or `zombie`; comma-separated values are 
 GET /api/cost-management/v1/recommendations/openshift/?filter[idle_state]=zombie,idle
 ----
 
-Sort by last reported or total savings:
+==== Pagination
+
+Offset pagination (default):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/?limit=20&offset=0
+----
+
+Keyset pagination (stable iteration; `offset` is ignored when `after` is set):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/?limit=20
+# Response meta includes has_next and next_cursor when more pages exist
+GET /api/cost-management/v1/recommendations/openshift/?limit=20&after=<meta.next_cursor>
+----
+
+==== Sorting
+
+Allowed `order_by` values: `cluster`, `project`, `workload_type`, `workload`, `container`,
+`last_reported`, `cpu_request_current`, `memory_request_current`, and per-term variation fields:
+`cpu_variation_short_cost`, `cpu_variation_short_performance`, `cpu_variation_medium_cost`,
+`cpu_variation_medium_performance`, `cpu_variation_long_cost`, `cpu_variation_long_performance`,
+`memory_variation_short_cost`, `memory_variation_short_performance`, `memory_variation_medium_cost`,
+`memory_variation_medium_performance`, `memory_variation_long_cost`, `memory_variation_long_performance`.
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/?order_by=last_reported&order_how=desc
+GET /api/cost-management/v1/recommendations/openshift/?order_by=cpu_variation_medium_cost&order_how=desc
+----
+
+==== History and quality
+
+Recommendation snapshot history (fleet-wide, native engine):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/history?limit=10
+GET /api/cost-management/v1/recommendations/openshift/history?container=my-container&engine=cost&term=medium
+----
+
+Recommendation quality metrics (stability, adoption, OOM after rec):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/quality?limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality?order_by=stability&order_how=desc
 ----
 
 ==== Replica counts and total savings

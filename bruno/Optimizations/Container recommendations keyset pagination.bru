@@ -1,0 +1,34 @@
+meta {
+  name: Container recommendations keyset pagination
+  type: http
+  seq: 65
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 20
+}
+
+docs {
+  Keyset pagination for GET /recommendations/openshift (container list).
+
+  First page:
+    GET .../recommendations/openshift?limit=20
+  Response meta includes has_next (boolean) and next_cursor (opaque string).
+
+  Next page — copy meta.next_cursor verbatim (do not parse or construct manually):
+    GET .../recommendations/openshift?limit=20&after=<meta.next_cursor>
+
+  When after is set, offset is ignored. Offset/limit pagination remains available
+  for clients that prefer links.first / links.next with offset.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
