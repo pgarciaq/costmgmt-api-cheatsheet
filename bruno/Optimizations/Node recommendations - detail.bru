@@ -1,0 +1,35 @@
+meta {
+  name: Node recommendations - detail
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes/worker-0?filter[cluster]=CLUSTER_UUID
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~filter[cluster]: CLUSTER_UUID
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Single-node detail: GET .../recommendations/openshift/nodes/{node}
+
+  Optional query: filter[cluster] or cluster_uuid when the node name is not unique across clusters.
+
+  Response includes nested recommendation_terms (short/medium/long) with cost and performance
+  engines, shared metrics (cpu_util_p50, mem_util_p95), classification (is_underutilized,
+  idle_state, stranded_resource), pod_capacity, suggested_instance_type, and
+  estimated_monthly_savings on each engine block.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

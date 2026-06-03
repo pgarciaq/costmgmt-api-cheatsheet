@@ -32,8 +32,17 @@ docs {
   Filters: filter[term], filter[engine], filter[stranded_resource], filter[instance_type],
   filter[machineset_name], filter[idle_state], filter[is_underutilized], filter[is_overcommitted].
 
-  Response: pod_capacity, pod_scheduling_headroom, machineset_name, suggested_instance_type,
-  instance_type_reason; nested recommendation_terms with cost and performance engines.
+  Nested response shape (per node):
+  - classification: is_underutilized, is_overcommitted, idle_state, stranded_resource
+  - metrics: cpu_util_p50, cpu_util_p95, mem_util_p50, mem_util_p95
+  - recommendation_terms.medium_term.recommendation_engines.cost|performance:
+      recommended_cpu_cores, recommended_memory_gib, node_count_reduction,
+      estimated_monthly_savings (currency object with value/unit)
+
+  Also: pod_capacity, pod_scheduling_headroom, machineset_name, suggested_instance_type,
+  instance_type_reason.
+
+  RBAC: requires cost-management.openshift.node (and cluster scope via openshift.cluster).
 
   Fleet consolidation groups by instance_type when present, else similar allocatable capacity.
 }

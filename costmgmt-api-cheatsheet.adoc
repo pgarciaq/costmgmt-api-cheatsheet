@@ -725,7 +725,9 @@ GET /api/cost-management/v1/recommendations/openshift/nodes?filter[cluster]=CLUS
 GET /api/cost-management/v1/recommendations/openshift/nodes?format=csv
 ----
 
-List filters (bracket syntax preferred): `filter[cluster]`, `filter[node]`, `filter[term]` (`short`|`medium`|`long`), `filter[engine]` (`cost`|`performance`), `filter[is_underutilized]`, `filter[is_overcommitted]`, `filter[idle_state]` (comma-separated `active`, `idle`, `zombie`), `filter[stranded_resource]` (`cpu`, `memory`, `none`), `filter[instance_type]`, `filter[machineset_name]`. Sort: `order_by` (`estimated_monthly_savings` default, or `node`), `order_how` (`asc`|`desc`). Pagination: `limit`, `offset`. Legacy flat params `?term=`, `?engine=`, `?cluster_uuid=` still work.
+List filters (bracket syntax preferred): `filter[cluster]`, `filter[node]`, `filter[term]` (`short`|`medium`|`long`), `filter[engine]` (`cost`|`performance`), `filter[is_underutilized]`, `filter[is_overcommitted]`, `filter[idle_state]` (comma-separated `active`, `idle`, `zombie`), `filter[stranded_resource]` (`cpu`, `memory`, `none`), `filter[instance_type]`, `filter[machineset_name]`, `filter[tag:<key>]=<value>` (requires `ROS_TAGS_ENABLED=true`; nodes match when any workload namespace on the cluster has the label). Sort: `order_by` (`estimated_monthly_savings` default, or `node`), `order_how` (`asc`|`desc`). Pagination: `limit`, `offset`. Legacy flat params `?term=`, `?engine=`, `?cluster_uuid=` still work.
+
+RBAC: node list and detail require `cost-management.openshift.node` permission (node name scope) in addition to cluster access via `cost-management.openshift.cluster`. Empty results when the user has no intersecting cluster/node permissions.
 
 Single-node detail: `GET .../nodes/{node}?filter[cluster]=CLUSTER_UUID` (registered). List-filter equivalent: `filter[node]` + `filter[cluster]` with `limit=1` (same response shape).
 
@@ -733,6 +735,7 @@ Single-node detail: `GET .../nodes/{node}?filter[cluster]=CLUSTER_UUID` (registe
 GET /api/cost-management/v1/recommendations/openshift/nodes?filter[is_underutilized]=true
 GET /api/cost-management/v1/recommendations/openshift/nodes?filter[stranded_resource]=memory
 GET /api/cost-management/v1/recommendations/openshift/nodes?filter[machineset_name]=worker
+GET /api/cost-management/v1/recommendations/openshift/nodes?filter[tag:environment]=production
 ----
 
 Response fields (per node): `classification` (including `idle_state`, `stranded_resource`), `metrics` (CPU/memory P50/P95), `pod_count`, `pod_capacity`, `pod_scheduling_headroom`, `instance_type`, `machineset_name`, `suggested_instance_type`, `instance_type_reason`, `cpu_overcommit_ratio`, `trend_slope`, nested `recommendation_terms.<term>.recommendation_engines.{cost,performance}` with sizing, `node_count_reduction`, savings, and notifications (code **13** includes `suggested_direction` for stranded CPU/memory).
@@ -756,15 +759,15 @@ Filters: `filter[cluster]` / `cluster_uuid`, `filter[machineset_name]` (exact or
 
 Response fields (per MachineSet): `machineset_name`, `cluster_uuid`, `cluster_alias`, `instance_type`, `current_node_count`, `recommended_node_count`, `excess_nodes`, `total_monthly_savings_usd`, `avg_cpu_utilization`, `avg_memory_utilization`, `nodes`.
 
-//==== Deprecated path (backward compatibility)
-//
-//Historically, `/recommendations/openshift/nodes` served GPU time-slicing listings; that behavior now lives under `/recommendations/openshift/gpu/timeslicing`. The old CPU/memory listing path was `/recommendations/openshift/nodes/utilization`.
-//
-//----
-//GET /api/cost-management/v1/recommendations/openshift/nodes/utilization
-//----
-//
-//Deprecated alias for `GET /api/cost-management/v1/recommendations/openshift/nodes`. Responses include a `Deprecation` header and a `Link` header pointing at the canonical `/nodes` URL.
+==== Deprecated path (backward compatibility)
+
+Historically, `/recommendations/openshift/nodes` served GPU time-slicing listings; that behavior now lives under `/recommendations/openshift/gpu/timeslicing`. The old CPU/memory listing path was `/recommendations/openshift/nodes/utilization`.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/nodes/utilization
+----
+
+*Deprecated* alias for `GET /api/cost-management/v1/recommendations/openshift/nodes`. Prefer the canonical `/nodes` URL. Responses include `Deprecation: true` and a `Link` header to `/nodes`. IQE and new integrations should call `/nodes` only.
 
 === PVC (Persistent Volume Claim) recommendations
 

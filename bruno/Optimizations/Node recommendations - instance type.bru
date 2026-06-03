@@ -1,0 +1,35 @@
+meta {
+  name: Node recommendations - instance type
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[stranded_resource]=cpu&limit=10
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[stranded_resource]: cpu
+  limit: 10
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Instance type fields on list/detail node objects:
+
+  - instance_type — operator-reported type (e.g. m5.2xlarge); may be empty
+  - suggested_instance_type — fleet hint when a better-matched type exists in the cluster
+  - instance_type_reason — human-readable explanation for the suggestion
+
+  Filter stranded CPU nodes with filter[stranded_resource]=cpu to surface suggestions more often.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

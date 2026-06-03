@@ -1,0 +1,37 @@
+meta {
+  name: Node recommendations - filter tag
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[tag:environment]=production&limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[tag:environment]: production
+  limit: 20
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Tag filter on node list (requires ROS_TAGS_ENABLED=true).
+
+  Syntax (same as containers):
+    filter[tag:<key>]=<value>           — exact value match
+    filter[tag:<key>]=a,b                — OR within the same key
+    filter[tag:team]=platform             — AND with other filter[tag:*] keys
+    filter[tag:<key>]=*                   — key present (any value)
+
+  Nodes are included when any workload namespace on the cluster matches the tag filter.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
