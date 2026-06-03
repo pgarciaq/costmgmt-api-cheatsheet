@@ -408,6 +408,8 @@ GET /api/cost-management/v1/recommendations/openshift/savings-summary?filter[clu
 GET /api/cost-management/v1/recommendations/openshift/savings-summary?group_by[tag:environment]=*
 ----
 
+NOTE: `filter[cluster]` is only applied when a `group_by` parameter is present (e.g., `group_by[tag:*]` or `group_by[idle_state]`). Without `group_by`, the filter has no effect and all RBAC-visible clusters are included.
+
 ==== Savings recalculation (internal)
 
 After a Koku cost model update, masu notifies ROS to refresh persisted dollar savings without re-ingestion. Supported types: `container`, `node`, `pvc`, `quota`, `cluster-quota`. Service-account bearer token required (same auth as tag sync). Requires `ROS_SAVINGS_ESTIMATES_ENABLED` and `ROS_SAVINGS_RECALCULATION_ENABLED`.

@@ -1,0 +1,30 @@
+meta {
+  name: Node utilization - filter machineset
+  type: http
+  seq: 9.6
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[machineset_name]=worker
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Filter nodes by MachineSet name. Returns nodes belonging to the specified MachineSet.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

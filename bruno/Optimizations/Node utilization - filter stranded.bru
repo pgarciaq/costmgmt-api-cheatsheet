@@ -1,0 +1,30 @@
+meta {
+  name: Node utilization - filter stranded
+  type: http
+  seq: 9.3
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[stranded_resource]=cpu
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Filter nodes by stranded resource type (cpu, memory, both, none).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

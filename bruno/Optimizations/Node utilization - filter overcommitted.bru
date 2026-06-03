@@ -1,0 +1,30 @@
+meta {
+  name: Node utilization - filter overcommitted
+  type: http
+  seq: 9.7
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[is_overcommitted]=true
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Filter nodes where resource requests exceed allocatable capacity (overcommitted).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

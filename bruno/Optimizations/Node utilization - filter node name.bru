@@ -1,0 +1,30 @@
+meta {
+  name: Node utilization - filter node name
+  type: http
+  seq: 9.5
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[node]=worker-0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Filter by exact Kubernetes node name.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

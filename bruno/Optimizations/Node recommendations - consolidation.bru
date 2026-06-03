@@ -50,3 +50,16 @@ assert {
   res.body.meta.count: isNumber
   res.body.data: isArray
 }
+
+tests {
+  test("node_count_reduction is present when data exists", function() {
+    if (res.body.data && res.body.data.length > 0) {
+      var item = res.body.data[0];
+      var terms = item.recommendation_terms || {};
+      var medium = terms.medium_term || terms.medium || {};
+      var engines = medium.recommendation_engines || {};
+      var cost = engines.cost || {};
+      expect(cost.node_count_reduction).to.be.a('number');
+    }
+  });
+}

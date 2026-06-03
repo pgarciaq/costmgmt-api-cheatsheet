@@ -1,0 +1,43 @@
+meta {
+  name: Node recommendations - detail by id
+  type: http
+  seq: 19.5
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes/{{nodeId}}?filter[cluster]=CLUSTER_UUID
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~filter[cluster]: CLUSTER_UUID
+}
+
+vars:pre-request {
+  nodeId: worker-0
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Retrieve a single node recommendation by node identifier (path parameter).
+
+  Copy `node` from the list response (`GET .../nodes`) into `nodeId` (Kubernetes node name).
+  When the same node name exists on multiple clusters, set `filter[cluster]` to the cluster UUID.
+
+  Response includes nested `recommendation_terms` with cost and performance engines.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.node: isString
+  res.body.cluster_uuid: isString
+}

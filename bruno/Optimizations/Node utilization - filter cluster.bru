@@ -1,0 +1,30 @@
+meta {
+  name: Node utilization - filter cluster
+  type: http
+  seq: 9.4
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[cluster]=CLUSTER_UUID
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Filter by cluster UUID (exact match). Legacy flat params `cluster` and `cluster_uuid` are also accepted.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}
