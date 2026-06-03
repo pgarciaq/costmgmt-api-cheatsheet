@@ -1,0 +1,42 @@
+meta {
+  name: GPU MIG recommendations - notifications on detail
+  type: http
+  seq: 24
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/{{recommendationUuid}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Container detail for a GPU MIG-enriched workload (`has_gpu=true` on the list).
+
+  Set `recommendationUuid` from `GET .../recommendations/openshift?has_gpu=true` or from
+  a row on `GET .../recommendations/openshift/gpu/mig` (match cluster, namespace, workload,
+  container on the container list).
+
+  GPU MIG advisories appear under `gpu.<term>.notifications` (not on the MIG list endpoint):
+
+  * **10** — GPU advisory (general)
+  * **26** — MIG right-sizing opportunity
+  * **27** — GPU idle workload
+  * **28** — GPU removal / decommission guidance
+
+  Dollar savings for MIG right-sizing: `gpu.<term>.estimated_monthly_gpu_savings` or
+  `estimated_monthly_gpu_savings_usd`.
+
+  Requires the `gpu` plugin enabled (`ROS_ENABLED_PLUGINS` / `ROS_DISABLED_PLUGINS`).
+  When `gpu` is disabled, `/gpu/mig` returns 404; container detail may still return 200
+  without a `gpu` block.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
