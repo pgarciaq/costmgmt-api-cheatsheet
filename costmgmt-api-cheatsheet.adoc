@@ -576,6 +576,8 @@ Tag filter syntax follows Koku report conventions:
 * `filter[tag:<key>]=*` — key present with any value
 * Legacy flat form `?tag=<key>:<value>` is also accepted
 
+For the complete machine-readable parameter list, see `openapi.json`.
+
 When a tag key is unknown or has no matching containers, `meta.count` is `0` and
 `meta.warnings` may describe the empty result.
 

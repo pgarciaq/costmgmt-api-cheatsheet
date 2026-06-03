@@ -1,0 +1,39 @@
+meta {
+  name: Container recommendations - filter multi-tag AND
+  type: http
+  seq: 67
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[tag:environment]=production&filter[tag:team]=platform&limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[tag:environment]: production
+  filter[tag:team]: platform
+  limit: 20
+}
+
+docs {
+  Filter container recommendations with multiple tag keys (requires ROS_TAGS_ENABLED=true).
+
+  Request uses two bracket filters:
+    filter[tag:environment]=production
+    filter[tag:team]=platform
+
+  Semantics:
+    - Multiple filter[tag:*] keys are ANDed — a row must match every key.
+    - Comma-separated values within one key are ORed (not used in this example).
+
+  Example: only containers in namespaces that have environment=production AND team=platform
+  (per namespace-scoped tag resolution from Koku).
+
+  When no containers match, meta.count is 0 and meta.warnings may describe the empty result.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
