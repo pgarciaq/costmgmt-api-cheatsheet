@@ -1853,6 +1853,63 @@ Example list row (idle/zombie):
 
 Omit `idle_recommendation` when `idle_state=active`. Omit `estimated_monthly_waste` when savings estimates are disabled or cost data is unavailable. Omit `estimated_monthly_savings` when `idle_state` is not `active` (rightsizing delta is not actionable for idle workloads).
 
+==== GPU idle filter
+
+Filter by GPU idle state (`active`, `idle`, or `zombie`; comma-separated values are ORed). GPU idle fields on container rows: `gpu_idle_state`, `gpu_idle_since`, `gpu_idle_duration_days`, `gpu_estimated_waste_cents`.
+
+----
+GET /api/cost-management/v1/recommendations/openshift?filter[gpu_idle_state]=idle,zombie
+----
+
+==== Namespace idle filter
+
+Filter namespaces by aggregated idle state (`active`, `idle`, or `zombie`).
+
+----
+GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[idle_state]=idle,zombie
+----
+
+==== Container list ordering (idle)
+
+Sort idle workloads with `order_by` and `order_how` (`asc` or `desc`):
+
+----
+GET /api/cost-management/v1/recommendations/openshift?order_by=idle_state
+GET /api/cost-management/v1/recommendations/openshift?order_by=idle_duration_days
+GET /api/cost-management/v1/recommendations/openshift?order_by=estimated_monthly_waste
+----
+
+==== PVC orphan idle
+
+Orphaned PVC recommendations include `idle_since` and `idle_duration_days` fields tracking when zero usage was first detected.
+
+==== Idle notification codes
+
+[cols="1,2,3"]
+|===
+|Code |Name |When
+
+|5
+|IDLE_WORKLOAD
+|Container idle or zombie (`idle_state`)
+
+|8
+|ABANDONED_WORKLOAD
+|Legacy abandoned workload (all-zero usage when inline classification did not run)
+
+|15
+|NODE_IDLE
+|Node idle or zombie
+
+|26
+|GPU_IDLE
+|GPU idle or zombie
+|===
+
+==== Async recalculation
+
+PUT and DELETE on idle-detection settings enqueue async threshold recalculation for plugins: **container**, **gpu**, **namespace**, **node**, and **pvc**.
+
 ==== Savings summary by idle state
 
 Group fleet idle waste by state (query value is ignored; use `*`):

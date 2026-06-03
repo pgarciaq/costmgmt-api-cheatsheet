@@ -1,0 +1,31 @@
+meta {
+  name: Namespace recommendations filter idle_state
+  type: http
+  seq: 73
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/namespaces?filter[idle_state]=idle,zombie&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[idle_state]: idle,zombie
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[idle_state]=idle,zombie — namespaces where aggregated idle state is idle or zombie.
+
+  A namespace is zombie when every container and GPU in it is zombie; idle when all
+  workloads are non-active but at least one is idle (a mix of idle and zombie counts as idle).
+
+  Comma-separated values are ORed. Also accepted on legacy GET .../namespace.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

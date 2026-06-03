@@ -1,0 +1,33 @@
+meta {
+  name: Container recommendations filter gpu_idle_state
+  type: http
+  seq: 72
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[gpu_idle_state]=idle,zombie&filter[has_gpu]=true&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[gpu_idle_state]: idle,zombie
+  filter[has_gpu]: true
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[gpu_idle_state]=idle,zombie — GPU workloads classified idle or zombie.
+
+  GPU idle fields on container rows: gpu_idle_state, gpu_idle_since,
+  gpu_idle_duration_days, gpu_estimated_waste_cents (nested under gpu when present).
+
+  Combine with filter[has_gpu]=true to limit to GPU-backed recommendations.
+  Comma-separated values are ORed within the parameter.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,31 @@
+meta {
+  name: Container recommendations order_by idle_duration_days
+  type: http
+  seq: 74
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?order_by=idle_duration_days&order_how=desc&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  order_by: idle_duration_days
+  order_how: desc
+  limit: 20
+  offset: 0
+}
+
+docs {
+  Sort container list by days in the current idle_state.
+
+  Other idle-related order_by values:
+    ?order_by=idle_state&order_how=asc
+    ?order_by=estimated_monthly_waste&order_how=desc
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
