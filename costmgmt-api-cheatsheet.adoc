@@ -822,10 +822,104 @@ GET /api/cost-management/v1/recommendations/openshift/nodes/utilization
 
 === PVC (Persistent Volume Claim) recommendations
 
-Right-sizing recommendations for persistent volumes — oversized, near-full, orphaned, and growth trend projection:
+Right-sizing recommendations for persistent volumes — oversized, near-full, orphaned, healthy, and growth trend projection. List returns one row per PVC for the selected **term** (default `medium`). Use the detail endpoint for all terms plus daily usage history.
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/pvcs
+GET /api/cost-management/v1/recommendations/openshift/pvcs?limit=20&offset=0
+GET /api/cost-management/v1/recommendations/openshift/pvcs?filter[term]=medium&filter[recommendation_type]=oversized
+GET /api/cost-management/v1/recommendations/openshift/pvcs?filter[cluster]=CLUSTER_UUID&filter[project]=production
+GET /api/cost-management/v1/recommendations/openshift/pvcs?filter[storageclass]=gp3-csi
+GET /api/cost-management/v1/recommendations/openshift/pvcs?filter[tag:environment]=production
+GET /api/cost-management/v1/recommendations/openshift/pvcs?order_by=estimated_monthly_savings&order_how=desc
+GET /api/cost-management/v1/recommendations/openshift/pvcs?format=csv
+----
+
+Detail for a single PVC (all configured terms + `historical_usage`):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/pvcs/detail?cluster_uuid=CLUSTER_UUID&namespace=production&persistentvolumeclaim=old-logs
+GET /api/cost-management/v1/recommendations/openshift/pvcs/detail?filter[cluster]=CLUSTER_UUID&filter[project]=production&persistentvolumeclaim=old-logs
+----
+
+PVC threshold and term settings:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/pvc
+PUT /api/cost-management/v1/recommendations/openshift/settings/pvc
+DELETE /api/cost-management/v1/recommendations/openshift/settings/pvc
+GET /api/cost-management/v1/recommendations/openshift/settings/terms?recommendation_type=pvc
+----
+
+Available list filters:
+
+* `filter[cluster]` — cluster UUID (legacy `cluster_uuid`, `cluster`)
+* `filter[project]` — namespace (legacy `namespace`, `project`)
+* `filter[recommendation_type]` — `oversized`, `near_full`, `orphaned`, or `healthy` (legacy `recommendation_type`)
+* `filter[term]` — `short`, `medium`, or `long` (default `medium`)
+* `filter[storageclass]` — StorageClass name (exact match)
+* `filter[tag:<key>]` — OpenShift label tag (requires `ROS_TAGS_ENABLED=true`)
+* `order_by` — `usage_ratio` (default), `estimated_monthly_savings`, `pvc_name` / `persistentvolumeclaim`, `capacity_bytes`
+* `order_how` — `asc` or `desc` (default `desc`)
+* `limit` (1–100, default 20), `offset` (default 0)
+* `format=csv` or `Accept: text/csv` — flattened CSV export (same filters as JSON list)
+
+Example request:
+
+[source,bash]
+----
+curl -s -H "x-rh-identity: ${IDENTITY}" \
+  'http://localhost:8000/api/cost-management/v1/recommendations/openshift/pvcs?filter[recommendation_type]=orphaned&filter[term]=medium&limit=10'
+----
+
+Example list response snippet:
+
+[source,json]
+----
+{
+  "meta": { "count": 1, "limit": 10, "offset": 0, "currency": "USD" },
+  "data": [
+    {
+      "cluster_uuid": "550e8400-e29b-41d4-a716-446655440001",
+      "namespace": "production",
+      "persistentvolumeclaim": "old-logs",
+      "mounted_by": "virt-launcher-old-logs-x9y8z",
+      "vm_name": "fedora-vm",
+      "storageclass": "gp3",
+      "capacity_bytes": 107374182400,
+      "usage_ratio": 0.0,
+      "recommendation_type": "orphaned",
+      "idle_since": "2026-05-01",
+      "idle_duration_days": 14,
+      "days_to_full": null,
+      "growth_bytes_per_day": 0,
+      "estimated_monthly_savings": { "value": "12.50", "units": "USD" },
+      "term": "medium",
+      "notifications": {
+        "20": { "type": "WARNING", "message": "PVC has zero usage...", "code": 20 }
+      },
+      "resize_note": "This PVC has zero usage. If the data is no longer needed, deleting the PVC will reclaim the backing storage volume."
+    }
+  ]
+}
+----
+
+`estimated_monthly_savings` uses structured `{value, units}` (not a flat USD float). Savings are computed for **oversized** (capacity reduction) and **orphaned** (full provisioned capacity reclaim) when `KOKU_MASU_URL` and `ROS_SAVINGS_ESTIMATES_ENABLED=true`. Code **25** is appended when cost data is unavailable.
+
+PVC notification codes (catalog filter `filter[plugin]=pvc`):
+
+[cols="1,2,4",options="header"]
+|===
+| Code | Severity | When
+
+| 20 | WARNING | Zero usage across all intervals (orphaned)
+| 25 | INFO | No cost data — savings estimate not computed
+| 29 | INFO | Capacity significantly exceeds sustained usage (oversized)
+| 30 | WARNING | Usage approaching capacity or growth trend (near-full)
+|===
+
+----
+GET /api/cost-management/v1/recommendations/openshift/notification-codes?filter[plugin]=pvc
 ----
 
 === ResourceQuota recommendations
@@ -834,10 +928,20 @@ Namespace-level Kubernetes `ResourceQuota` right-sizing (distinct from namespace
 
 Quota savings (`estimated_savings`) are per-recommendation only. They are NOT included in the fleet `GET /savings-summary` rollup (which covers container, node, PVC, snapshot, and VM plugins).
 
+ResourceQuota recommendations are not engine- or term-selectable: the quota engine uses fixed `term=medium` and `engine=cost` container aggregates (no `filter[term]` on this API).
+
+When RBAC is enabled, list results are scoped to clusters the caller may read (`openshift.cluster`). `filter[cluster]` for an unknown or unauthorized cluster returns **200** with an empty list.
+
+The first ingestion cycle after enabling quota collects namespace quota snapshots; recommendations that depend on container aggregates may appear from the **second** cycle onward when container CSV is present in the payload.
+
+List rows include `object_count` hard/used when the operator reports `objectcounts.*` columns. High object-count utilization drives `raise` / `high` risk and notification code **72** (`NotifQuotaBlocking`); object-count capacity is not monetized in `estimated_savings`.
+
 ----
 GET /api/cost-management/v1/recommendations/openshift/quota/
+GET /api/cost-management/v1/recommendations/openshift/quota/?format=csv&limit=100
 GET /api/cost-management/v1/recommendations/openshift/quota/?filter[cluster]=550e8400-e29b-41d4-a716-446655440000
 GET /api/cost-management/v1/recommendations/openshift/quota/?filter[project]=production
+GET /api/cost-management/v1/recommendations/openshift/quota/?filter[tag:environment]=production
 GET /api/cost-management/v1/recommendations/openshift/quota/?filter[quota_name]=compute-quota
 GET /api/cost-management/v1/recommendations/openshift/quota/?filter[recommendation_type]=tighten&filter[risk_level]=low
 GET /api/cost-management/v1/recommendations/openshift/quota/?order_by=utilization&order_how=desc&limit=20&offset=0
@@ -850,6 +954,7 @@ Available filters:
 
 * `filter[cluster]` — cluster UUID (exact match)
 * `filter[project]` — namespace name (exact match)
+* `filter[tag:<key>]` — namespace tag (requires `ROS_TAGS_ENABLED=true`)
 * `filter[quota_name]` — ResourceQuota object name (alias `filter[resource_quota_name]`)
 * `filter[recommendation_type]` — `tighten`, `raise`, `optimal`, or `none` (no recommendation generated yet)
 * `filter[risk_level]` — `high`, `medium`, `low`, or `none`
