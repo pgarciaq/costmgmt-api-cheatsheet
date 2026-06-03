@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/savings-summary?filter[cluster]=my-cluster-id
+  url: {{baseURL}}/recommendations/openshift/savings-summary?group_by[idle_state]=*&filter[cluster]=my-cluster-id
   body: none
   auth: inherit
 }
@@ -15,7 +15,9 @@ headers {
 }
 
 docs {
-  Fleet savings filtered to a specific cluster UUID. Useful when group_by[tag:*] or group_by[idle_state] is active to scope results.
+  Fleet savings filtered to a specific cluster UUID.
+
+  `filter[cluster]` only takes effect when a `group_by` parameter is present (for example `group_by[idle_state]=*` or `group_by[tag:environment]=*`). Without `group_by`, the cluster filter is ignored and the response reflects the full fleet rollup.
 }
 
 settings {
