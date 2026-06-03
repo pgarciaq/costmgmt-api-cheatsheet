@@ -1,0 +1,28 @@
+meta {
+  name: PVC recommendations - savings shape
+  type: http
+  seq: 71
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/pvcs?limit=5
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 5
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Demonstrates PVC recommendation response including `estimated_monthly_savings` field. Orphaned PVCs show full monthly cost as recoverable savings.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

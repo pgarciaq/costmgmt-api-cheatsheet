@@ -1,0 +1,24 @@
+meta {
+  name: Fleet savings summary group_by tag
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/savings-summary?group_by[tag:environment]=*
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Fleet savings broken down by tag key `environment`. Returns per-tag-value savings totals.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -404,6 +404,8 @@ Requires persisted recommendations for the selected term. VM rows need `ROS_SAVI
 GET /api/cost-management/v1/recommendations/openshift/savings-summary
 GET /api/cost-management/v1/recommendations/openshift/savings-summary?engine=cost
 GET /api/cost-management/v1/recommendations/openshift/savings-summary?engine=cost&term=short
+GET /api/cost-management/v1/recommendations/openshift/savings-summary?filter[cluster]=<cluster-uuid>&group_by[tag:environment]=*
+GET /api/cost-management/v1/recommendations/openshift/savings-summary?group_by[tag:environment]=*
 ----
 
 ==== Savings recalculation (internal)
