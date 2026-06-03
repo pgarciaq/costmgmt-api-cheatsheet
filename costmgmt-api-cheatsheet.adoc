@@ -709,6 +709,18 @@ Uses recommendation *terms* (`short`/`medium`/`long`), not `filter[engine]=cost|
 `estimated_monthly_gpu_savings` is on container detail (`GET .../recommendations/openshift/{uuid}` → `gpu.{term}`), not this list.
 Supports pagination, `format=csv`, and filters per OpenAPI (`filter[cluster]`, `filter[project]`, `filter[gpu_idle_state]`, tag filters).
 
+GPU classification thresholds (MIG sizing, idle/underutilized detection):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/gpu
+GET /api/cost-management/v1/recommendations/openshift/settings/thresholds?recommendation_type=gpu
+----
+
+Returns fields such as `idle_threshold`, `underutilized_sm_threshold`, `fb_headroom_factor`, and `mig_fb_percentile`. Term windows: `GET .../settings/terms?recommendation_type=gpu`.
+
+*RBAC:* Same `openshift.cluster` permission as other ROS GPU routes; node-scoped rows also require `openshift.node`. A `filter[cluster]` for a cluster outside the caller's scope returns an empty list (HTTP 200), not 403.
+
+*Notifications:* MIG right-sizing and GPU idle guidance surface on *container detail* (`GET .../recommendations/openshift/{recommendation_uuid}`) in the `notifications` array (codes **10**, **26–28**). The MIG list endpoint does not include savings or notifications.
 
 ==== NVIDIA GPU time-slicing recommendations
 

@@ -1,0 +1,37 @@
+meta {
+  name: GPU MIG recommendations - CSV export
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/gpu/mig?format=csv&limit=100&offset=0&order_by=confidence&order_how=desc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  format: csv
+  limit: 100
+  offset: 0
+  order_by: confidence
+  order_how: desc
+}
+
+headers {
+  Accept: text/csv
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  CSV export for GPU MIG recommendations.
+
+  - `format=csv` returns `text/csv` with the same columns as JSON (see OpenAPI).
+  - Prefer `Accept: text/csv` for explicit content negotiation.
+  - Dollar savings are on container detail, not this list.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

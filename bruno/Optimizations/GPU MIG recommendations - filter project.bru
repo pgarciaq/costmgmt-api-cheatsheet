@@ -1,0 +1,36 @@
+meta {
+  name: GPU MIG recommendations - filter project
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/gpu/mig?filter[project]=ml-team&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~filter[project]: ml-team
+  ~filter[namespace]: ml-team
+  limit: 20
+  offset: 0
+  ~filter[cluster]:
+  ~order_by: confidence
+  ~order_how: desc
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  MIG list scoped to one or more namespaces (projects).
+
+  `filter[project]` and `filter[namespace]` are aliases; comma-separated values are OR'd.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

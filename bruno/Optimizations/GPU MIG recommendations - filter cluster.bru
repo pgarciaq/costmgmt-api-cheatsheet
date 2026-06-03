@@ -1,0 +1,37 @@
+meta {
+  name: GPU MIG recommendations - filter cluster
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/gpu/mig?filter[cluster]={{cluster}}&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~filter[cluster]: {{cluster}}
+  limit: 20
+  offset: 0
+  ~filter[project]:
+  ~filter[gpu_idle_state]:
+  ~order_by: confidence
+  ~order_how: desc
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  MIG list scoped to one OpenShift cluster UUID.
+
+  Use `filter[cluster]` with the same value as `cluster_uuid` on list rows.
+  A cluster outside the caller's `openshift.cluster` RBAC scope returns 200 with an empty list.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

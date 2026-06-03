@@ -1,0 +1,30 @@
+meta {
+  name: GPU MIG recommendations - settings
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/settings/gpu
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  GPU classification and MIG sizing thresholds used by `/recommendations/openshift/gpu/mig`.
+
+  Key fields: `idle_threshold`, `underutilized_sm_threshold`, `underutilized_tensor_threshold`,
+  `membound_dram_threshold`, `fb_headroom_factor`, `mig_fb_percentile`.
+
+  Alias: `GET .../settings/thresholds?recommendation_type=gpu` (deprecated).
+  Terms: `GET .../settings/terms?recommendation_type=gpu`.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

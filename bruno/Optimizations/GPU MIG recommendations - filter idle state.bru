@@ -1,0 +1,36 @@
+meta {
+  name: GPU MIG recommendations - filter idle state
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/gpu/mig?filter[gpu_idle_state]=idle&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~filter[gpu_idle_state]: idle
+  limit: 20
+  offset: 0
+  ~filter[cluster]:
+  ~filter[project]:
+  ~order_by: confidence
+  ~order_how: desc
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  MIG rows where `gpu_idle_state` is `idle` (comma-separated OR for multiple states: `idle,zombie`).
+
+  Allowed values: `active`, `idle`, `zombie`.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
