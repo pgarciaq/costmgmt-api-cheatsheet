@@ -699,9 +699,15 @@ List containers that have a non-full-GPU MIG recommendation:
 GET /api/cost-management/v1/recommendations/openshift/gpu/mig
 GET /api/cost-management/v1/recommendations/openshift/gpu/mig?limit=20&offset=0
 GET /api/cost-management/v1/recommendations/openshift/gpu/mig?filter[cluster]=<cluster_uuid>&filter[project]=ml-team
+GET /api/cost-management/v1/recommendations/openshift/gpu/mig?filter[tag:gpu_pool]=high-memory
 GET /api/cost-management/v1/recommendations/openshift/gpu/mig?order_by=confidence&order_how=desc
 GET /api/cost-management/v1/recommendations/openshift/gpu/mig?format=csv
 ----
+
+*Test data:* Generate OCP payloads with GPU ROS metrics using `nise report ocp --ros-ocp-info`
+(plus a GPU-enabled static YAML). Package typed CSVs with `manifest.json` and upload via ingress;
+see ros-ocp-backend `docs/features/gpu-mig.md` for MIG fixture columns (`gpu_model`, `gpu_uuid`,
+`instance_name`, `utilization`).
 
 Returns container-term rows with `recommended_gpu_profile` (MIG slice, not `full_gpu`).
 Uses recommendation *terms* (`short`/`medium`/`long`), not `filter[engine]=cost|performance`.
