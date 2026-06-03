@@ -21,11 +21,12 @@ params:query {
 docs {
   Recommendation quality metrics (stability, adoption, OOM-after-rec).
 
-  Optional filters: cluster, project, workload, container.
-  Sort: order_by=stability|adoption|oom_after_rec with order_how=asc|desc.
+  Optional filters: cluster, project, workload, container, filter[engine]=cost|performance.
+  Sort: order_by=stability|adoption|oom_events|recommendation_age|measured_at with order_how=asc|desc.
 
-  Each row includes measured_at, namespace, container_name, stability_pct,
-  adoption_pct, and oom_after_rec when populated.
+  Each row includes measured_at, namespace, workload, container_name, engine,
+  stability_pct (0.0–1.0), adoption_detected (boolean), oom_events_after_rec,
+  and recommendation_age_hours when populated.
 }
 
 settings {

@@ -1,0 +1,37 @@
+meta {
+  name: VM recommendations - filter tag
+  type: http
+  seq: 32
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm?filter[tag:environment]=production&limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[tag:environment]: production
+  limit: 20
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Tag filter on VM list (requires ROS_TAGS_ENABLED=true).
+
+  VMs are included when their namespace matches the tag predicate via org_container_keys.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

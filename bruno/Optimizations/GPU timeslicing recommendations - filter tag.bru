@@ -1,0 +1,38 @@
+meta {
+  name: GPU timeslicing recommendations - filter tag
+  type: http
+  seq: 35
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/gpu/timeslicing?filter[tag:environment]=production&limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[tag:environment]: production
+  limit: 20
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Tag filter on GPU time-slicing list (requires ROS_TAGS_ENABLED=true).
+
+  Node GPU recommendations are included when at least one candidate container
+  in the node/GPU group matches the tag predicate.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

@@ -1,0 +1,38 @@
+meta {
+  name: Recommendation history - filter tag
+  type: http
+  seq: 36
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/history?filter[tag:environment]=production&limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[tag:environment]: production
+  limit: 20
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Tag filter on fleet container recommendation history (requires ROS_TAGS_ENABLED=true).
+
+  History rows match when the container namespace satisfies the tag predicate.
+  Optional filters: cluster, project, workload, container, term, filter[engine], start_date, end_date.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}
