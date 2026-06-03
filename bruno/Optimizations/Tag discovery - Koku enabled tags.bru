@@ -1,0 +1,39 @@
+meta {
+  name: Tag discovery - Koku enabled tags
+  type: http
+  seq: 102
+}
+
+get {
+  url: {{baseURL}}/tags/openshift/
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Koku tag discovery for ROS `filter[tag:<key>]` on recommendation list APIs.
+
+  Returns enabled OpenShift tag keys (and values) that ROS syncs into `org_container_keys`.
+  Use a key from this response when building `filter[tag:<key>]=<value>` on container,
+  namespace, node, VM, quota, PVC, and GPU routes (when `ROS_TAGS_ENABLED=true`).
+
+  Host routing:
+  - On-prem: Koku API (typically port 8000) or gateway at `/api/cost-management/v1/tags/openshift/`
+  - SaaS: console.redhat.com cost-management API (same path prefix)
+
+  Related: `bruno/Tags/OpenShift tags.bru` (Tags collection), ROS Bruno requests with `filter[tag:*]`.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.data: isArray
+}

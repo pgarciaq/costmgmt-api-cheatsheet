@@ -677,7 +677,11 @@ Canonical list path. Legacy alias (identical behavior): `GET /api/cost-managemen
 ----
 GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[engine]=cost
 GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[engine]=performance
+GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[tag:environment]=production
+GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[tag:environment]=production,staging&filter[tag:team]=platform
 ----
+
+`filter[tag:<key>]` requires `ROS_TAGS_ENABLED=true` (tags synced from Koku). Multiple `filter[tag:*]` keys are ANDed; comma-separated values within one key are ORed. See container filtering above for full syntax.
 
 Detail for a specific namespace recommendation:
 
@@ -1087,6 +1091,7 @@ GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[proj
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[recommendation_type]=tighten&filter[risk_level]=high
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?group_by[cluster]=*&limit=20&offset=0
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?order_by=utilization&order_how=desc&limit=20&offset=0
+GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[tag:environment]=production
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/detail?cluster_uuid=550e8400-e29b-41d4-a716-446655440001&cluster_quota_name=team-payments-quota
 ----
 
@@ -1097,6 +1102,7 @@ Available filters:
 * `filter[project]` — namespace that belongs to the CRQ selector (`filter[namespace]` accepted as alias)
 * `filter[recommendation_type]` — `tighten`, `raise`, `optimal`, or `none`
 * `filter[risk_level]` — `high`, `medium`, `low`, or `none`
+* `filter[tag:<key>]` — namespace label filter (requires `ROS_TAGS_ENABLED=true`; CRQs whose namespace selector includes a matching label)
 * `group_by[cluster]` — aggregate rows per cluster (returns `count`, summed `estimated_savings`, and summed `capacity_freed` per cluster; mutually exclusive with per-CRQ list fields such as `cluster_quota_name`)
 * `order_by` — `cluster_quota_name`, `utilization`, `risk_level`, or `estimated_monthly_savings`
 * `order_how` — `asc` or `desc` (default `desc` when `order_by` is set)
@@ -1398,7 +1404,11 @@ GET /api/cost-management/v1/recommendations/openshift/vm?filter[has_gpu]=true
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[gpu_classification]=underutilized
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[engine]=cost
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[engine]=performance
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[tag:environment]=production
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[tag:environment]=production,staging&filter[tag:team]=platform
 ----
+
+`filter[tag:<key>]` requires `ROS_TAGS_ENABLED=true` (namespace labels synced from Koku). Multiple `filter[tag:*]` keys are ANDed.
 
 Each list row includes `metadata.engine` matching the filter (one row per VM per engine when unfiltered).
 
@@ -1418,6 +1428,7 @@ Filters (`filter[...]` or legacy query names where noted):
 | `confidence` | `high`, `moderate`, or `low`
 | `is_idle`, `is_abandoned`, `is_oversized`, `guest_agent_detected`, `has_gpu` | `true` or `false`
 | `gpu_classification` | Comma-separated GPU classes (e.g. `idle`, `underutilized`)
+| `tag:<key>` | Namespace label filter when `ROS_TAGS_ENABLED=true` (`filter[tag:environment]=production`)
 |===
 
 Each list item includes `metadata.is_network_bound` (`true` when sustained network metrics qualify the VM for **n1** network-optimized instance types). Use `filter[is_network_bound]=true` or `false` to narrow the list server-side.

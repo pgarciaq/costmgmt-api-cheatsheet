@@ -1,0 +1,48 @@
+meta {
+  name: Container recommendations - filter tag with RBAC
+  type: http
+  seq: 67
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[tag:environment]=production&limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[tag:environment]: production
+  limit: 20
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Reference request: tag filter combined with RBAC-scoped identity.
+
+  When the `x-rh-identity` principal has cluster- or namespace-limited ROS/Koku access,
+  results are the intersection of:
+  - clusters/namespaces allowed by RBAC, AND
+  - workloads whose namespace labels match `filter[tag:<key>]=<value>`.
+
+  Replace `{{xRhIdentity}}` with a restricted user (for example a cluster-scoped operator)
+  to validate narrowing. With full org admin, this behaves like a normal tag filter.
+
+  Empty `data` with HTTP 200 is expected when RBAC scope and tag match do not overlap
+  (same as `filter[cluster]` for an inaccessible cluster plus a tag filter).
+
+  Requires `ROS_TAGS_ENABLED=true` and synced tags from Koku.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}
