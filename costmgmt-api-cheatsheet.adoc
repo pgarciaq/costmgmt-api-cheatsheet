@@ -634,6 +634,7 @@ Recommendation snapshot history (fleet-wide, native engine — containers):
 ----
 GET /api/cost-management/v1/recommendations/openshift/history?limit=10
 GET /api/cost-management/v1/recommendations/openshift/history?container=my-container&filter[engine]=cost&term=medium
+GET /api/cost-management/v1/recommendations/openshift/history?filter[tag:environment]=production&limit=10
 ----
 
 History accepts `filter[engine]=cost|performance` (preferred) or legacy flat `?engine=cost`.
@@ -1263,6 +1264,8 @@ Filters (`filter[...]`):
 | `project` | Namespace (`filter[namespace]` accepted as alias)
 | `recommendation_type` | `orphaned`, `never_restored`, `redundant`, `stale`, `managed`, `active`
 |===
+
+NOTE: `filter[tag:key]` is not supported on snapshot endpoints.
 
 Example list response snippet:
 
@@ -2036,6 +2039,39 @@ PUT /api/cost-management/v1/recommendations/openshift/settings/business-hours/cl
 DELETE /api/cost-management/v1/recommendations/openshift/settings/business-hours/clusters/:cluster_id/namespaces/:namespace
 ----
 
+Effective schedule (resolved inheritance; optional `cluster_id` and `namespace` query parameters):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/business-hours/effective?cluster_id=:cluster_id&namespace=:namespace
+----
+
+GET response (example — namespace override wins):
+
+[source,json]
+----
+{
+  "timezone": "America/New_York",
+  "schedule": {
+    "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+    "start_time": "10:00",
+    "end_time": "15:00"
+  },
+  "off_hours_weight": 0.0,
+  "enabled": true,
+  "resolved_from": "namespace"
+}
+----
+
+`resolved_from` is `namespace`, `cluster`, `org`, or `none` (no schedule applies). `timezone` uses an *IANA* name (for example `America/New_York`); `start_time` and `end_time` are interpreted in that timezone's local wall clock, not as UTC.
+
+When `ROS_SETTINGS_LOCKED_BUSINESS_HOURS=true` (default when the global settings lock is on), business-hours PUT and DELETE return `403`. GET still returns the schedule with `settings_locked: true` and `enabled: false`.
+
+PUT returns `202 Accepted` and triggers asynchronous digest reship (`reship_ros`). Cluster GET responses may include `reship_status`: `complete`, `pending`, or `forward_only` (degraded — forward data only). Org-level GET does not include `reship_status`.
+
+Overnight windows are not supported: `schedule.end_time` must be strictly after `schedule.start_time` on the same calendar day (for example `08:00`–`17:00`). Requests with `end_time` before `start_time` return `400`.
+
+`enabled: false` keeps the override row but disables business-hours digest generation for that scope. DELETE removes the override so the scope inherits from cluster or org default.
+
 Example PUT body:
 
 [source,json]
@@ -2052,7 +2088,7 @@ Example PUT body:
 }
 ----
 
-`days` uses lowercase English day names. `start_time` / `end_time` are 24-hour `HH:MM` (UTC interpretation per stored timezone). PUT responses may include a storage warning and `reship_status` while digests are rebuilt. Container and namespace recommendation payloads include a nested `business_hours` object when a schedule applies.
+`days` uses lowercase English day names. `start_time` / `end_time` are 24-hour `HH:MM` in the configured IANA timezone. Container and namespace recommendation detail payloads include a nested `recommendation_engines.*.business_hours` sizing block when a schedule applies and reship is complete (savings always use the `all_hours` perspective).
 
 === Idle and zombie detection
 
