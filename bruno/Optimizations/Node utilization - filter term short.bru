@@ -1,7 +1,7 @@
 meta {
-  name: Node utilization - sort by node
+  name: Node utilization - filter term short
   type: http
-  seq: 10
+  seq: 9.1
 }
 
 get {
@@ -13,10 +13,8 @@ get {
 params:query {
   limit: 20
   offset: 0
-  filter[term]: medium
+  filter[term]: short
   filter[engine]: cost
-  order_by: node
-  order_how: asc
 }
 
 headers {
@@ -24,7 +22,8 @@ headers {
 }
 
 docs {
-  Sort node list by node name (asc) or use order_by=estimated_monthly_savings (default) with order_how=desc.
+  List nodes scoped to the short recommendation term (`filter[term]=short` → `short_term` in `recommendation_terms`).
+  Pair with "Node utilization - filter term long" and the default medium examples in other node requests.
 }
 
 settings {

@@ -1,0 +1,36 @@
+meta {
+  name: Node recommendations - savings shape
+  type: http
+  seq: 70
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?limit=5
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 5
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Node recommendation response includes `estimated_monthly_savings` at the top level (for the default engine/term).
+
+  For per-engine savings, check `recommendation_engines.<engine>.<term>.estimated_monthly_savings` in the detail response (`GET /nodes/{node}`).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

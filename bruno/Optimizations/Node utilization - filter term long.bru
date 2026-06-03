@@ -1,7 +1,7 @@
 meta {
-  name: Node utilization - sort by node
+  name: Node utilization - filter term long
   type: http
-  seq: 10
+  seq: 9.2
 }
 
 get {
@@ -13,10 +13,8 @@ get {
 params:query {
   limit: 20
   offset: 0
-  filter[term]: medium
+  filter[term]: long
   filter[engine]: cost
-  order_by: node
-  order_how: asc
 }
 
 headers {
@@ -24,7 +22,8 @@ headers {
 }
 
 docs {
-  Sort node list by node name (asc) or use order_by=estimated_monthly_savings (default) with order_how=desc.
+  List nodes scoped to the long recommendation term (`filter[term]=long` → `long_term` in `recommendation_terms`).
+  Valid term values: `short`, `medium`, `long` (aliases `short_term`, `medium_term`, `long_term` also accepted).
 }
 
 settings {

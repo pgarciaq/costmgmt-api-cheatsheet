@@ -15,6 +15,8 @@ params:query {
   offset: 0
   filter[term]: medium
   filter[engine]: cost
+  ~filter[term]: short
+  ~filter[term]: long
   ~filter[cluster]: 
   ~filter[node]: 
   ~filter[is_underutilized]: true
@@ -32,6 +34,8 @@ headers {
 docs {
   Canonical list endpoint with bracket filters (preferred over flat `?term=` / `?engine=`).
 
+  filter[term]: `short`, `medium`, or `long` (see also "Node utilization - filter term short/long" requests).
+
   Filters: stranded_resource (cpu|memory|none), instance_type, machineset_name, idle_state, term, engine.
 
   Response fields: pod_capacity, pod_scheduling_headroom, machineset_name, suggested_instance_type,
@@ -41,4 +45,10 @@ docs {
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
 }

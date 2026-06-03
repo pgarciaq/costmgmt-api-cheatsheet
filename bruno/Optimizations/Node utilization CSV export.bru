@@ -25,3 +25,8 @@ settings {
   encodeUrl: true
   timeout: 0
 }
+
+assert {
+  res.status: eq 200
+  res.headers.content-type: contains text/csv
+}

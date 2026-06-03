@@ -29,3 +29,8 @@ settings {
   encodeUrl: true
   timeout: 0
 }
+
+assert {
+  res.status: eq 200
+  res.body.cost_target_utilization: isNumber
+}

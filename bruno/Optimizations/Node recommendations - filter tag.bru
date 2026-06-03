@@ -35,3 +35,9 @@ settings {
   encodeUrl: true
   timeout: 0
 }
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}
