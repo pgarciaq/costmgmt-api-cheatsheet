@@ -917,7 +917,7 @@ OpenShift-only team/tenant **ClusterResourceQuota** right-sizing (distinct from 
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[cluster]=550e8400-e29b-41d4-a716-446655440000
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[cluster_quota_name]=team-payments-quota
-GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[namespace]=team-payments-ns
+GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[project]=team-payments-ns
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[recommendation_type]=tighten&filter[risk_level]=high
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?group_by[cluster]=*&limit=20&offset=0
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?order_by=utilization&order_how=desc&limit=20&offset=0
@@ -928,7 +928,7 @@ Available filters:
 
 * `filter[cluster]` — cluster UUID (exact match)
 * `filter[cluster_quota_name]` — CRQ object name (aliases: `filter[cluster_resource_quota]`, `filter[crq]`)
-* `filter[namespace]` — namespace that belongs to the CRQ selector (alias: `filter[project]`)
+* `filter[project]` — namespace that belongs to the CRQ selector (`filter[namespace]` accepted as alias)
 * `filter[recommendation_type]` — `tighten`, `raise`, `optimal`, or `none`
 * `filter[risk_level]` — `high`, `medium`, `low`, or `none`
 * `group_by[cluster]` — aggregate rows per cluster (returns `count`, summed `estimated_savings`, and summed `capacity_freed` per cluster; mutually exclusive with per-CRQ list fields such as `cluster_quota_name`)
@@ -1103,7 +1103,7 @@ Monthly `savings` on list/detail requires `ROS_SAVINGS_ESTIMATES_ENABLED=true` (
 GET /api/cost-management/v1/recommendations/openshift/vm
 GET /api/cost-management/v1/recommendations/openshift/vm?limit=20&offset=0
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[cluster]=CLUSTER_UUID
-GET /api/cost-management/v1/recommendations/openshift/vm?filter[namespace]=my-namespace
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[project]=my-namespace
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[vm_name]=my-vm
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[term]=medium_term
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[confidence]=high
@@ -1967,7 +1967,7 @@ Historical tracking of recommendation changes over time:
 GET /api/cost-management/v1/recommendations/openshift/history
 ----
 
-Recommendation quality metrics (accuracy of past predictions vs actual usage):
+Recommendation quality metrics (`stability_pct` 0.0–1.0, `adoption_detected`, `oom_events_after_rec`, and `recommendation_age_hours` — measuring how stable and adopted recommendations are over time):
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/quality

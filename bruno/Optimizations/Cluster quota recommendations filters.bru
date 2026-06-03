@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/cluster-quota?filter[namespace]=crq-e2e-ns&filter[recommendation_type]=tighten&filter[risk_level]=high&order_by=utilization&order_how=desc&limit=20&offset=0
+  url: {{baseURL}}/recommendations/openshift/cluster-quota?filter[project]=crq-e2e-ns&filter[recommendation_type]=tighten&filter[risk_level]=high&order_by=utilization&order_how=desc&limit=20&offset=0
   body: none
   auth: inherit
 }
@@ -16,7 +16,7 @@ headers {
 
 docs {
   List filters (repeatable filter[] keys also work):
-  - filter[namespace] or filter[project] — CRQs whose namespaces membership includes the value
+  - filter[project] — CRQs whose namespaces membership includes the value (filter[namespace] alias)
   - filter[cluster] — cluster UUID
   - filter[cluster_quota_name] — aliases: filter[cluster_resource_quota], filter[crq]
   - filter[recommendation_type] — tighten | raise | optimal | none
