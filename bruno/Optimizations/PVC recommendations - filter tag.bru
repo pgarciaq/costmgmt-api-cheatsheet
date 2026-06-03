@@ -1,0 +1,37 @@
+meta {
+  name: PVC recommendations - filter tag
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/pvcs?filter[tag:environment]=production&limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[tag:environment]: production
+  limit: 20
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Tag filter on PVC list (requires ROS_TAGS_ENABLED=true).
+
+  PVC rows match when the namespace scope satisfies the tag predicate.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}
