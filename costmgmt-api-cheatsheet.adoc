@@ -485,6 +485,10 @@ When the filter is omitted, both engines are returned.
 
 To generate cluster data where cost and performance sizing intentionally diverge (for validation or demos), use the NISE fixture at `nise/examples/ocp_dual_engine/` (`spike-cpu-api`, `steady-mem-worker` workloads; see the README in that directory).
 
+==== Testing divergence
+
+After ingesting `nise/examples/ocp_dual_engine/` data, container cost vs performance sizing will differ under `recommendation_terms.*.recommendation_engines` (higher CPU/memory on performance for spike-prone workloads). Use that fixture in your test cluster to verify dual-engine divergence in E2E, IQE, or Bruno manual runs; generic fixtures may return identical sizing while still exposing both engine blocks.
+
 ==== Filtering and sorting
 
 Filter by cluster, project, workload, workload type, or container:

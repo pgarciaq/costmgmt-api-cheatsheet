@@ -20,9 +20,11 @@ docs {
   recommendations.recommendation_terms.<term>.recommendation_engines.cost
   recommendations.recommendation_terms.<term>.recommendation_engines.performance
 
-  Cost engine uses lower usage percentiles (e.g. P60 CPU); performance uses higher
-  percentiles (e.g. P98 CPU) for headroom. List endpoints accept filter[engine] to
-  return only one engine block per term; detail always returns both when data exists.
+  Cost engine uses P60 CPU / P95 memory; performance engine uses P98 CPU / P100 memory.
+  List endpoints accept filter[engine] to return only one engine block per term; detail
+  always returns both when data exists.
+
+  To observe divergent cost vs performance sizing, ingest data from nise/examples/ocp_dual_engine/.
 }
 
 settings {
