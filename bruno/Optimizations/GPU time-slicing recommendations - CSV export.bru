@@ -1,0 +1,37 @@
+meta {
+  name: GPU time-slicing recommendations - CSV export
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/gpu/timeslicing?format=csv&limit=100&offset=0&order_by=confidence&order_how=desc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  format: csv
+  limit: 100
+  offset: 0
+  order_by: confidence
+  order_how: desc
+}
+
+headers {
+  Accept: text/csv
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  CSV export for GPU time-slicing (node-level) recommendations.
+
+  - `format=csv` returns `text/csv` with the same columns as JSON (see OpenAPI).
+  - Prefer `Accept: text/csv` for explicit content negotiation.
+  - Node-level only; no `filter[project]`.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

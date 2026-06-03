@@ -1,0 +1,34 @@
+meta {
+  name: GPU time-slicing recommendations - order by
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/gpu/timeslicing?order_by=confidence&order_how=desc&limit=50&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  order_by: confidence
+  order_how: desc
+  limit: 50
+  offset: 0
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Sort GPU time-slicing list by confidence descending.
+
+  Allowed `order_by` values: node_name, cluster_uuid, gpu_model, recommended_replicas, confidence, total_node_savings.
+  `order_how`: asc or desc (default desc).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
