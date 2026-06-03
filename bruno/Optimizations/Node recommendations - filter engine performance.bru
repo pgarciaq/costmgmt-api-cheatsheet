@@ -1,0 +1,31 @@
+meta {
+  name: Node recommendations - filter engine performance
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[engine]=performance&filter[term]=medium&limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 20
+  filter[term]: medium
+  filter[engine]: performance
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Same as "Node recommendations - filter engine" but scoped to the performance engine
+  (higher utilization targets and stricter consolidation than cost).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

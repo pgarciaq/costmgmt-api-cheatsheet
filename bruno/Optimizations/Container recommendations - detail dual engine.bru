@@ -13,6 +13,9 @@ get {
 docs {
   Container detail includes nested dual engines under each recommendation term.
 
+  For test data where cost and performance sizing must differ, use the NISE fixture at
+  `nise/examples/ocp_dual_engine/` (workloads: spike-cpu-api, steady-mem-worker).
+
   Inspect:
   recommendations.recommendation_terms.<term>.recommendation_engines.cost
   recommendations.recommendation_terms.<term>.recommendation_engines.performance

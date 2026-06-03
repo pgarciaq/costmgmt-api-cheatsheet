@@ -1,0 +1,36 @@
+meta {
+  name: Node recommendations - filter engine
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[engine]=cost&filter[term]=medium&limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 20
+  filter[term]: medium
+  filter[engine]: cost
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Node list with `filter[engine]=cost` — only the cost engine block is returned under
+  each `recommendation_terms.<term>.recommendation_engines` (performance is omitted).
+
+  Also accepted: `filter[engine]=performance`, or legacy flat `?engine=cost`.
+
+  For divergent cost vs performance sizing in test clusters, generate data with the
+  NISE fixture at `nise/examples/ocp_dual_engine/` (see README in that directory).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

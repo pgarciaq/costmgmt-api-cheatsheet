@@ -483,6 +483,8 @@ On list endpoints, `filter[engine]=cost` or `filter[engine]=performance` returns
 selected engine under each term and omits the other from `recommendation_engines`.
 When the filter is omitted, both engines are returned.
 
+To generate cluster data where cost and performance sizing intentionally diverge (for validation or demos), use the NISE fixture at `nise/examples/ocp_dual_engine/` (`spike-cpu-api`, `steady-mem-worker` workloads; see the README in that directory).
+
 ==== Filtering and sorting
 
 Filter by cluster, project, workload, workload type, or container:

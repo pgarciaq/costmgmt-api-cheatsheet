@@ -1,0 +1,30 @@
+meta {
+  name: History - filter engine performance
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/history?cluster={{clusterUuid}}&container=grafana&filter[engine]=performance&term=medium&limit=10
+  body: none
+  auth: inherit
+}
+
+params:query {
+  cluster: {{clusterUuid}}
+  container: grafana
+  filter[engine]: performance
+  term: medium
+  limit: 10
+}
+
+docs {
+  Container recommendation history scoped to the performance engine.
+
+  Each row includes `engine: "performance"`. Prefer `filter[engine]` over legacy `?engine=`.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
