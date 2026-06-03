@@ -720,6 +720,8 @@ Returns per-node recommendations with:
 
 Node-level right-sizing based on CPU and memory utilization patterns — identifies underutilized, overcommitted, stranded-resource, idle, and zombie nodes. One JSON object per node with nested `recommendation_terms` and dual engines (`cost`, `performance`).
 
+Business hours are not applicable to node recommendations (they apply to container and namespace recommendations only).
+
 ----
 GET /api/cost-management/v1/recommendations/openshift/nodes
 GET /api/cost-management/v1/recommendations/openshift/nodes?limit=10&offset=0
@@ -761,6 +763,8 @@ GET /api/cost-management/v1/recommendations/openshift/machinesets?filter[machine
 Filters: `filter[cluster]` / `cluster_uuid`, `filter[machineset_name]` (exact or `*` wildcard), `filter[term]` / `term` (`short`|`medium`|`long`, default `medium`). Sorted by `total_monthly_savings_usd` descending.
 
 Response fields (per MachineSet): `machineset_name`, `cluster_uuid`, `cluster_alias`, `instance_type`, `current_node_count`, `recommended_node_count`, `excess_nodes`, `total_monthly_savings_usd`, `avg_cpu_utilization`, `avg_memory_utilization`, `nodes`.
+
+MachineAutoscaler integration is planned as a future enhancement (Tier 3).
 
 ==== Deprecated path (backward compatibility)
 
