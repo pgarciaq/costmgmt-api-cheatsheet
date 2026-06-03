@@ -406,9 +406,30 @@ GET /api/cost-management/v1/recommendations/openshift/savings-summary?engine=cos
 GET /api/cost-management/v1/recommendations/openshift/savings-summary?engine=cost&term=short
 GET /api/cost-management/v1/recommendations/openshift/savings-summary?filter[cluster]=<cluster-uuid>&group_by[tag:environment]=*
 GET /api/cost-management/v1/recommendations/openshift/savings-summary?group_by[tag:environment]=*
+GET /api/cost-management/v1/recommendations/openshift/savings-summary?group_by[tag:environment]=*&filter[project]=payments
 ----
 
-NOTE: `filter[cluster]` is only applied when a `group_by` parameter is present (e.g., `group_by[tag:*]` or `group_by[idle_state]`). Without `group_by`, the filter has no effect and all RBAC-visible clusters are included.
+NOTE: `filter[cluster]` is only applied when a `group_by` parameter is present (e.g., `group_by[tag:*]` or `group_by[idle_state]`). `filter[project]` scopes container savings in tag-grouped responses only (requires `group_by[tag:*]`). Without `group_by`, cluster and project filters have no effect and all RBAC-visible clusters are included.
+
+PVC plugin totals in `by_plugin` honor `term` only (engine-agnostic). Snapshot totals are term-independent (always sum all snapshot recommendations regardless of `term`). Container, node, and VM totals honor both `engine` and `term`.
+
+==== Negative savings
+
+When current resource requests are already below the recommended target, `estimated_monthly_savings.value` (containers, nodes, PVCs, VMs) can be *negative*. That indicates an *additional* monthly cost if the recommendation is adopted (upsize for reliability or performance), not a savings opportunity. The UI should label negative values as additional cost rather than "Savings: -$X/month".
+
+==== Effective rates (Koku Masu)
+
+ROS does not expose a standalone cost-rate API. During ingestion (and savings recalculation), ros-processor fetches rates from Koku Masu:
+
+----
+GET /api/cost-management/v1/effective_rates/?cluster_uuid=<cluster-uuid>&org_id=<org-id>&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
+----
+
+Returns the cluster cost model rates used for savings: CPU/memory request and usage rates per hour, storage rates per month, `node_cost_per_month`, optional `gpu_cost_per_month`, markup, `distribution_type`, and per-namespace aggregates (`cost_model_cpu_cost`, `infrastructure_cost`, `distributed_cost`, etc.). ROS caches the response per cluster for the ingest cycle.
+
+When rates are missing or Masu is unreachable, recommendations still persist but dollar fields are omitted or zero and notification code *25* (`NotifNoCostData`) is appended on container, node, and PVC rows. Fleet `savings-summary` exposes `by_cluster[].has_cost_data: false` when every recommendation in that cluster lacks cost data.
+
+Requires `KOKU_MASU_URL` on ros-processor/ros-api and `ROS_SAVINGS_ESTIMATES_ENABLED=true` (default).
 
 ==== Savings recalculation (internal)
 
@@ -1281,8 +1302,21 @@ GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?group_by
 GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?group_by=cluster
 GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[cluster]=CLUSTER_UUID
 GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[project]=payments-*
+GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[recommendation_type]=orphaned&group_by=namespace
+GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[recommendation_type]=stale&group_by=namespace&limit=20&offset=0
 GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?order_by=reclaimable_restore_size_gib&order_how=desc&limit=20&offset=0
 ----
+
+Summary filters (`filter[...]`):
+
+[cols="2,5",options="header"]
+|===
+| Filter | Values / notes
+
+| `cluster` | Cluster UUID (RBAC-scoped)
+| `project` | Namespace (`filter[namespace]` accepted as alias); supports `*` wildcard
+| `recommendation_type` | `orphaned`, `never_restored`, `redundant`, `stale`, `managed`, `active` — restricts which snapshots are aggregated into each group (`counts_by_type` and reclaimable totals reflect only matching rows)
+|===
 
 Summary `order_by`: `reclaimable_monthly_holding_cost_usd`, `reclaimable_restore_size_gib`, `actionable_snapshot_count`, `snapshot_count`. Use `order_how=asc` or `desc`.
 

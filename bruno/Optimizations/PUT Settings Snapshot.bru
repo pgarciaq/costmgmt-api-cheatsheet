@@ -19,8 +19,15 @@ body:json {
   {
     "stale_days": 30,
     "orphan_age_days": 7,
+    "never_restored_days": 30,
+    "redundant_threshold": 3,
     "inventory_fresh_hours": 24
   }
+}
+
+docs {
+  Per-org snapshot classification thresholds. `inventory_fresh_hours` controls how much
+  recent inventory is used for classify/reconcile. Locked keys in `locked_fields` return 403 on PUT.
 }
 
 settings {

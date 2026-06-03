@@ -14,7 +14,16 @@ headers {
   x-rh-identity: {{xRhIdentity}}
 }
 
+docs {
+  Removes per-org snapshot settings overrides (reverts to env defaults).
+  Expect **204 No Content** on success.
+}
+
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+assert {
+  res.status: eq 204
 }

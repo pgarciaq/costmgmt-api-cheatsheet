@@ -1,0 +1,33 @@
+meta {
+  name: Snapshot summary - filter recommendation type
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/snapshots/summary?group_by=namespace&filter[recommendation_type]=orphaned&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  group_by: namespace
+  filter[recommendation_type]: orphaned
+  limit: 20
+  offset: 0
+}
+
+docs {
+  Summary aggregates only rows matching filter[recommendation_type].
+  counts_by_type and reclaimable totals reflect the filtered set (not active/managed unless requested).
+  Types: orphaned, never_restored, redundant, stale, managed, active.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
