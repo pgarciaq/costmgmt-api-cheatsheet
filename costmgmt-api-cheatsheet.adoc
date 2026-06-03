@@ -374,7 +374,7 @@ GET /api/cost-management/v1/tags/openshift/my-tag-key/
 
 == Optimizations (Resource Optimization for OpenShift)
 
-==== Notification codes (reference)
+=== Notification codes (reference)
 
 Machine-readable catalog of all notification codes (no auth required). Optional `filter[plugin]` for `container`, `namespace`, `node`, `gpu`, `pvc`, `snapshot`, `vm`, `quota`, or `cluster-quota`.
 
@@ -1123,16 +1123,19 @@ Pagination: `limit` (1–100, default 10), `offset` (default 0).
 
 Filters (`filter[...]` or legacy query names where noted):
 
-| Filter | Values / notes |
-|--------|----------------|
-| `cluster` | Cluster UUID (RBAC-scoped) |
-| `namespace` | VM namespace |
-| `vm_name` | KubeVirt VM name |
-| `term` | `short_term`, `medium_term`, or `long_term` |
-| `engine` | `cost` or `performance` |
-| `confidence` | `high`, `moderate`, or `low` |
-| `is_idle`, `is_abandoned`, `is_oversized`, `guest_agent_detected`, `has_gpu` | `true` or `false` |
-| `gpu_classification` | Comma-separated GPU classes (e.g. `idle`, `underutilized`) |
+[cols="2,5",options="header"]
+|===
+| Filter | Values / notes
+
+| `cluster` | Cluster UUID (RBAC-scoped)
+| `namespace` | VM namespace
+| `vm_name` | KubeVirt VM name
+| `term` | `short_term`, `medium_term`, or `long_term`
+| `engine` | `cost` or `performance`
+| `confidence` | `high`, `moderate`, or `low`
+| `is_idle`, `is_abandoned`, `is_oversized`, `guest_agent_detected`, `has_gpu` | `true` or `false`
+| `gpu_classification` | Comma-separated GPU classes (e.g. `idle`, `underutilized`)
+|===
 
 Each list item includes `metadata.is_network_bound` (`true` when sustained network metrics qualify the VM for **n1** network-optimized instance types). Use `filter[is_network_bound]=true` or `false` to narrow the list server-side.
 
@@ -1407,17 +1410,20 @@ Example PUT (partial update — I/O pattern, GPU classification, network, and ti
 
 VM list/detail `notifications` arrays use lowercase `type` (`info`, `warning`, `critical`) and numeric `code`:
 
-| Code | Name | Severity | When emitted |
-|------|------|----------|--------------|
-| 55 | `VM_NETWORK_SATURATED` | warning | `metadata.is_network_bound` is `true` — recommend **n1** network-optimized instance type |
-| 56 | `VM_VGPU_PROFILE_RECOMMENDED` | info | vGPU profile recommended — see `recommended_vgpu_profile` in the `gpu` object |
-| 57 | `VM_GPU_TIMESLICE_UNSAFE_FB` | warning | Frame-buffer usage too high for safe shared vGPU time-slicing |
-| 58 | `VM_IO_SEQUENTIAL` | info | `io_profile.pattern` is `sequential` — consider storage optimized for throughput |
-| 59 | `VM_IO_RANDOM` | info | `io_profile.pattern` is `random` — consider storage optimized for IOPS |
-| 60 | `VM_REDUNDANT_COLOCATION` | warning | `metadata.is_redundant_placement` is `true` — same-profile peers on same node |
-| 61 | `VM_UNEVEN_NODE_DISTRIBUTION` | info | Uneven spread of profile VMs across nodes |
-| 62 | `VM_SHARED_STORAGE` | info | `metadata.has_shared_storage` is `true` — correlated workload group |
-| 63 | `VM_NUMA_OVERSIZED` | warning | `metadata.numa_oversized` is `true` — memory exceeds `placement.numa_node_memory_gib` |
+[cols="1,3,1,5",options="header"]
+|===
+| Code | Name | Severity | When emitted
+
+| 55 | `VM_NETWORK_SATURATED` | warning | `metadata.is_network_bound` is `true` — recommend *n1* network-optimized instance type
+| 56 | `VM_VGPU_PROFILE_RECOMMENDED` | info | vGPU profile recommended — see `recommended_vgpu_profile` in the `gpu` object
+| 57 | `VM_GPU_TIMESLICE_UNSAFE_FB` | warning | Frame-buffer usage too high for safe shared vGPU time-slicing
+| 58 | `VM_IO_SEQUENTIAL` | info | `io_profile.pattern` is `sequential` — consider storage optimized for throughput
+| 59 | `VM_IO_RANDOM` | info | `io_profile.pattern` is `random` — consider storage optimized for IOPS
+| 60 | `VM_REDUNDANT_COLOCATION` | warning | `metadata.is_redundant_placement` is `true` — same-profile peers on same node
+| 61 | `VM_UNEVEN_NODE_DISTRIBUTION` | info | Uneven spread of profile VMs across nodes
+| 62 | `VM_SHARED_STORAGE` | info | `metadata.has_shared_storage` is `true` — correlated workload group
+| 63 | `VM_NUMA_OVERSIZED` | warning | `metadata.numa_oversized` is `true` — memory exceeds `placement.numa_node_memory_gib`
+|===
 
 ==== VM term settings
 
