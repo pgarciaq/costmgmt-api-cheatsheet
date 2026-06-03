@@ -1,0 +1,32 @@
+meta {
+  name: Container recommendations - filter engine performance
+  type: http
+  seq: 94
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[engine]=performance&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[engine]: performance
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[engine]=performance — return only the performance engine under each recommendation term.
+
+  Also accepted: filter[engine]=cost, or legacy flat ?engine=performance.
+
+  When omitted, both cost and performance engines are nested under each term.
+  When filter[engine] is set, the other engine is omitted from
+  recommendation_terms.<term>.recommendation_engines on each list item.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

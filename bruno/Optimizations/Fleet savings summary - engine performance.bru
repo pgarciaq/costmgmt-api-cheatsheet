@@ -1,0 +1,24 @@
+meta {
+  name: Fleet savings summary - engine performance
+  type: http
+  seq: 97
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/savings-summary?engine=performance
+  body: none
+  auth: inherit
+}
+
+docs {
+  Fleet rollup: by_plugin includes container, node, pvc, snapshot, vm (gpu=0).
+  VM totals need ROS_SAVINGS_ESTIMATES_ENABLED and KOKU_MASU_URL at ingestion.
+
+  ?engine=performance aggregates persisted savings using the performance engine
+  (headroom-oriented sizing). Default is cost when omitted.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

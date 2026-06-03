@@ -1,0 +1,28 @@
+meta {
+  name: Quality - filter engine performance
+  type: http
+  seq: 96
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/quality?filter[engine]=performance&limit=10
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[engine]: performance
+  limit: 10
+}
+
+docs {
+  Quality metrics for a single engine perspective (defaults to cost when omitted).
+
+  filter[engine]=cost|performance — scopes stability/adoption/OOM metrics to that
+  engine's persisted recommendations. Legacy flat ?engine=performance is also accepted.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
