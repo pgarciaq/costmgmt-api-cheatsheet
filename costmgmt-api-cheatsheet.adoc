@@ -1696,7 +1696,7 @@ Example PUT (PVC — override oversized threshold):
 
 === Business hours settings
 
-Optional schedule-aware CPU recommendations (requires `ROS_BUSINESS_HOURS_ENABLED` and `business_hours: true` in `/recommendations/openshift/settings/capabilities`). Enabling a schedule triggers digest re-shipping for affected scopes and approximately doubles digest storage.
+Optional schedule-aware sizing (CPU requests/limits and memory requests/limits) (requires `ROS_BUSINESS_HOURS_ENABLED` and `business_hours: true` in `/recommendations/openshift/settings/capabilities`). Enabling a schedule triggers digest re-shipping for affected scopes and approximately doubles digest storage.
 
 Org-default schedule:
 
