@@ -13,7 +13,7 @@ get {
 params:query {
   limit: 20
   offset: 0
-  order_by: estimated_monthly_gpu_savings_usd
+  order_by: confidence
   order_how: desc
 }
 
@@ -22,7 +22,10 @@ headers {
 }
 
 docs {
-  Lists containers with MIG profile recommendations. See OpenAPI for additional filters and allowed `order_by` values.
+  Lists containers with MIG profile recommendations (non-full_gpu MIG profiles).
+  Allowed order_by: cluster_uuid, namespace, workload, container, term, gpu_model, confidence.
+  Dollar savings are on container detail (GET .../recommendations/openshift/{uuid}), not this list.
+  Filters: filter[cluster], filter[project], filter[gpu_idle_state], filter[tag:key], format=csv.
 }
 
 settings {
