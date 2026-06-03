@@ -1,0 +1,37 @@
+meta {
+  name: Snapshot staleness - plugin disabled 404
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/snapshots?limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  limit: 20
+  offset: 0
+}
+
+docs {
+  **Negative test scenario** — snapshot plugin disabled.
+
+  When `snapshot` is **not** included in `ROS_ENABLED_PLUGINS` (or is listed in
+  `ROS_DISABLED_PLUGINS`), GET `/recommendations/openshift/snapshots` returns **404**
+  with a plugin-not-enabled style response body.
+
+  Run this request only against an environment where the snapshot plugin is intentionally
+  disabled. On clusters with `snapshot` enabled, expect **200** with a normal list envelope
+  instead.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
