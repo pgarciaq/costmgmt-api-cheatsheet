@@ -31,6 +31,9 @@ docs {
   Example jq path:
   `.data[0].recommendation_terms.medium_term.recommendation_engines.cost.node_count_reduction`
 
+  When `meta.count` > 0, each underutilized cost row should expose `node_count_reduction`
+  as a non-negative integer on the matching engine block (0 when no fleet reduction applies).
+
   MachineSet rollups (`GET .../machinesets`) aggregate `excess_nodes` and
   `recommended_node_count` for fleet-level consolidation by machineset_name.
 

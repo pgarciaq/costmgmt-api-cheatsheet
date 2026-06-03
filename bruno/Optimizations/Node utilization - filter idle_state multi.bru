@@ -1,0 +1,31 @@
+meta {
+  name: Node utilization - filter idle_state multi
+  type: http
+  seq: 8.3
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[idle_state]=active,zombie
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Comma-separated idle_state filter returns nodes matching ANY of the specified states.
+  Example: filter[idle_state]=active,zombie includes both active and zombie nodes.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

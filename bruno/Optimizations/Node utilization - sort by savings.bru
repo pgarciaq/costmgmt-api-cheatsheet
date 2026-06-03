@@ -1,0 +1,31 @@
+meta {
+  name: Node utilization - sort by savings
+  type: http
+  seq: 10.1
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?order_by=estimated_monthly_savings&order_how=desc
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Sort nodes by estimated monthly savings (descending). Nodes with highest potential savings appear first.
+  Default list sort uses the cost engine medium-term savings (same order_by key).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}
