@@ -14,6 +14,17 @@ headers {
   x-rh-identity: {{xRhIdentity}}
 }
 
+docs {
+  Canonical node plugin thresholds (alias: GET .../settings/thresholds?recommendation_type=node).
+
+  Response includes locked_fields, settings_locked, and tunables such as:
+  underutil_threshold, overcommit_threshold, cost_target_utilization,
+  perf_target_utilization, stranded_imbalance_threshold, pod_headroom_* gates,
+  zombie/idle classification thresholds.
+
+  RBAC: same as other settings endpoints (org admin / cost-management settings access).
+}
+
 settings {
   encodeUrl: true
   timeout: 0

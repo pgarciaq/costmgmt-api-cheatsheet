@@ -29,8 +29,9 @@ headers {
 docs {
   Canonical path for node CPU and memory utilization recommendations (deprecated alias: `/nodes/utilization`).
 
-  Filters: filter[term], filter[engine], filter[stranded_resource], filter[instance_type],
-  filter[machineset_name], filter[idle_state], filter[is_underutilized], filter[is_overcommitted].
+  Filters: filter[term] (short|medium|long), filter[engine], filter[stranded_resource],
+  filter[instance_type], filter[machineset_name], filter[idle_state], filter[is_underutilized],
+  filter[is_overcommitted], filter[tag:<key>]=<value>.
 
   Nested response shape (per node):
   - classification: is_underutilized, is_overcommitted, idle_state, stranded_resource
@@ -42,9 +43,16 @@ docs {
   Also: pod_capacity, pod_scheduling_headroom, machineset_name, suggested_instance_type,
   instance_type_reason.
 
-  RBAC: requires cost-management.openshift.node (and cluster scope via openshift.cluster).
+  RBAC: requires cost-management.openshift.node (node name scope) and
+  cost-management.openshift.cluster (cluster UUID scope). Users without matching
+  permissions receive empty data[], not 403.
 
   Fleet consolidation groups by instance_type when present, else similar allocatable capacity.
+  See "Node recommendations - consolidation" for node_count_reduction examples.
+
+  Per-node recommendation history: N/A (no GET .../nodes/{node}/history). Use fleet
+  GET .../history for container snapshots only. Quality metrics (GET .../quality) are
+  container-scoped, not node-scoped.
 }
 
 settings {

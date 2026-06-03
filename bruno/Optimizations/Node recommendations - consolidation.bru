@@ -1,0 +1,43 @@
+meta {
+  name: Node recommendations - consolidation
+  type: http
+  seq: 22.5
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[is_underutilized]=true&filter[term]=medium&filter[engine]=cost&limit=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[is_underutilized]: true
+  filter[term]: medium
+  filter[engine]: cost
+  limit: 20
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Fleet consolidation and per-node reduction opportunities.
+
+  Underutilized nodes often expose `node_count_reduction` on cost/performance engine blocks
+  under `recommendation_terms.medium_term.recommendation_engines`. Values are integers
+  (nodes that could be removed from the fleet group).
+
+  Example jq path:
+  `.data[0].recommendation_terms.medium_term.recommendation_engines.cost.node_count_reduction`
+
+  MachineSet rollups (`GET .../machinesets`) aggregate `excess_nodes` and
+  `recommended_node_count` for fleet-level consolidation by machineset_name.
+
+  RBAC: requires `cost-management.openshift.node` and cluster scope.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

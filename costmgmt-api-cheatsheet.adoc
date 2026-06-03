@@ -601,7 +601,10 @@ Use the same filters and `order_by` parameters as the JSON list endpoint.
 
 ==== History and quality
 
-Recommendation snapshot history (fleet-wide, native engine):
+Node recommendations do not expose a history or quality API. Per-node history is N/A;
+`GET .../quality` applies to container recommendations only (stability, adoption, OOM after rec).
+
+Recommendation snapshot history (fleet-wide, native engine — containers):
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/history?limit=10
