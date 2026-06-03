@@ -1,0 +1,26 @@
+meta {
+  name: Snapshot staleness - notification codes
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/notification-codes?filter[plugin]=snapshot
+  body: none
+  auth: none
+}
+
+docs {
+  Snapshot plugin notification codes when filter[plugin]=snapshot:
+
+  - **31** — source PVC deleted (orphaned)
+  - **32** — never used to restore a volume
+  - **33** — newer snapshot exists for the same PVC (redundant)
+  - **34** — older than retention threshold with no known usage (stale)
+  - **35** — managed by backup tool (Velero/OADP, etc.)
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

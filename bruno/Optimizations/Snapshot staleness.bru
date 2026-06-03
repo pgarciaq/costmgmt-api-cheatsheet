@@ -5,9 +5,23 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/snapshots
+  url: {{baseURL}}/recommendations/openshift/snapshots?limit=20&offset=0
   body: none
   auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  limit: 20
+  offset: 0
+}
+
+docs {
+  VolumeSnapshot staleness list. Default sort: age_days descending.
+  Use filter[cluster], filter[project], filter[recommendation_type] on dedicated requests.
 }
 
 settings {

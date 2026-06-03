@@ -1,0 +1,31 @@
+meta {
+  name: Snapshot staleness - filter recommendation type
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/snapshots?filter[recommendation_type]=orphaned&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  filter[recommendation_type]: orphaned
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[recommendation_type] — orphaned, never_restored, redundant, stale, managed, or active.
+  Legacy alias: recommendation_type (flat query param).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

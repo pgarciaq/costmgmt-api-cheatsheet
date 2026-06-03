@@ -1211,11 +1211,67 @@ PUT validation matches namespace quota settings. DELETE removes per-org override
 
 === Snapshot staleness recommendations
 
-VolumeSnapshot analysis — orphaned, stale, never-restored, redundant snapshots with estimated storage savings:
+VolumeSnapshot analysis — orphaned, stale, never-restored, redundant, and backup-managed snapshots with estimated storage holding cost. Requires the `snapshot` plugin in `ROS_ENABLED_PLUGINS`; when disabled, routes return `404`.
+
+==== Snapshot list
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/snapshots
+GET /api/cost-management/v1/recommendations/openshift/snapshots?limit=20&offset=0
+GET /api/cost-management/v1/recommendations/openshift/snapshots?filter[cluster]=550e8400-e29b-41d4-a716-446655440000
+GET /api/cost-management/v1/recommendations/openshift/snapshots?filter[project]=production
+GET /api/cost-management/v1/recommendations/openshift/snapshots?filter[recommendation_type]=orphaned
+GET /api/cost-management/v1/recommendations/openshift/snapshots?filter[cluster]=CLUSTER_UUID&filter[project]=payments-prod&filter[recommendation_type]=stale&limit=10&offset=0
 ----
+
+Pagination: `limit` (1–100, default 20), `offset` (default 0). List rows are sorted by `age_days` descending (no `order_by` on this endpoint).
+
+Filters (`filter[...]`):
+
+[cols="2,5",options="header"]
+|===
+| Filter | Values / notes
+
+| `cluster` | Cluster UUID (RBAC-scoped)
+| `project` | Namespace (`filter[namespace]` accepted as alias)
+| `recommendation_type` | `orphaned`, `never_restored`, `redundant`, `stale`, `managed`, `active`
+|===
+
+Example list response snippet:
+
+[source,json]
+----
+{
+  "meta": { "count": 1, "limit": 20, "offset": 0, "currency": "USD" },
+  "data": [
+    {
+      "cluster_uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "namespace": "production",
+      "snapshot_name": "db-backup-2025-12-01",
+      "source_pvc_name": "postgres-data",
+      "volume_snapshot_class": "csi-aws-vsc",
+      "storageclass": "gp3",
+      "creation_timestamp": "2025-12-01T03:00:00Z",
+      "restore_size_bytes": 53687091200,
+      "age_days": 158,
+      "source_pvc_exists": true,
+      "restored_pvc_count": 0,
+      "managed_by": "",
+      "recommendation_type": "stale",
+      "estimated_monthly_cost_usd": 2.5,
+      "notifications": {
+        "34": {
+          "type": "INFO",
+          "message": "Snapshot older than retention threshold with no known usage",
+          "code": 34
+        }
+      }
+    }
+  ]
+}
+----
+
+==== Snapshot summary
 
 Namespace/cluster rollup for prioritizing cleanup (reclaimable cost and size exclude `active` and `managed`):
 
@@ -1225,16 +1281,64 @@ GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?group_by
 GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?group_by=cluster
 GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[cluster]=CLUSTER_UUID
 GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[project]=payments-*
-GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?order_by=reclaimable_restore_size_gib&order_how=desc&limit=20
+GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?order_by=reclaimable_restore_size_gib&order_how=desc&limit=20&offset=0
 ----
 
-Snapshot staleness settings (configurable thresholds):
+Summary `order_by`: `reclaimable_monthly_holding_cost_usd`, `reclaimable_restore_size_gib`, `actionable_snapshot_count`, `snapshot_count`. Use `order_how=asc` or `desc`.
+
+==== Snapshot settings
+
+Per-organization classification thresholds and cost rate (`locked_fields` lists env-locked keys):
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/settings/snapshot
 PUT /api/cost-management/v1/recommendations/openshift/settings/snapshot
 DELETE /api/cost-management/v1/recommendations/openshift/settings/snapshot
 ----
+
+| Setting | Env var (locks value) | Default | Description |
+|---------|----------------------|---------|-------------|
+| `orphan_age_days` | `ROS_SNAPSHOT_ORPHAN_AGE_DAYS` | 7 | Orphan threshold; also active ceiling |
+| `never_restored_days` | `ROS_SNAPSHOT_NEVER_RESTORED_DAYS` | 30 | Never-restored threshold |
+| `stale_days` | `ROS_SNAPSHOT_STALE_DAYS` | 90 | Staleness and redundant age gate |
+| `redundant_threshold` | `ROS_SNAPSHOT_REDUNDANT_THRESHOLD` | 3 | Max snapshots per PVC before redundant |
+| `cost_per_gib_month_usd` | `ROS_SNAPSHOT_COST_PER_GIB_MONTH` | 0.05 | Monthly $/GiB holding estimate |
+| `inventory_fresh_hours` | `ROS_SNAPSHOT_INVENTORY_FRESH_HOURS` | 6 | Hours of fresh inventory for classify/reconcile |
+
+Example GET/PUT body:
+
+[source,json]
+----
+{
+  "orphan_age_days": 7,
+  "never_restored_days": 30,
+  "stale_days": 90,
+  "redundant_threshold": 3,
+  "cost_per_gib_month_usd": 0.05,
+  "inventory_fresh_hours": 6,
+  "locked_fields": []
+}
+----
+
+DELETE returns **204** and removes per-org overrides (falls back to env or compiled defaults).
+
+==== Notification codes
+
+Filter the catalog with
+`GET /api/cost-management/v1/recommendations/openshift/notification-codes/?filter[plugin]=snapshot`.
+
+[cols="1,2,3", options="header"]
+|===
+| Code | Name | Description
+
+| 31 | SNAPSHOT_ORPHANED | Source PVC was deleted; snapshot may no longer be needed
+| 32 | SNAPSHOT_NEVER_USED | Snapshot has never been used to restore a volume
+| 33 | SNAPSHOT_REDUNDANT | Newer snapshot exists for the same PVC
+| 34 | SNAPSHOT_STALE | Snapshot older than retention threshold with no known usage
+| 35 | SNAPSHOT_MANAGED | Snapshot is managed by backup tool — review retention policy
+|===
+
+`active` classifications emit no snapshot notification code. List rows use a `notifications` map keyed by code string.
 
 === OpenShift Virtualization (VM) recommendations
 

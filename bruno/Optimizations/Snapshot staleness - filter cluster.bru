@@ -1,0 +1,31 @@
+meta {
+  name: Snapshot staleness - filter cluster
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/snapshots?filter[cluster]=550e8400-e29b-41d4-a716-446655440000&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  filter[cluster]: 550e8400-e29b-41d4-a716-446655440000
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[cluster] — cluster UUID (RBAC-scoped).
+  Combine with filter[project], filter[recommendation_type], limit, offset.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
