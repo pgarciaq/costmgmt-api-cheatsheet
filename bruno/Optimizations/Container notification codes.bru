@@ -19,16 +19,18 @@ docs {
 
   filter[plugin]=container returns codes: 1, 2, 3, 5, 6, 7, 8, 9, 21, 22, 25.
 
-  Common codes:
-    1  — INFO (general)
-    2  — STALE_DATA
-    3  — LOW_CONFIDENCE
-    5  — MEMORY_TREND
-    6  — OOM_DETECTED
-    7  — CPU_SPIKE
-    21 — IDLE_WORKLOAD
-    22 — ZOMBIE_WORKLOAD
-    25 — NO_COST_DATA
+  Common codes (name — severity):
+    1  — LOW_CONFIDENCE (WARNING)
+    2  — STALE_DATA (WARNING)
+    3  — OOM_DETECTED (CRITICAL)
+    5  — IDLE_WORKLOAD (INFO)
+    6  — RECOMMENDATION_APPLIED (INFO)
+    7  — NEW_WORKLOAD (INFO)
+    8  — ABANDONED_WORKLOAD (WARNING)
+    9  — MEMORY_TRENDING_UP (WARNING)
+    21 — HPA_SATURATED (WARNING, reserved — not emitted)
+    22 — HPA_ACTIVE (INFO, reserved — not emitted)
+    25 — NO_COST_DATA (INFO)
 
   No auth required. Omit filter[plugin] for the full sorted catalog.
 }

@@ -555,6 +555,18 @@ GET /api/cost-management/v1/recommendations/openshift/?filter[engine]=performanc
 
 Legacy flat `?engine=cost` is also accepted on container, namespace, node, VM, quality, and history endpoints.
 
+==== Filter by recommendation term
+
+Limit results to a specific recommendation term. When omitted, all terms are returned.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/?filter[term]=medium_term
+----
+
+Valid values: `short_term`, `medium_term`, `long_term`
+
+Legacy flat parameter `?term=short` is also accepted. The response `recommendation_terms` object will only contain the selected term.
+
 Filter by GPU:
 
 ----
@@ -1797,10 +1809,10 @@ Examples (network, I/O, placement):
 | 57 | `VM_GPU_TIMESLICE_UNSAFE_FB` | warning | Frame-buffer usage too high for safe shared vGPU time-slicing
 | 58 | `VM_IO_SEQUENTIAL` | info | `io_profile.pattern` is `sequential` — consider storage optimized for throughput
 | 59 | `VM_IO_RANDOM` | info | `io_profile.pattern` is `random` — consider storage optimized for IOPS
-| 60 | `VM_REDUNDANT_COLOCATION` | warning | `metadata.is_redundant_placement` is `true` — same-profile peers on same node
-| 61 | `VM_UNEVEN_NODE_DISTRIBUTION` | info | Uneven spread of profile VMs across nodes
-| 62 | `VM_SHARED_STORAGE` | info | `metadata.has_shared_storage` is `true` — correlated workload group
-| 63 | `VM_NUMA_OVERSIZED` | warning | `metadata.numa_oversized` is `true` — memory exceeds `placement.numa_node_memory_gib`
+| 60 | `VM_REDUNDANT_COLOCATION` | warning | Redundant VMs co-located on same node — consider adding anti-affinity rules (`metadata.is_redundant_placement` is `true`)
+| 61 | `VM_UNEVEN_NODE_DISTRIBUTION` | info | Uneven VM distribution across nodes — consider topologySpreadConstraints
+| 62 | `VM_SHARED_STORAGE` | info | VM shares storage with other VMs — correlated workload group detected (`metadata.has_shared_storage` is `true`)
+| 63 | `VM_NUMA_OVERSIZED` | warning | VM memory exceeds single NUMA node capacity — NUMA pinning not possible (`metadata.numa_oversized` is `true`)
 |===
 
 ==== VM term settings
