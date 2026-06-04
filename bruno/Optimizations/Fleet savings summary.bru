@@ -13,4 +13,8 @@ get {
 docs {
   Fleet rollup: by_plugin includes container, node, pvc, snapshot, vm (gpu=0).
   VM totals need ROS_SAVINGS_ESTIMATES_ENABLED and KOKU_MASU_URL at ingestion.
+
+  Negative savings are valid: when current usage is already below the recommended target,
+  estimated_monthly_savings.value can be negative (additional monthly cost for headroom).
+  Positive values are standard savings opportunities.
 }

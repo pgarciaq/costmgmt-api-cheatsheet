@@ -1,0 +1,38 @@
+meta {
+  name: VM filter - idle
+  type: http
+  seq: 103
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm?filter[is_idle]=true&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  filter[is_idle]: true
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[is_idle]=true — list only VMs classified as idle (notification **18**).
+
+  Complements metadata.is_idle on each row.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

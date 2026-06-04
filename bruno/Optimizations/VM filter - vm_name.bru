@@ -1,0 +1,38 @@
+meta {
+  name: VM filter - vm_name
+  type: http
+  seq: 102
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm?filter[vm_name]=test-vm&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  filter[vm_name]: test-vm
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[vm_name]=<name> — list rows for a single VM.
+
+  Replace test-vm with a vm_name from your environment.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

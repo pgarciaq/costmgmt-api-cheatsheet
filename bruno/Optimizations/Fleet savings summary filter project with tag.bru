@@ -1,0 +1,26 @@
+meta {
+  name: Fleet savings summary filter project with tag
+  type: http
+  seq: 101
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/savings-summary?group_by[tag:environment]=*&filter[project]=payments
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Fleet savings broken down by tag key `environment`, scoped to namespace `payments`.
+
+  `filter[project]` only takes effect when a `group_by[tag:*]` parameter is present (for example `group_by[tag:environment]=*`). Without `group_by[tag:*]`, the project filter is ignored and the response reflects the full fleet rollup.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,33 @@
+meta {
+  name: VM kill-switch disabled
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm?limit=5
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Use when ROS_ENABLE_VM_RECS=false (or vm not in enabledPlugins).
+
+  - Plugin enabled: expect 200 with meta/data envelope.
+  - Plugin disabled: expect 404 (VM routes not registered).
+
+  Run against the deployment you are validating; do not assume a single status code.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: in 200,404
+}

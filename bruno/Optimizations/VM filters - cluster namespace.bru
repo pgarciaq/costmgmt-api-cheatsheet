@@ -1,0 +1,39 @@
+meta {
+  name: VM filters - cluster namespace
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm?filter[cluster]=test-cluster&filter[namespace]=default&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  filter[cluster]: test-cluster
+  filter[namespace]: default
+  limit: 20
+  offset: 0
+}
+
+docs {
+  VM list scoped by cluster UUID (or cluster id) and namespace.
+
+  Replace test-cluster with a cluster_uuid from your environment.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

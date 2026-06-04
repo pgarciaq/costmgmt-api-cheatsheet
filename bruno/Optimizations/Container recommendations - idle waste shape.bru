@@ -1,0 +1,58 @@
+meta {
+  name: Container recommendations - idle waste shape
+  type: http
+  seq: 100
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift?filter[idle_state]=idle&order_by=last_reported&order_how=desc&limit=10&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filter[idle_state]: idle
+  order_by: last_reported
+  order_how: desc
+  limit: 10
+  offset: 0
+}
+
+docs {
+  filter[idle_state]=idle — low-utilization workloads.
+
+  Idle rows expose `estimated_monthly_waste` (full monthly cost if terminated) instead of
+  rightsizing `estimated_monthly_savings`. Shape matches savings fields:
+
+    "estimated_monthly_waste": { "value": "120.000000", "units": "USD" }
+
+  Omitted when savings estimates are disabled or Masu rates are unavailable.
+  Use filter[idle_state]=zombie for abandoned workloads (same waste shape).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}
+
+tests {
+  test("estimated_monthly_waste has value and units when present", function() {
+    if (res.body.data && res.body.data.length > 0) {
+      for (var i = 0; i < res.body.data.length; i++) {
+        var waste = res.body.data[i].estimated_monthly_waste;
+        if (waste !== null && waste !== undefined) {
+          expect(waste).to.be.an('object');
+          expect(Number(waste.value)).to.not.be.NaN;
+          expect(waste.units).to.equal('USD');
+          return;
+        }
+      }
+    }
+  });
+}

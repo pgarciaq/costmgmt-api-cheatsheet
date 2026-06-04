@@ -1,0 +1,33 @@
+meta {
+  name: PVC recommendations - filter recommendation_type
+  type: http
+  seq: 69
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/pvcs?filter[recommendation_type]=oversized&filter[term]=medium&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  filter[recommendation_type]: oversized
+  filter[term]: medium
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[recommendation_type] — oversized, near_full, orphaned, or healthy.
+  Legacy alias: recommendation_type (flat query param).
+  Combine with filter[cluster], filter[project], filter[storageclass], filter[tag:<key>].
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

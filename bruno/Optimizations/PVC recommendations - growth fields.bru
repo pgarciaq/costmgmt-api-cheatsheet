@@ -1,0 +1,54 @@
+meta {
+  name: PVC recommendations - growth fields
+  type: http
+  seq: 74
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/pvcs?filter[recommendation_type]=near_full&filter[term]=medium&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  filter[recommendation_type]: near_full
+  filter[term]: medium
+  limit: 20
+  offset: 0
+}
+
+docs {
+  Near-full PVC list rows may include growth projection fields when a positive usage slope exists:
+
+  - days_to_full — projected days until capacity at current growth rate
+  - growth_bytes_per_day — WLS trend slope in bytes/day
+
+  Omitted on healthy PVCs and when growth cannot be projected.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}
+
+tests {
+  test("near_full rows include numeric growth projection fields when present", function() {
+    if (res.body.meta.count > 0 && res.body.data && res.body.data.length > 0) {
+      var row = res.body.data[0];
+      if (row.growth_bytes_per_day != null) {
+        expect(row.days_to_full).to.be.a('number');
+        expect(row.growth_bytes_per_day).to.be.a('number');
+      }
+    }
+  });
+}

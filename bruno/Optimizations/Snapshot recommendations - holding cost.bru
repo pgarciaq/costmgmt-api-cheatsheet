@@ -1,0 +1,50 @@
+meta {
+  name: Snapshot recommendations - holding cost
+  type: http
+  seq: 99
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/snapshots?limit=5&order_by=creation_timestamp&order_how=desc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 5
+  order_by: creation_timestamp
+  order_how: desc
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Snapshot list rows include recoverable monthly holding cost as `estimated_monthly_cost_usd`
+  (float, USD) when savings estimates are enabled — not the container-style {value, units} object.
+
+  Formula: restore_size_gib × cost_per_gib_month (default $0.05/GiB until billing-accurate rates ship).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}
+
+tests {
+  test("estimated_monthly_cost_usd is numeric when present", function() {
+    if (res.body.data && res.body.data.length > 0) {
+      var cost = res.body.data[0].estimated_monthly_cost_usd;
+      if (cost !== null && cost !== undefined) {
+        expect(Number(cost)).to.not.be.NaN;
+      }
+    }
+  });
+}

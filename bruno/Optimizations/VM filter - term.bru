@@ -1,0 +1,38 @@
+meta {
+  name: VM filter - term
+  type: http
+  seq: 101
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm?filter[term]=short&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  filter[term]: short
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[term]=short — list scoped to short-term recommendation window.
+
+  Also accepted: medium, long (or medium_term / short_term per API alias).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

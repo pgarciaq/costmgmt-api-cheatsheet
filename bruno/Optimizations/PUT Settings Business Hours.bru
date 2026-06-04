@@ -28,7 +28,17 @@ body:json {
   }
 }
 
+docs {
+  PUT returns 202 Accepted and triggers asynchronous digest reship (reship_ros).
+
+  Overnight windows are rejected: schedule.end_time must be after schedule.start_time (same calendar day), otherwise 400.
+}
+
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+assert {
+  res.status: eq 202
 }

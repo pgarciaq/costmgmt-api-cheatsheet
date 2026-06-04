@@ -27,6 +27,8 @@ docs {
   - value — decimal string (rightsizing delta for the row's recommendation term/engine)
   - units — ISO 4217 currency code (matches tenant currency settings)
 
+  Negative values are valid (current allocation is already below the recommendation).
+
   Omitted when idle_state is not active (see Container recommendations - filter idle).
   Detail GET /recommendations/openshift/{id} uses the same shape when present.
 }

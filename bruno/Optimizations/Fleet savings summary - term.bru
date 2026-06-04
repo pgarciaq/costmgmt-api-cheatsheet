@@ -15,7 +15,10 @@ headers {
 }
 
 docs {
-  Fleet rollup honors ?term=short|medium|long (default medium) for container, node, and PVC persisted savings.
+  Fleet rollup honors ?term=short|medium|long (default medium) for container, node, PVC, and VM persisted savings.
+  ?engine=cost|performance affects container, node, and VM only; PVC ignores engine (engine-agnostic).
+
+  Snapshot is always included in by_plugin.snapshot regardless of term (term-independent).
 
   Compare with node list filtered to the same term. VM uses mapped term keys (short_term, medium_term, long_term).
 }

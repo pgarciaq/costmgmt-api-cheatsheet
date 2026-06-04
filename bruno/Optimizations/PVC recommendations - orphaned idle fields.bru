@@ -1,0 +1,54 @@
+meta {
+  name: PVC recommendations - orphaned idle fields
+  type: http
+  seq: 73
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/pvcs?filter[recommendation_type]=orphaned&filter[term]=medium&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  filter[recommendation_type]: orphaned
+  filter[term]: medium
+  limit: 20
+  offset: 0
+}
+
+docs {
+  Orphaned PVC list rows include idle tracking fields:
+
+  - idle_since — first date with zero usage (YYYY-MM-DD).
+  - idle_duration_days — days since idle_since at the last classification run.
+
+  These fields appear only on recommendation_type=orphaned rows. Omitted on oversized,
+  near_full, and healthy PVCs.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}
+
+tests {
+  test("orphaned rows include idle_since and idle_duration_days", function() {
+    if (res.body.meta.count > 0 && res.body.data && res.body.data.length > 0) {
+      var row = res.body.data[0];
+      expect(row.idle_since).to.not.be.null;
+      expect(row.idle_since).to.not.be.undefined;
+      expect(row.idle_duration_days).to.be.a('number');
+    }
+  });
+}

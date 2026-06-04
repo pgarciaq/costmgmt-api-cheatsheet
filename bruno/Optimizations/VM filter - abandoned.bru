@@ -1,0 +1,38 @@
+meta {
+  name: VM filter - abandoned
+  type: http
+  seq: 104
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm?filter[is_abandoned]=true&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  filter[is_abandoned]: true
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[is_abandoned]=true — list only abandoned VMs (notification **43**).
+
+  Abandoned classification supersedes idle; these VMs are not also flagged idle.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

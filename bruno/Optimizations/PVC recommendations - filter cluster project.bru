@@ -1,0 +1,43 @@
+meta {
+  name: PVC recommendations - filter cluster project
+  type: http
+  seq: 72
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/pvcs?filter[cluster]={{cluster_uuid}}&filter[project]=openshift-console&filter[term]=medium&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  filter[cluster]: {{cluster_uuid}}
+  filter[project]: openshift-console
+  filter[term]: medium
+  limit: 20
+  offset: 0
+}
+
+docs {
+  PVC list scoped by cluster and namespace (project).
+
+  - filter[cluster] — cluster UUID (alias: cluster_uuid flat param).
+  - filter[project] — Kubernetes namespace (alias: namespace / project flat params).
+  - Combine with filter[recommendation_type], filter[storageclass], filter[tag:<key>], filter[term].
+  - Use PVC recommendations detail for all terms and historical_usage on one PVC.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}

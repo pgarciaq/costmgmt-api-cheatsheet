@@ -1,0 +1,31 @@
+meta {
+  name: GET Settings Business Hours - Effective
+  type: http
+  seq: 84
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/settings/business-hours/effective?cluster_id={{cluster_uuid}}&namespace={{project}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Resolved business-hours schedule for a cluster/namespace pair (inheritance: namespace → cluster → org).
+
+  Response includes resolved_from: namespace, cluster, org, or none.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.resolved_from: isString
+}

@@ -22,6 +22,8 @@ docs {
   Node recommendation response includes `estimated_monthly_savings` at the top level (for the default engine/term).
 
   For per-engine savings, check `recommendation_engines.<engine>.<term>.estimated_monthly_savings` in the detail response (`GET /nodes/{node}`).
+
+  Negative values are valid (current allocation is already below the recommendation).
 }
 
 settings {

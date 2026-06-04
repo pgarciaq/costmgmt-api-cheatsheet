@@ -1,0 +1,41 @@
+meta {
+  name: VM recommendations - CSV export
+  type: http
+  seq: 99
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm?format=csv&limit=100&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  Accept: text/csv
+}
+
+params:query {
+  format: csv
+  limit: 100
+  offset: 0
+}
+
+docs {
+  Flattened CSV export for VM list (one row per VM for the selected term/engine filters).
+
+  - format=csv when Accept is missing or ambiguous.
+  - Prefer Accept: text/csv for explicit content negotiation.
+  - Same filters as JSON list (filter[cluster], filter[namespace], filter[term], filter[engine], etc.).
+  - Per-VM history: GET .../vms/{vm_name}/history?format=csv
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.headers.content-type: contains text/csv
+}

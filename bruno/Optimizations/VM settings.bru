@@ -1,0 +1,37 @@
+meta {
+  name: VM settings
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/settings/vm
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  VM sizing thresholds, disk, I/O, network, GPU, and placement settings.
+
+  Response includes thresholds.cpu_percentile_cost and thresholds.cpu_percentile_perf.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("response includes cpu percentile thresholds", function() {
+    expect(res.body.thresholds.cpu_percentile_cost).to.be.a("number");
+    expect(res.body.thresholds.cpu_percentile_perf).to.be.a("number");
+  });
+}

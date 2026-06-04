@@ -1,0 +1,41 @@
+meta {
+  name: PVC recommendations - CSV export
+  type: http
+  seq: 71
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/pvcs?format=csv&filter[term]=medium&limit=100&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  Accept: text/csv
+}
+
+params:query {
+  format: csv
+  filter[term]: medium
+  limit: 100
+  offset: 0
+}
+
+docs {
+  Flattened CSV export for PVC list (one row per PVC for the selected term).
+
+  - format=csv when Accept is missing or ambiguous.
+  - Prefer Accept: text/csv for explicit content negotiation.
+  - Same filters as JSON list (filter[cluster], filter[project], filter[recommendation_type], etc.).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.headers.content-type: contains text/csv
+}

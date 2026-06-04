@@ -1,0 +1,47 @@
+meta {
+  name: GET Notification codes - VM
+  type: http
+  seq: 100
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/notification-codes?filter[plugin]=vm
+  body: none
+  auth: none
+}
+
+params:query {
+  filter[plugin]: vm
+}
+
+docs {
+  VM plugin notification codes when filter[plugin]=vm (catalog spans **18–69**):
+
+  - **18–19** — idle, oversized
+  - **37–54** — sizing, disk, guest agent, GPU
+  - **55–59** — network-bound, vGPU, I/O pattern
+  - **60–63** — placement, NUMA
+  - **64** — power-off candidate
+  - **65–66** — network QoS (SR-IOV / DPDK)
+  - **67–69** — storage tiering hints
+
+  No auth required. Omit filter[plugin] for the full sorted catalog.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("response includes VM notification codes", function() {
+    var body = JSON.stringify(res.body);
+    expect(body).to.include('"code":18');
+    expect(body).to.include('"code":64');
+    expect(body).to.include('"code":69');
+  });
+}

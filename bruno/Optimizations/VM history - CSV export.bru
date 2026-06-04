@@ -1,0 +1,41 @@
+meta {
+  name: VM history - CSV export
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vms/test-vm/history?cluster_uuid=CLUSTER_UUID&namespace=default&term=short_term&engine=cost&format=csv&limit=100
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  Accept: text/csv
+}
+
+params:query {
+  cluster_uuid: CLUSTER_UUID
+  namespace: default
+  term: short_term
+  engine: cost
+  format: csv
+  limit: 100
+}
+
+docs {
+  Per-VM recommendation history as flattened CSV.
+
+  Replace test-vm, CLUSTER_UUID, and namespace with values from a live VM list row.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.headers.content-type: contains text/csv
+}

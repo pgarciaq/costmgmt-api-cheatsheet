@@ -1,0 +1,25 @@
+meta {
+  name: GET Notification codes - PVC
+  type: http
+  seq: 70
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/notification-codes?filter[plugin]=pvc
+  body: none
+  auth: none
+}
+
+docs {
+  PVC plugin notification codes when filter[plugin]=pvc:
+
+  - **20** — zero usage across all intervals (orphaned)
+  - **25** — no cost data; savings estimate not computed
+  - **29** — capacity significantly exceeds sustained usage (oversized)
+  - **30** — usage approaching capacity or growth trend (near-full)
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

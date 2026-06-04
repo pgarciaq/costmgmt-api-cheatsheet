@@ -5,12 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/pvcs?limit=5
+  url: {{baseURL}}/recommendations/openshift/pvcs?filter[recommendation_type]=oversized&filter[term]=medium&limit=5
   body: none
   auth: inherit
 }
 
 params:query {
+  filter[recommendation_type]: oversized
+  filter[term]: medium
   limit: 5
 }
 
@@ -20,9 +22,28 @@ headers {
 
 docs {
   Demonstrates PVC recommendation response including `estimated_monthly_savings` field. Orphaned PVCs show full monthly cost as recoverable savings.
+
+  Negative values are valid (current allocation is already below the recommendation).
 }
 
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}
+
+tests {
+  test("estimated_monthly_savings has numeric value and USD units", function() {
+    if (res.body.data && res.body.data.length > 0) {
+      var savings = res.body.data[0].estimated_monthly_savings;
+      expect(savings).to.be.an('object');
+      expect(Number(savings.value)).to.not.be.NaN;
+      expect(savings.units).to.equal('USD');
+    }
+  });
 }
