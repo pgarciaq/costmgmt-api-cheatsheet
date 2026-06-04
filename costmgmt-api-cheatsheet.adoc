@@ -576,10 +576,23 @@ Tag filter syntax follows Koku report conventions:
 * `filter[tag:<key>]=*` — key present with any value
 * Legacy flat form `?tag=<key>:<value>` is also accepted
 
+NOTE: `filter[tag:key]` is supported on list endpoints and fleet history (`GET .../history`).
+It is NOT supported on per-resource detail endpoints (`GET .../containers/{id}`, etc.).
+
+===== Tag sync configuration
+
+* `ROS_TAGS_ENABLED` (default: `true`) — master switch for tag filters and tag `group_by` on savings summary
+* `ROS_TAGS_SOURCE` (default: `db` on-prem, `api` on SaaS) — `db` reads Koku PostgreSQL tag tables at query time; `api` uses Koku push sync into ROS
+* Tag keys must be enabled in Cost Management **Settings → Tags**; discover keys via `GET /api/cost-management/v1/tags/openshift/`
+
 For the complete machine-readable parameter list, see `openapi.json`.
 
 When a tag key is unknown or has no matching containers, `meta.count` is `0` and
 `meta.warnings` may describe the empty result.
+
+When `filter[tag:key]=value` is combined with RBAC-scoped identity, results are the
+intersection of allowed clusters/namespaces AND tag matches. A tag filter scoped to a
+cluster outside RBAC scope returns HTTP 200 with an empty list (not 403).
 
 ==== Pagination
 
@@ -650,6 +663,22 @@ GET /api/cost-management/v1/recommendations/openshift/quality?order_by=stability
 ----
 
 Quality defaults to the cost engine when `filter[engine]` is omitted.
+
+Retention and lifecycle (native engine):
+
+* `ROS_HISTORY_RETENTION_DAYS` (default **90**) — `recommendation_history` and `recommendation_quality` partitions
+* `ROS_STALE_CLEANUP_DAYS` (default **30**) — delete stale `recommendation_sets` rows (not archived to history first)
+* `ROS_STALENESS_THRESHOLD_HOURS` (default **48**) — mark recommendations stale when the cluster stops reporting
+
+Gap prevention: history and quality writes are **non-fatal**. If analytics fail (DB error, timeout), container recommendations still persist; the processor logs `pipelineDegraded` and continues. Namespace history retries on transient Kafka errors; permanent errors skip history but keep recommendations.
+
+Namespace history (per recommendation UUID):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/namespaces/{recommendation_uuid}/history?filter[term]=short_term&filter[engine]=cost&limit=10
+----
+
+VM history uses `ROS_VM_REC_HISTORY_RETENTION_DAYS` (default **90** days); see <<VM recommendation history>> below.
 
 ==== Replica counts and total savings
 
@@ -1548,6 +1577,8 @@ GET /api/cost-management/v1/recommendations/openshift/vms/{vm_name}/history?clus
 
 Required query params: `cluster_uuid` (or `cluster_id`), `namespace`. Path param: `vm_name`. Optional: `term` (default `short_term`), `engine` (default `cost`), `limit`, `offset`.
 
+Retention: `ROS_VM_REC_HISTORY_RETENTION_DAYS` (default **90** days) controls how long `vm_recommendation_history` snapshots are kept.
+
 ==== VM instance types
 
 Catalog of instance types and VM preference summary for a cluster:
@@ -2299,17 +2330,7 @@ Report rightsizing savings and idle waste separately on dashboards so totals are
 
 === Recommendation history and quality
 
-Historical tracking of recommendation changes over time:
-
-----
-GET /api/cost-management/v1/recommendations/openshift/history
-----
-
-Recommendation quality metrics (`stability_pct` 0.0–1.0, `adoption_detected`, `oom_events_after_rec`, and `recommendation_age_hours` — measuring how stable and adopted recommendations are over time):
-
-----
-GET /api/cost-management/v1/recommendations/openshift/quality
-----
+See <<History and quality>> under OpenShift recommendations for fleet history, quality metrics, retention environment variables, and namespace history. VM per-name history is under <<VM recommendation history>>.
 
 == Forecasts
 
