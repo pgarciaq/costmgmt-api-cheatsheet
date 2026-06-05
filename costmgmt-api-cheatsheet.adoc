@@ -799,12 +799,13 @@ GET /api/cost-management/v1/recommendations/openshift/gpu
 
 MIG bin-packing recommendations appear in the container detail response and in a dedicated list endpoint.
 
-Detail response — when a container uses a MIG-capable GPU (A100, H100, H200, B200), the response includes a `gpu` object with:
+Detail response — when a container uses a MIG-capable GPU (A100, H100, H200, B200), the response includes a `gpu` map keyed by term (`short`, `medium`, `long`). Each term object may include:
 
 * `current_gpu_model` / `current_gpu_profile` — what the container currently uses
-* `recommended_gpu_profile` — smallest MIG profile whose resources cover p95 usage
-* `gpu_classification` — e.g. `compute_bound`, `memory_bound`, `underutilized`
-* `estimated_monthly_gpu_savings_usd` — dollar savings from MIG right-sizing
+* `recommended_gpu_profile` — smallest MIG profile whose resources cover P98 frame-buffer usage (with headroom)
+* `gpu_classification` — e.g. `compute_bound_underutil`, `memory_bound`, `underutilized`
+* `estimated_monthly_gpu_savings` — structured savings object (`value` + `units`, typically USD)
+* `notifications` — advisory codes **10**, **26**–**28** on the term object
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/{recommendation_uuid}
@@ -831,7 +832,7 @@ Uses recommendation *terms* (`short`/`medium`/`long`), not `filter[engine]=cost|
 
 *Plugin gating:* GPU MIG routes are served by the `gpu` recommendation plugin. Use deployment env vars `ROS_ENABLED_PLUGINS` (allowlist) or `ROS_DISABLED_PLUGINS` (denylist when allowlist is empty) to enable or disable plugins; omit `gpu` from the enabled set (or add `gpu` to the disabled set) to turn off GPU recommendations. When the `gpu` plugin is disabled, `GET .../recommendations/openshift/gpu/mig` and related `/gpu/*` paths return *404* (`plugin 'gpu' is not enabled`), not an empty list. `GET .../settings/gpu` follows the same gating.
 `order_by` values: `cluster_uuid`, `namespace`, `workload`, `container`, `term`, `gpu_model`, `confidence`.
-`estimated_monthly_gpu_savings` is on container detail (`GET .../recommendations/openshift/{uuid}` → `gpu.{term}`), not this list.
+`estimated_monthly_gpu_savings` (structured object) is on container detail (`GET .../recommendations/openshift/{uuid}` → `gpu.{term}`), not this list. MIG list CSV uses column `gpu_classification` (matches JSON).
 Supports pagination, `format=csv`, and filters per OpenAPI (`filter[cluster]`, `filter[project]`, `filter[gpu_idle_state]`, tag filters).
 
 GPU classification thresholds (MIG sizing, idle/underutilized detection):
