@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/namespaces?order_by=namespace&order_how=asc&limit=20&offset=0
+  url: {{baseURL}}/recommendations/openshift/namespaces?order_by=project&order_how=asc&limit=20&offset=0
   body: none
   auth: inherit
 }
 
 params:query {
-  order_by: namespace
+  order_by: project
   order_how: asc
   limit: 20
   offset: 0
@@ -22,7 +22,7 @@ headers {
 }
 
 docs {
-  Allowed order_by values include `namespace`, `cluster`, `last_reported`, and variation columns.
+  Allowed order_by values include `project` (namespace name), `cluster`, `last_reported`, and variation columns.
 }
 
 settings {
