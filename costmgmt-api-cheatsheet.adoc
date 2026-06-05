@@ -886,12 +886,12 @@ Business hours are not applicable to node recommendations (they apply to contain
 ----
 GET /api/cost-management/v1/recommendations/openshift/nodes
 GET /api/cost-management/v1/recommendations/openshift/nodes?limit=10&offset=0
-GET /api/cost-management/v1/recommendations/openshift/nodes?filter[term]=medium&filter[engine]=cost
+GET /api/cost-management/v1/recommendations/openshift/nodes?filter[term]=medium_term&filter[engine]=cost
 GET /api/cost-management/v1/recommendations/openshift/nodes?filter[cluster]=CLUSTER_UUID&filter[node]=worker-0&limit=1
 GET /api/cost-management/v1/recommendations/openshift/nodes?format=csv
 ----
 
-List filters (bracket syntax preferred): `filter[cluster]`, `filter[node]`, `filter[term]` (`short`|`medium`|`long`), `filter[engine]` (`cost`|`performance`), `filter[is_underutilized]`, `filter[is_overcommitted]`, `filter[idle_state]` (comma-separated `active`, `idle`, `zombie`), `filter[stranded_resource]` (`cpu`, `memory`, `none`), `filter[instance_type]`, `filter[machineset_name]`, `filter[tag:<key>]=<value>` (requires `ROS_TAGS_ENABLED=true`; nodes match when any workload namespace on the cluster has the label). Sort: `order_by` (`estimated_monthly_savings` default, or `node`), `order_how` (`asc`|`desc`). Pagination: `limit`, `offset`. Legacy flat params `?term=`, `?engine=`, `?cluster_uuid=` still work.
+List filters (bracket syntax preferred): `filter[cluster]`, `filter[node]`, `filter[term]` (`short_term`|`medium_term`|`long_term`; legacy `short`|`medium`|`long` accepted), `filter[engine]` (`cost`|`performance`), `filter[is_underutilized]`, `filter[is_overcommitted]`, `filter[idle_state]` (comma-separated `active`, `idle`, `zombie`), `filter[stranded_resource]` (`cpu`, `memory`, `none`), `filter[instance_type]`, `filter[machineset_name]`, `filter[tag:<key>]=<value>` (requires `ROS_TAGS_ENABLED=true`; nodes match when any workload namespace on the cluster has the label). Sort: `order_by` (`estimated_monthly_savings` default, or `node`), `order_how` (`asc`|`desc`). Pagination: `limit`, `offset`. Legacy flat params `?term=`, `?engine=`, `?cluster_uuid=` still work.
 
 RBAC: node list and detail require `cost-management.openshift.node` permission (node name scope) in addition to cluster access via `cost-management.openshift.cluster`. Empty results when the user has no intersecting cluster/node permissions.
 
