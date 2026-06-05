@@ -816,6 +816,7 @@ List containers that have a non-full-GPU MIG recommendation:
 ----
 GET /api/cost-management/v1/recommendations/openshift/gpu/mig
 GET /api/cost-management/v1/recommendations/openshift/gpu/mig?limit=20&offset=0
+GET /api/cost-management/v1/recommendations/openshift/gpu/mig?limit=20&after=<meta.next_cursor>
 GET /api/cost-management/v1/recommendations/openshift/gpu/mig?filter[cluster]=<cluster_uuid>&filter[project]=ml-team
 GET /api/cost-management/v1/recommendations/openshift/gpu/mig?filter[tag:gpu_pool]=high-memory
 GET /api/cost-management/v1/recommendations/openshift/gpu/mig?order_by=confidence&order_how=desc
@@ -855,6 +856,7 @@ Node-level GPU time-slicing consolidation guidance. Evaluates how many container
 ----
 GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing
 GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing?limit=25&offset=0
+GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing?limit=25&after=<meta.next_cursor>
 GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing?filter[cluster]=<cluster_uuid>
 GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing?filter[gpu_model]=T4
 GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing?filter[tag:environment]=production
@@ -887,6 +889,7 @@ Business hours are not applicable to node recommendations (they apply to contain
 ----
 GET /api/cost-management/v1/recommendations/openshift/nodes
 GET /api/cost-management/v1/recommendations/openshift/nodes?limit=10&offset=0
+GET /api/cost-management/v1/recommendations/openshift/nodes?limit=10&after=<meta.next_cursor>
 GET /api/cost-management/v1/recommendations/openshift/nodes?filter[term]=medium_term&filter[engine]=cost
 GET /api/cost-management/v1/recommendations/openshift/nodes?filter[cluster]=CLUSTER_UUID&filter[node]=worker-0&limit=1
 GET /api/cost-management/v1/recommendations/openshift/nodes?format=csv
@@ -947,6 +950,7 @@ Right-sizing recommendations for persistent volumes — oversized, near-full, or
 ----
 GET /api/cost-management/v1/recommendations/openshift/pvcs
 GET /api/cost-management/v1/recommendations/openshift/pvcs?limit=20&offset=0
+GET /api/cost-management/v1/recommendations/openshift/pvcs?limit=20&after=<meta.next_cursor>
 GET /api/cost-management/v1/recommendations/openshift/pvcs?filter[term]=medium&filter[recommendation_type]=oversized
 GET /api/cost-management/v1/recommendations/openshift/pvcs?filter[cluster]=CLUSTER_UUID&filter[project]=production
 GET /api/cost-management/v1/recommendations/openshift/pvcs?filter[storageclass]=gp3-csi
@@ -982,7 +986,8 @@ Available list filters:
 * `order_by` — `usage_ratio` (default), `estimated_monthly_savings`, `pvc_name` / `persistentvolumeclaim`, `capacity_bytes`
 * `order_how` — `asc` or `desc` (default `desc`)
 * `limit` (1–100, default 20), `offset` (default 0)
-* `format=csv` or `Accept: text/csv` — flattened CSV export (same filters as JSON list)
+* `after` — keyset cursor from `meta.next_cursor` (ignores `offset` when set); see pagination docs
+* `format=csv` or `Accept: text/csv` — flattened CSV export (same filters as JSON list; includes `confidence_level` column)
 
 Example request:
 
@@ -997,7 +1002,7 @@ Example list response snippet:
 [source,json]
 ----
 {
-  "meta": { "count": 1, "limit": 10, "offset": 0, "currency": "USD" },
+  "meta": { "count": 1, "limit": 10, "offset": 0, "has_next": false, "currency": "USD" },
   "data": [
     {
       "cluster_uuid": "550e8400-e29b-41d4-a716-446655440001",
@@ -1009,6 +1014,7 @@ Example list response snippet:
       "capacity_bytes": 107374182400,
       "usage_ratio": 0.0,
       "recommendation_type": "orphaned",
+      "confidence_level": 1.0,
       "idle_since": "2026-05-01",
       "idle_duration_days": 14,
       "days_to_full": null,
