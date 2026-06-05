@@ -19,11 +19,13 @@ headers {
 }
 
 docs {
-  Node recommendation response includes `estimated_monthly_savings` at the top level (for the default engine/term).
+  Per-engine savings live under nested terms, not at the list row top level:
 
-  For per-engine savings, check `recommendation_engines.<engine>.<term>.estimated_monthly_savings` in the detail response (`GET /nodes/{node}`).
+  `.data[0].recommendation_terms.medium_term.recommendation_engines.cost.estimated_monthly_savings`
 
-  Negative values are valid (current allocation is already below the recommendation).
+  Detail (`GET /nodes/{node}`) uses the same `recommendation_terms` shape plus optional
+  top-level aggregated `notifications`. Negative `estimated_monthly_savings.value` is valid
+  (upsize / additional monthly cost).
 }
 
 settings {

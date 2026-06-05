@@ -720,23 +720,57 @@ Namespace-level CPU/memory recommendations (aggregated across all containers in 
 ----
 GET /api/cost-management/v1/recommendations/openshift/namespaces
 GET /api/cost-management/v1/recommendations/openshift/namespaces?limit=100&offset=0
+GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[cluster]=CLUSTER_UUID
+GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[project]=my-namespace
+GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[namespace]=my-namespace
+GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[idle_state]=idle,zombie
 GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[stale]=false
 GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[stale]=true
-----
-
-Canonical list path. Legacy alias (identical behavior): `GET /api/cost-management/v1/openshift/namespace/recommendations`.
-
-* `filter[stale]` — `false` (default, exclude stale clusters), `true` (include stale and fresh), or `only` (only stale). Stale when the cluster has not reported within `ROS_STALENESS_THRESHOLD_HOURS` (default 48).
-* `filter[engine]` — `cost` or `performance`; omits the other engine from `recommendation_engines` on each item (legacy `?engine=` also accepted)
-
-----
+GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[stale]=only
 GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[engine]=cost
 GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[engine]=performance
 GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[tag:environment]=production
 GET /api/cost-management/v1/recommendations/openshift/namespaces?filter[tag:environment]=production,staging&filter[tag:team]=platform
+GET /api/cost-management/v1/recommendations/openshift/namespaces?order_by=cpu_variation_medium_cost&order_how=desc
+GET /api/cost-management/v1/recommendations/openshift/namespaces?format=csv
 ----
 
-`filter[tag:<key>]` requires `ROS_TAGS_ENABLED=true` (tags synced from Koku). Multiple `filter[tag:*]` keys are ANDed; comma-separated values within one key are ORed. See container filtering above for full syntax.
+Canonical list path. Legacy alias (identical behavior): `GET /api/cost-management/v1/openshift/namespace/recommendations`.
+
+List filters:
+
+* `filter[cluster]` — cluster UUID (include mode by default; `filter[exact:cluster]`, `exclude[cluster]` for exact/exclude). Legacy flat `cluster` / `cluster_uuid` accepted.
+* `filter[project]` — namespace name (comma-separated OR). `filter[namespace]` is an alias for `filter[project]`; flat `project` / `namespace` also accepted.
+* `filter[idle_state]` — `active`, `idle`, or `zombie` (comma-separated values are ORed). Aggregated from child container/GPU rows.
+* `filter[stale]` — `false` (default, fresh only), `true` (include stale and fresh), or `only` (stale rows only). Stale when the cluster has not reported within `ROS_STALENESS_THRESHOLD_HOURS` (default 48). Legacy `?stale=` accepted.
+* `filter[engine]` — `cost` or `performance`; omits the other engine from `recommendation_engines` on each item (legacy `?engine=` also accepted).
+* `filter[tag:<key>]` — tag-based filtering when `ROS_TAGS_ENABLED=true` (tags synced from Koku). Multiple `filter[tag:*]` keys are ANDed; comma-separated values within one key are ORed. See container filtering above for full syntax.
+
+NOTE: `filter[term]` is **not** supported on the namespace list endpoint (use history for term-scoped snapshots).
+
+Sorting: `order_by` + `order_how` (`asc` or `desc`), or bracket `order_by[<field>]=asc|desc`.
+
+* `cluster`, `project`, `last_reported`
+* Variation columns (percent change vs current request): `cpu_variation_short_cost`, `cpu_variation_short_performance`, `cpu_variation_medium_cost`, `cpu_variation_medium_performance`, `cpu_variation_long_cost`, `cpu_variation_long_performance`, `memory_variation_short_cost`, `memory_variation_short_performance`, `memory_variation_medium_cost`, `memory_variation_medium_performance`, `memory_variation_long_cost`, `memory_variation_long_performance`
+
+----
+GET /api/cost-management/v1/recommendations/openshift/namespaces?order_by=project&order_how=asc
+GET /api/cost-management/v1/recommendations/openshift/namespaces?order_by=last_reported&order_how=desc
+----
+
+CSV export (native list): prefer `Accept: text/csv` or `?format=csv`. Same filters and `order_by` as the JSON list.
+
+Term settings (per-tenant short/medium/long windows):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/settings/terms?recommendation_type=namespace
+PUT /api/cost-management/v1/recommendations/openshift/settings/terms?recommendation_type=namespace
+DELETE /api/cost-management/v1/recommendations/openshift/settings/terms?recommendation_type=namespace
+----
+
+Business hours: when `ROS_BUSINESS_HOURS_ENABLED=true` and a schedule applies (org, cluster, or namespace scope), detail payloads include `recommendation_engines.{cost|performance}.business_hours` after reship completes. See <<Business hours>>.
+
+Notification codes on namespace rows: **1** (low confidence), **2** (stale data), **7** (new workload), **9** (memory trending up). Catalog: `GET .../notification-codes?filter[plugin]=namespace`.
 
 Detail for a specific namespace recommendation:
 
@@ -744,11 +778,14 @@ Detail for a specific namespace recommendation:
 GET /api/cost-management/v1/recommendations/openshift/namespaces/{recommendation_uuid}
 ----
 
-History for a namespace recommendation:
+History for a namespace recommendation (`filter[term]` and `filter[engine]` apply here only):
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/namespaces/{recommendation_uuid}/history?filter[term]=short_term&filter[engine]=cost&limit=10
+GET /api/cost-management/v1/recommendations/openshift/namespaces/{recommendation_uuid}/history?filter[term]=medium_term&filter[engine]=performance&limit=30
 ----
+
+History `filter[term]` values: `short_term`, `medium_term`, `long_term`. `filter[engine]`: `cost` or `performance`.
 
 === GPU recommendations hub (summary)
 
@@ -867,7 +904,9 @@ GET /api/cost-management/v1/recommendations/openshift/nodes?filter[machineset_na
 GET /api/cost-management/v1/recommendations/openshift/nodes?filter[tag:environment]=production
 ----
 
-Response fields (per node): `classification` (including `idle_state`, `stranded_resource`), `metrics` (CPU/memory P50/P95), `pod_count`, `pod_capacity`, `pod_scheduling_headroom`, `instance_type`, `machineset_name`, `suggested_instance_type`, `instance_type_reason`, `cpu_overcommit_ratio`, `trend_slope`, nested `recommendation_terms.<term>.recommendation_engines.{cost,performance}` with sizing, `node_count_reduction`, savings, and notifications (code **13** includes `suggested_direction` for stranded CPU/memory).
+Response fields (per node): `classification` (including `idle_state`, `stranded_resource`), `metrics` (CPU/memory P50/P95), `pod_count`, `pod_capacity`, `pod_scheduling_headroom`, `instance_type`, `machineset_name`, `suggested_instance_type`, `instance_type_reason`, `cpu_overcommit_ratio`, `trend_slope`, nested `recommendation_terms.<term>.recommendation_engines.{cost,performance}` with sizing, `node_count_reduction`, `estimated_monthly_savings` (`value` + `units`), and per-engine `notifications` (map keyed by code string). Node notification codes: *11* underutilized, *12* overcommitted, *13* stranded resources (`suggested_direction` when CPU/memory imbalanced), *15* idle/zombie, *25* no cost data, *74* pod scheduling limit, *76* fleet consolidation (message includes MachineSet when applicable). Detail (`GET .../nodes/{node}`) also returns top-level aggregated `notifications`. No top-level `notification_codes` array on list rows.
+
+`GET /api/cost-management/v1/recommendations/openshift/notification-codes?filter[plugin]=node` returns the node plugin catalog (emitted + reserved codes).
 
 CSV export (`?format=csv` or `Accept: text/csv`): one row per node × term × engine; columns include `pod_capacity`, `pod_scheduling_headroom`, classification, and savings.
 
