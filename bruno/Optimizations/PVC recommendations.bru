@@ -21,7 +21,7 @@ params:query {
 
 docs {
   List returns one row per PVC for the selected term (default medium).
-  Filters: filter[cluster], filter[project], filter[recommendation_type], filter[term], filter[storageclass].
+  Filters: filter[cluster], filter[project], filter[recommendation_type], filter[term] (short|medium|long or short_term|medium_term|long_term), filter[storageclass].
   Also supported: filter[tag:<key>]=<value> (see "PVC recommendations - filter tag.bru") and format=csv (see "PVC recommendations - CSV export.bru").
   Sort: order_by (usage_ratio, estimated_monthly_savings, pvc_name, capacity_bytes) + order_how.
   Each row may include mounted_by (last observed mounting pod) and vm_name (KubeVirt VM when virt-launcher).

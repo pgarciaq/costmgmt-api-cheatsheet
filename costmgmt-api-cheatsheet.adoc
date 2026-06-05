@@ -976,7 +976,7 @@ Available list filters:
 * `filter[cluster]` — cluster UUID (legacy `cluster_uuid`, `cluster`)
 * `filter[project]` — namespace (legacy `namespace`, `project`)
 * `filter[recommendation_type]` — `oversized`, `near_full`, `orphaned`, or `healthy` (legacy `recommendation_type`)
-* `filter[term]` — `short`, `medium`, or `long` (default `medium`)
+* `filter[term]` — `short`, `medium`, or `long` (default `medium`); aliases `short_term`, `medium_term`, `long_term` also accepted
 * `filter[storageclass]` — StorageClass name (exact match)
 * `filter[tag:<key>]` — OpenShift label tag (requires `ROS_TAGS_ENABLED=true`)
 * `order_by` — `usage_ratio` (default), `estimated_monthly_savings`, `pvc_name` / `persistentvolumeclaim`, `capacity_bytes`
