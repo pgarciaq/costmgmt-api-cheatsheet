@@ -1,0 +1,37 @@
+meta {
+  name: Cluster quota recommendations - CSV export
+  type: http
+  seq: 35
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/cluster-quota?format=csv&limit=100&offset=0&order_by=cluster_quota_name&order_how=asc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  format: csv
+  limit: 100
+  offset: 0
+  order_by: cluster_quota_name
+  order_how: asc
+}
+
+headers {
+  Accept: text/csv
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  CSV export for ClusterResourceQuota recommendations.
+
+  - `format=csv` returns `text/csv` with list columns (see OpenAPI).
+  - Prefer `Accept: text/csv` for explicit content negotiation.
+  - Same filters as JSON list (`filter[cluster]`, `filter[project]`, `filter[tag:key]`, etc.).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

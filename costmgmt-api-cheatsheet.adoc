@@ -1060,7 +1060,7 @@ When RBAC is enabled, list results are scoped to clusters the caller may read (`
 
 The first ingestion cycle after enabling quota collects namespace quota snapshots; recommendations that depend on container aggregates may appear from the **second** cycle onward when container CSV is present in the payload.
 
-List rows include `object_count` hard/used when the operator reports `objectcounts.*` columns. High object-count utilization drives `raise` / `high` risk and notification code **72** (`NotifQuotaBlocking`); object-count capacity is not monetized in `estimated_savings`.
+Object-count metrics (`objectcounts.*` / aggregated `object_count_*` in operator CSVs) are ingested internally but are **not** exposed in API `quota_hard` / `quota_used` / `utilization` fields. High object-count utilization still drives `raise` / `high` `risk_level` and notification code **72** (`QUOTA_BLOCKING`); object-count capacity is not monetized in `estimated_savings`.
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/quota/
@@ -1186,6 +1186,7 @@ OpenShift-only team/tenant **ClusterResourceQuota** right-sizing (distinct from 
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/
+GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?format=csv&limit=100
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[cluster]=550e8400-e29b-41d4-a716-446655440000
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[cluster_quota_name]=team-payments-quota
 GET /api/cost-management/v1/recommendations/openshift/cluster-quota/?filter[project]=team-payments-ns
