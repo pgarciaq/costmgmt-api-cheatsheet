@@ -469,7 +469,7 @@ Example response excerpt:
 ----
 {
   "currency": "USD",
-  "estimated_monthly_savings": { "value": "12500.750000", "units": "USD" },
+  "estimated_monthly_savings": { "value": "12500.75", "units": "USD" },
   "by_plugin": {
     "container": 5000.0,
     "node": 3000.0,
@@ -1623,7 +1623,7 @@ Example detail response (CPU/memory/disk sizing in `current` / `recommended`; GP
     }
   ],
   "savings": {
-    "value": "18104.000000",
+    "value": "18104.00",
     "units": "USD"
   },
   "gpu": {
@@ -2345,7 +2345,7 @@ Example list row (idle/zombie):
   "peak_cpu_millicores": 2,
   "peak_memory_bytes": 52428800,
   "estimated_monthly_waste": {
-    "value": "89.500000",
+    "value": "89.50",
     "units": "USD"
   },
   "idle_recommendation": {
@@ -2432,12 +2432,12 @@ Response (`FleetSavingsByIdleStateResponse`):
   "data": [
     {
       "idle_state": "zombie",
-      "estimated_monthly_waste": { "value": "4200.000000", "units": "USD" },
+      "estimated_monthly_waste": { "value": "4200.00", "units": "USD" },
       "container_count": 12
     },
     {
       "idle_state": "idle",
-      "estimated_monthly_waste": { "value": "8250.000000", "units": "USD" },
+      "estimated_monthly_waste": { "value": "8250.00", "units": "USD" },
       "container_count": 35
     }
   ]
