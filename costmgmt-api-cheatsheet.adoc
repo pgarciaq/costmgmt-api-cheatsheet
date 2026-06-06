@@ -442,8 +442,10 @@ OpenShift Virtualization (VM) monthly savings are **not** refreshed by this endp
 | Plugin / type | `recalculate-savings` support
 
 | `container`, `node`, `pvc`, `quota`, `cluster-quota` | Supported — pass in `recommendation_types`
+| `container` (GPU MIG/idle) | Included when `container` is in `recommendation_types` — refreshes `estimated_gpu_savings_cents`
 | `vm` | N/A — computed at ingestion (not via recalculate)
-| `snapshot`, `gpu` | N/A — snapshot totals are term-independent; GPU dollars at API read time
+| `snapshot` | N/A — snapshot totals are term-independent; uses settings/env rate chain
+| `gpu` (time-slicing) | N/A — node time-slicing dollars remain API read-time
 |===
 
 ----
