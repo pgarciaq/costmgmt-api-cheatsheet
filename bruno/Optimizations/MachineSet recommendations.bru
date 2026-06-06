@@ -27,7 +27,8 @@ docs {
   Requires machineset_name on node rows (operator or nise). Default term: medium.
 
   Response: current/recommended node counts, excess_nodes (sum of node_count_reduction),
-  total_monthly_savings_usd, average CPU/memory P95 util, and member node names.
+  total_monthly_savings (MoneyAmount: value + units), meta.currency, average CPU/memory
+  P95 util, and member node names. Keyset: after=<meta.next_cursor>. CSV: ?format=csv.
 }
 
 settings {

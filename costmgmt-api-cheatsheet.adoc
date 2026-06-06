@@ -928,9 +928,11 @@ GET /api/cost-management/v1/recommendations/openshift/machinesets?filter[cluster
 GET /api/cost-management/v1/recommendations/openshift/machinesets?filter[machineset_name]=worker*
 ----
 
-Filters: `filter[cluster]` / `cluster_uuid`, `filter[machineset_name]` (exact or `*` wildcard), `filter[term]` / `term` (`short`|`medium`|`long`, default `medium`). Sorted by `total_monthly_savings_usd` descending. Pagination: `limit`, `offset` (default 0), or keyset via `after` from `meta.next_cursor` (ignores `offset` when set).
+Filters: `filter[cluster]` / `cluster_uuid`, `filter[machineset_name]` (exact or `*` wildcard), `filter[term]` / `term` (`short`|`medium`|`long`, default `medium`). Sorted by total monthly savings descending (cost engine rows only). Pagination: `limit`, `offset` (default 0), or keyset via `after` from `meta.next_cursor` (ignores `offset` when set).
 
-Response fields (per MachineSet): `machineset_name`, `cluster_uuid`, `cluster_alias`, `instance_type`, `current_node_count`, `recommended_node_count`, `excess_nodes`, `total_monthly_savings_usd`, `avg_cpu_utilization`, `avg_memory_utilization`, `nodes`.
+CSV export (`?format=csv` or `Accept: text/csv`): one row per MachineSet group; savings columns are `total_monthly_savings_value` and `total_monthly_savings_units`.
+
+Response fields (per MachineSet): `machineset_name`, `cluster_uuid`, `cluster_alias`, `instance_type`, `current_node_count`, `recommended_node_count`, `excess_nodes`, `total_monthly_savings` (`value` + `units` [`MoneyAmount`]), `avg_cpu_utilization`, `avg_memory_utilization`, `nodes`. List `meta.currency` is the ISO 4217 code for savings (default `USD`). No `confidence_level` on MachineSet rows (aggregation only; confidence applies on per-node list/detail).
 
 MachineAutoscaler integration is planned as a future enhancement (Tier 3).
 
