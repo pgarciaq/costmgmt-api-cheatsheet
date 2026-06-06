@@ -1422,7 +1422,7 @@ GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?group_by
 GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?group_by=cluster
 GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[cluster]=CLUSTER_UUID
 GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[project]=payments-*
-GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[recommendation_type]=orphaned&group_by=namespace
+GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[recommendation_type]=orphaned&group_by=project
 GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?filter[recommendation_type]=stale&group_by=namespace&limit=20&offset=0
 GET /api/cost-management/v1/recommendations/openshift/snapshots/summary?order_by=reclaimable_restore_size_gib&order_how=desc&limit=20&offset=0
 ----
