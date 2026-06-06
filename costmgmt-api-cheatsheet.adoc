@@ -2147,7 +2147,7 @@ Example PUT (GPU — override idle threshold):
 {
   "oversized_threshold": 0.20,
   "near_full_threshold": 0.85,
-  "min_trend_days": 7,
+  "min_trend_days": 2,
   "recommended_size_multiplier": 2,
   "min_recommended_gib": 1,
   "days_to_full_alert": 30,
