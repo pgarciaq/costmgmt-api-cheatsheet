@@ -35,7 +35,9 @@ assert {
 }
 
 tests {
-  test("by_plugin includes vm", function() {
-    expect(res.body.by_plugin.vm).to.be.a("number");
+  test("by_plugin includes vm as MoneyAmount", function() {
+    expect(res.body.by_plugin.vm).to.be.an("object");
+    expect(res.body.by_plugin.vm.value).to.be.a("string");
+    expect(res.body.by_plugin.vm.units).to.be.a("string");
   });
 }
