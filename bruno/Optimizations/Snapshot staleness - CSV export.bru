@@ -1,0 +1,41 @@
+meta {
+  name: Snapshot staleness - CSV export
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/snapshots?format=csv&limit=100&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+  Accept: text/csv
+}
+
+params:query {
+  format: csv
+  limit: 100
+  offset: 0
+}
+
+docs {
+  Flattened CSV export for snapshot staleness list (one row per snapshot).
+
+  - format=csv when Accept is missing or ambiguous.
+  - Prefer Accept: text/csv for explicit content negotiation.
+  - Same filters as JSON list (filter[cluster], filter[project], filter[recommendation_type]).
+  - Columns include classification, estimated_monthly_cost_value/units, created_at, last_reported.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.headers.content-type: contains text/csv
+}

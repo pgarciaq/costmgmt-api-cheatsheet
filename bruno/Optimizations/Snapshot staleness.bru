@@ -22,6 +22,9 @@ params:query {
 docs {
   VolumeSnapshot staleness list. Default sort: age_days descending.
   Use filter[cluster], filter[project], filter[recommendation_type] on dedicated requests.
+  Keyset pagination: follow meta.next_cursor as ?after= on subsequent requests.
+  estimated_monthly_cost is MoneyAmount: {"value": "12.50", "units": "USD"}.
+  CSV export: see "Snapshot staleness - CSV export" request (format=csv).
 }
 
 settings {

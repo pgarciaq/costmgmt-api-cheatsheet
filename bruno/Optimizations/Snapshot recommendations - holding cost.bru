@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/snapshots?limit=5&order_by=creation_timestamp&order_how=desc
+  url: {{baseURL}}/recommendations/openshift/snapshots?limit=5&order_by=age_days&order_how=desc
   body: none
   auth: inherit
 }
 
 params:query {
   limit: 5
-  order_by: creation_timestamp
+  order_by: age_days
   order_how: desc
 }
 
@@ -21,10 +21,11 @@ headers {
 }
 
 docs {
-  Snapshot list rows include recoverable monthly holding cost as `estimated_monthly_cost_usd`
-  (float, USD) when savings estimates are enabled — not the container-style {value, units} object.
+  Snapshot list rows include recoverable monthly holding cost as `estimated_monthly_cost`
+  (`MoneyAmount`: {"value": "12.50", "units": "USD"}) when savings estimates are enabled.
 
   Formula: restore_size_gib × cost_per_gib_month (default $0.05/GiB until billing-accurate rates ship).
+  Persisted as estimated_cost_cents (BIGINT) in snapshot_recommendation_sets.
 }
 
 settings {
@@ -39,11 +40,13 @@ assert {
 }
 
 tests {
-  test("estimated_monthly_cost_usd is numeric when present", function() {
+  test("estimated_monthly_cost has MoneyAmount shape when present", function() {
     if (res.body.data && res.body.data.length > 0) {
-      var cost = res.body.data[0].estimated_monthly_cost_usd;
+      var cost = res.body.data[0].estimated_monthly_cost;
       if (cost !== null && cost !== undefined) {
-        expect(Number(cost)).to.not.be.NaN;
+        expect(cost).to.have.property("value");
+        expect(cost).to.have.property("units");
+        expect(Number(cost.value)).to.not.be.NaN;
       }
     }
   });
