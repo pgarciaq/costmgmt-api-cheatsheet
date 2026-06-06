@@ -923,11 +923,12 @@ Groups per-node recommendations by OpenShift MachineSet name (Tier 2 list API; a
 ----
 GET /api/cost-management/v1/recommendations/openshift/machinesets
 GET /api/cost-management/v1/recommendations/openshift/machinesets?filter[term]=medium&limit=10&offset=0
+GET /api/cost-management/v1/recommendations/openshift/machinesets?limit=10&after=<meta.next_cursor>
 GET /api/cost-management/v1/recommendations/openshift/machinesets?filter[cluster]=CLUSTER_UUID
 GET /api/cost-management/v1/recommendations/openshift/machinesets?filter[machineset_name]=worker*
 ----
 
-Filters: `filter[cluster]` / `cluster_uuid`, `filter[machineset_name]` (exact or `*` wildcard), `filter[term]` / `term` (`short`|`medium`|`long`, default `medium`). Sorted by `total_monthly_savings_usd` descending.
+Filters: `filter[cluster]` / `cluster_uuid`, `filter[machineset_name]` (exact or `*` wildcard), `filter[term]` / `term` (`short`|`medium`|`long`, default `medium`). Sorted by `total_monthly_savings_usd` descending. Pagination: `limit`, `offset` (default 0), or keyset via `after` from `meta.next_cursor` (ignores `offset` when set).
 
 Response fields (per MachineSet): `machineset_name`, `cluster_uuid`, `cluster_alias`, `instance_type`, `current_node_count`, `recommended_node_count`, `excess_nodes`, `total_monthly_savings_usd`, `avg_cpu_utilization`, `avg_memory_utilization`, `nodes`.
 
@@ -1088,6 +1089,7 @@ Available filters:
 * `order_by` — `quota_name`, `utilization`, `risk_level`, `namespace`, or `estimated_monthly_savings`
 * `order_how` — `asc` or `desc` (default `desc` for utilization)
 * `limit` (1–100, default 20), `offset` (default 0)
+* `after` — keyset cursor from `meta.next_cursor` (ignores `offset` when set); see pagination docs
 
 Example request:
 
@@ -1095,6 +1097,13 @@ Example request:
 ----
 curl -s -H "x-rh-identity: ${IDENTITY}" \
   'http://localhost:8000/api/cost-management/v1/recommendations/openshift/quota/?filter[recommendation_type]=tighten&limit=10'
+----
+
+Keyset next page:
+
+[source,bash]
+----
+GET /api/cost-management/v1/recommendations/openshift/quota/?limit=20&after=<meta.next_cursor>
 ----
 
 Example response snippet:
@@ -1121,7 +1130,7 @@ Example response snippet:
       "quota_recommended": { "cpu_request_millicores": 36000 },
       "utilization": { "cpu_request_percent": 25.0 },
       "capacity_freed": { "cpu_millicores": 64000, "memory_bytes": 0 },
-      "estimated_savings": { "value": "12.340000", "units": "USD" },
+      "estimated_savings": { "value": "12.34", "units": "USD" },
       "last_observed_at": "2026-05-28T12:00:00Z"
     }
   ]
@@ -1209,6 +1218,7 @@ Available filters:
 * `order_by` — `cluster_quota_name`, `utilization`, `risk_level`, or `estimated_monthly_savings`
 * `order_how` — `asc` or `desc` (default `desc` when `order_by` is set)
 * `limit` (1–100, default 20), `offset` (default 0)
+* `after` — keyset cursor from `meta.next_cursor` (ignores `offset` when set); see pagination docs
 
 Detail endpoint returns one CRQ recommendation object (not wrapped in `data`). The response includes a `history` array of per-resource snapshots (`recorded_at`, `resource`, `recommendation_type`, `risk_level`, and optional hard/used/utilization fields) for trend charts.
 
@@ -1225,7 +1235,7 @@ Example response snippet:
 [source,json]
 ----
 {
-  "meta": { "count": 1, "limit": 10, "offset": 0 },
+  "meta": { "count": 1, "limit": 10, "offset": 0, "has_next": false },
   "links": { "first": "...", "last": "..." },
   "data": [
     {
@@ -1252,10 +1262,10 @@ Example response snippet:
         "pods": 400
       },
       "utilization": {
-        "cpu_request_percent": 35,
-        "memory_request_percent": 12,
-        "storage_request_percent": 50,
-        "pods_percent": 24
+        "cpu_request_percent": 35.0,
+        "memory_request_percent": 12.0,
+        "storage_request_percent": 50.0,
+        "pods_percent": 24.0
       },
       "capacity_freed": {
         "cpu_cores_freed": 104,
@@ -1263,7 +1273,7 @@ Example response snippet:
         "storage_request_bytes": 21474836480,
         "pods_freed": 100
       },
-      "estimated_savings": { "value": 420, "units": "USD" }
+      "estimated_savings": { "value": "420.00", "units": "USD" }
     }
   ]
 }
@@ -1300,7 +1310,7 @@ Example `group_by[cluster]` response snippet:
 [source,json]
 ----
 {
-  "meta": { "count": 2, "limit": 20, "offset": 0 },
+  "meta": { "count": 2, "limit": 20, "offset": 0, "currency": "USD" },
   "data": [
     {
       "cluster_uuid": "550e8400-e29b-41d4-a716-446655440001",
@@ -1311,7 +1321,7 @@ Example `group_by[cluster]` response snippet:
         "storage_request_bytes": 10737418240,
         "pods_freed": 5
       },
-      "estimated_savings": { "value": 840, "units": "USD" }
+      "estimated_savings": { "value": "840.00", "units": "USD" }
     }
   ]
 }
@@ -1512,13 +1522,14 @@ GET /api/cost-management/v1/recommendations/openshift/vm?filter[engine]=cost
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[engine]=performance
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[tag:environment]=production
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[tag:environment]=production,staging&filter[tag:team]=platform
+GET /api/cost-management/v1/recommendations/openshift/vm?limit=20&after=<meta.next_cursor>
 ----
 
 `filter[tag:<key>]` requires `ROS_TAGS_ENABLED=true` (namespace labels synced from Koku). Multiple `filter[tag:*]` keys are ANDed.
 
 Each list row includes `metadata.engine` matching the filter (one row per VM per engine when unfiltered).
 
-Pagination: `limit` (1–100, default 10), `offset` (default 0).
+Pagination: `limit` (1–100, default 10), `offset` (default 0), or keyset via `after` from `meta.next_cursor` (ignores `offset` when set).
 
 Filters (`filter[...]` or legacy query names where noted):
 
