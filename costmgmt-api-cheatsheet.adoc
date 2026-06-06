@@ -768,7 +768,7 @@ PUT /api/cost-management/v1/recommendations/openshift/settings/terms?recommendat
 DELETE /api/cost-management/v1/recommendations/openshift/settings/terms?recommendation_type=namespace
 ----
 
-Business hours: when `ROS_BUSINESS_HOURS_ENABLED=true` and a schedule applies (org, cluster, or namespace scope), detail payloads include `recommendation_engines.{cost|performance}.business_hours` after reship completes. See <<Business hours>>.
+Business hours: when `ROS_BUSINESS_HOURS_ENABLED=true` and a schedule applies (org, cluster, or namespace scope), detail payloads include `recommendation_engines.{cost|performance}.business_hours` after reship completes. See <<Business hours settings>>.
 
 Notification codes on namespace rows: **1** (low confidence), **2** (stale data), **7** (new workload), **9** (memory trending up). Catalog: `GET .../notification-codes?filter[plugin]=namespace`.
 
