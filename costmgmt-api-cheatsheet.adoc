@@ -134,10 +134,22 @@ GET /api/cost-management/v1/reports/openshift/volumes/?filter[exact:project]=cos
 GET /api/cost-management/v1/reports/openshift/gpu/
 ----
 
+Group by node and project (common for MIG instance breakdown):
+
+----
+GET /api/cost-management/v1/reports/openshift/gpu/?group_by[node]=*&group_by[project]=*
+----
+
 GPU costs by MIG profile:
 
 ----
 GET /api/cost-management/v1/reports/openshift/gpu/mig_profiles/
+----
+
+Group by MIG profile (requires `filter[gpu_vendor]`, `filter[gpu_model]`, and `filter[node]`):
+
+----
+GET /api/cost-management/v1/reports/openshift/gpu/mig_profiles/?group_by[mig_profile]=*
 ----
 
 === Breakdown page: costs for a cluster
@@ -383,6 +395,8 @@ GET /api/cost-management/v1/recommendations/openshift/notification-codes
 GET /api/cost-management/v1/recommendations/openshift/notification-codes?filter[plugin]=container
 GET /api/cost-management/v1/recommendations/openshift/notification-codes?filter[plugin]=namespace
 ----
+
+Code **77** (`SPARSE_DATA`, severity INFO) — *Recommendation based on limited data; accuracy improves with more observation time* — is emitted on container, namespace, node, and PVC recommendations when `data_days` is at or below `sparse_data_threshold` (default **2**). It does not apply to GPU recommendations.
 
 === Fleet summary
 
@@ -664,6 +678,28 @@ all three terms and both engines are present). Columns include cluster, project,
 workload, container, savings, idle state, and per-term CPU/memory requests and limits.
 Use the same filters and `order_by` parameters as the JSON list endpoint.
 
+==== Container notification codes
+
+Container notification codes (catalog filter `filter[plugin]=container`):
+
+[cols="1,2,4",options="header"]
+|===
+| Code | Severity | When
+
+| 1 | WARNING | Low confidence (proportional coverage in term window)
+| 2 | WARNING | Stale data (cluster stopped reporting)
+| 3 | CRITICAL | OOM kill events in analysis window
+| 5 | INFO | Idle workload
+| 6 | INFO | Recommendation applied
+| 7 | INFO | New workload (< 24 hours of data)
+| 8 | WARNING | Abandoned workload
+| 9 | WARNING | Memory usage trending up
+| 21 | WARNING | HPA saturated (reserved — not emitted)
+| 22 | INFO | HPA active (reserved — not emitted)
+| 25 | INFO | No cost data — savings estimate not computed
+| 77 | INFO | Sparse data — `data_days` at or below `sparse_data_threshold` (default 2)
+|===
+
 ==== History and quality
 
 Node recommendations do not expose a history or quality API. Per-node history is N/A;
@@ -772,7 +808,7 @@ DELETE /api/cost-management/v1/recommendations/openshift/settings/terms?recommen
 
 Business hours: when `ROS_BUSINESS_HOURS_ENABLED=true` and a schedule applies (org, cluster, or namespace scope), detail payloads include `recommendation_engines.{cost|performance}.business_hours` after reship completes. See <<Business hours settings>>.
 
-Notification codes on namespace rows: **1** (low confidence), **2** (stale data), **7** (new workload), **9** (memory trending up). Catalog: `GET .../notification-codes?filter[plugin]=namespace`.
+Notification codes on namespace rows: **1** (low confidence), **2** (stale data), **7** (new workload), **9** (memory trending up), **77** (sparse data — limited observation days). Catalog: `GET .../notification-codes?filter[plugin]=namespace`.
 
 Detail for a specific namespace recommendation:
 
@@ -910,7 +946,7 @@ GET /api/cost-management/v1/recommendations/openshift/nodes?filter[machineset_na
 GET /api/cost-management/v1/recommendations/openshift/nodes?filter[tag:environment]=production
 ----
 
-Response fields (per node): `classification` (including `idle_state`, `stranded_resource`), `metrics` (CPU/memory P50/P95), `pod_count`, `pod_capacity`, `pod_scheduling_headroom`, `instance_type`, `machineset_name`, `suggested_instance_type`, `instance_type_reason`, `cpu_overcommit_ratio`, `trend_slope`, nested `recommendation_terms.<term>.recommendation_engines.{cost,performance}` with sizing, `node_count_reduction`, `estimated_monthly_savings` (`value` + `units`), and per-engine `notifications` (map keyed by code string). Node notification codes: *11* underutilized, *12* overcommitted, *13* stranded resources (`suggested_direction` when CPU/memory imbalanced), *15* idle/zombie, *25* no cost data, *74* pod scheduling limit, *76* fleet consolidation (message includes MachineSet when applicable). Detail (`GET .../nodes/{node}`) also returns top-level aggregated `notifications`. No top-level `notification_codes` array on list rows.
+Response fields (per node): `classification` (including `idle_state`, `stranded_resource`), `metrics` (CPU/memory P50/P95), `pod_count`, `pod_capacity`, `pod_scheduling_headroom`, `instance_type`, `machineset_name`, `suggested_instance_type`, `instance_type_reason`, `cpu_overcommit_ratio`, `trend_slope`, nested `recommendation_terms.<term>.recommendation_engines.{cost,performance}` with sizing, `node_count_reduction`, `estimated_monthly_savings` (`value` + `units`), and per-engine `notifications` (map keyed by code string). Node notification codes: *1* low confidence, *11* underutilized, *12* overcommitted, *13* stranded resources (`suggested_direction` when CPU/memory imbalanced), *15* idle/zombie, *25* no cost data, *74* pod scheduling limit, *76* fleet consolidation (message includes MachineSet when applicable), *77* sparse data (limited observation days). Detail (`GET .../nodes/{node}`) also returns top-level aggregated `notifications`. No top-level `notification_codes` array on list rows.
 
 `GET /api/cost-management/v1/recommendations/openshift/notification-codes?filter[plugin]=node` returns the node plugin catalog (emitted + reserved codes).
 
@@ -1043,10 +1079,12 @@ PVC notification codes (catalog filter `filter[plugin]=pvc`):
 |===
 | Code | Severity | When
 
+| 1 | WARNING | Low confidence (proportional coverage in term window)
 | 20 | WARNING | Zero usage across all intervals (orphaned)
 | 25 | INFO | No cost data — savings estimate not computed
 | 29 | INFO | Capacity significantly exceeds sustained usage (oversized)
 | 30 | WARNING | Usage approaching capacity or growth trend (near-full)
+| 77 | INFO | Sparse data — `data_days` at or below `sparse_data_threshold` (default 2)
 |===
 
 ----
@@ -2036,6 +2074,7 @@ GET/PUT response (`/settings/container`):
   "idle_mem_threshold_kib": 10240,
   "mem_trend_slope_threshold": 100.0,
   "low_confidence_threshold": 0.5,
+  "sparse_data_threshold": 2,
   "locked_fields": []
 }
 ----
@@ -2057,6 +2096,7 @@ GET response (`/settings/namespace`) — same fields, higher memory trend thresh
   "idle_mem_threshold_kib": 10240,
   "mem_trend_slope_threshold": 500.0,
   "low_confidence_threshold": 0.5,
+  "sparse_data_threshold": 2,
   "locked_fields": []
 }
 ----

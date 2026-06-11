@@ -16,7 +16,8 @@ headers {
 
 docs {
   GET container threshold settings. Response includes dual-engine percentile fields:
-  `cpu_cost_percentile`, `cpu_perf_percentile`, `mem_cost_percentile`, `mem_perf_percentile`.
+  `cpu_cost_percentile`, `cpu_perf_percentile`, `mem_cost_percentile`, `mem_perf_percentile`,
+  and `sparse_data_threshold` (default 2; emits notification code 77 when `data_days` is at or below this value).
 
   Canonical path: `/settings/container`. Deprecated alias: `/settings/thresholds?recommendation_type=container`.
 }

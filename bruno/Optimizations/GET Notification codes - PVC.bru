@@ -13,10 +13,12 @@ get {
 docs {
   PVC plugin notification codes when filter[plugin]=pvc:
 
+  - **1** — low confidence (proportional coverage in term window)
   - **20** — zero usage across all intervals (orphaned)
   - **25** — no cost data; savings estimate not computed
   - **29** — capacity significantly exceeds sustained usage (oversized)
   - **30** — usage approaching capacity or growth trend (near-full)
+  - **77** — sparse data; limited observation days (default threshold 2)
 }
 
 settings {

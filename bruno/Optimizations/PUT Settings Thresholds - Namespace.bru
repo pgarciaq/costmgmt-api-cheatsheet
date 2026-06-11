@@ -17,8 +17,14 @@ headers {
 
 body:json {
   {
-    "cpu_cost_percentile": 0.65
+    "cpu_cost_percentile": 0.65,
+    "sparse_data_threshold": 2
   }
+}
+
+docs {
+  PUT namespace threshold overrides. `sparse_data_threshold` (1–30, default 2) controls when
+  notification code 77 (`SPARSE_DATA`) is emitted based on absolute `data_days`.
 }
 
 settings {
