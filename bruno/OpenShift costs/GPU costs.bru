@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/reports/openshift/gpu/?filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[resolution]=monthly
+  url: {{baseURL}}/reports/openshift/gpu/?filter[time_scope_units]=month&filter[time_scope_value]=-1&filter[resolution]=monthly&group_by[node]=*&group_by[project]=*
   body: none
   auth: inherit
 }
@@ -14,9 +14,15 @@ params:query {
   filter[time_scope_units]: month
   filter[time_scope_value]: -1
   filter[resolution]: monthly
+  group_by[node]: *
+  group_by[project]: *
 }
 
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+docs {
+  Group by node and project to list MIG instances (mig_instance_id) per node/project.
 }

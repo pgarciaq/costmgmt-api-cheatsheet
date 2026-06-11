@@ -460,11 +460,27 @@ summary { cursor: pointer; font-weight: 500; }
 </div>
 </div>
 <div class="paragraph">
+<p>Group by node and project (common for MIG instance breakdown):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/reports/openshift/gpu/?group_by[node]=*&amp;group_by[project]=*</pre>
+</div>
+</div>
+<div class="paragraph">
 <p>GPU costs by MIG profile:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre>GET /api/cost-management/v1/reports/openshift/gpu/mig_profiles/</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Group by MIG profile (requires <code>filter[gpu_vendor]</code>, <code>filter[gpu_model]</code>, and <code>filter[node]</code>):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/reports/openshift/gpu/mig_profiles/?group_by[mig_profile]=*</pre>
 </div>
 </div>
 </div>

@@ -20,7 +20,7 @@ docs {
   - **18–19** — idle, oversized
   - **37–54** — sizing, disk, guest agent, GPU
   - **55–59** — network-bound, vGPU, I/O pattern
-  - **60–63** — placement, NUMA
+  - **60** — redundant co-location; **61** — uneven node distribution; **62** — shared storage; **63** — NUMA oversized
   - **64** — power-off candidate
   - **65–66** — network QoS (SR-IOV / DPDK)
   - **67–69** — storage tiering hints
@@ -41,6 +41,7 @@ tests {
   test("response includes VM notification codes", function() {
     var body = JSON.stringify(res.body);
     expect(body).to.include('"code":18');
+    expect(body).to.include('"code":61');
     expect(body).to.include('"code":64');
     expect(body).to.include('"code":69');
   });
