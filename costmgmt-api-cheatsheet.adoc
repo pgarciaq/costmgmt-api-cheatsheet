@@ -794,9 +794,8 @@ List filters:
 * `filter[idle_state]` — `active`, `idle`, or `zombie` (comma-separated values are ORed). Aggregated from child container/GPU rows.
 * `filter[stale]` — `false` (default, fresh only), `true` (include stale and fresh), or `only` (stale rows only). Stale when the cluster has not reported within `ROS_STALENESS_THRESHOLD_HOURS` (default 48). Legacy `?stale=` accepted.
 * `filter[engine]` — `cost` or `performance`; omits the other engine from `recommendation_engines` on each item (legacy `?engine=` also accepted).
+* `filter[term]` — `short`, `medium`, `long` or `short_term`, `medium_term`, `long_term`; limits nested `recommendation_terms` in each list item (legacy `?term=` also accepted). When omitted, list items default to `short_term` cost only.
 * `filter[tag:<key>]` — tag-based filtering when `ROS_TAGS_ENABLED=true` (tags synced from Koku). Multiple `filter[tag:*]` keys are ANDed; comma-separated values within one key are ORed. See container filtering above for full syntax.
-
-NOTE: `filter[term]` is **not** supported on the namespace list endpoint (use history for term-scoped snapshots).
 
 Sorting: `order_by` + `order_how` (`asc` or `desc`), or bracket `order_by[<field>]=asc|desc`.
 
