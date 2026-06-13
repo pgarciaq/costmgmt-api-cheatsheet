@@ -30,7 +30,9 @@ docs {
   Negative values are valid (current allocation is already below the recommendation).
 
   Omitted when idle_state is not active (see Container recommendations - filter idle).
-  Detail GET /recommendations/openshift/{id} uses the same shape when present.
+  List rows include `recommendations.notification_codes` (deduplicated int array) for badges;
+  full notification maps appear only on detail engines (`recommendation_engines.<engine>.notifications`).
+  Detail GET /recommendations/openshift/{id} uses the same savings shape when present.
 }
 
 settings {

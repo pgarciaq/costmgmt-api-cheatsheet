@@ -517,7 +517,9 @@ The detail response includes per-term (short/medium/long) recommendations for tw
 * **Cost model**: optimizes for resource savings (p60 CPU / p95 memory)
 * **Performance model**: optimizes for headroom (p98 CPU / p100 memory)
 
-Each recommendation includes CPU/memory requests and limits, notifications, and usage distribution plots under `recommendation_terms.<term>.plots.plots_data`. Each time bucket maps to `cpuUsage` and `memoryUsage` objects with percentile fields (`p50`, `p95`, `p99`, `max`) and a `format` (`cores` for CPU, `MiB` for memory). Values are assembled from daily digests (not raw samples).
+Each recommendation includes CPU/memory requests and limits, per-engine notifications on detail, and usage distribution plots under `recommendation_terms.<term>.plots.plots_data`. Each time bucket maps to `cpuUsage` and `memoryUsage` objects with percentile fields (`p50`, `p95`, `p99`, `max`) and a `format` (`cores` for CPU, `MiB` for memory). Values are assembled from daily digests (not raw samples).
+
+*Notifications:* Detail responses emit `notifications` maps only on `recommendation_engines.<engine>` (not at term or top-level). List rows expose `recommendations.notification_codes` (deduplicated integer array); resolve badge text via `GET .../notification-codes`.
 
 Example plot bucket:
 
