@@ -517,7 +517,17 @@ The detail response includes per-term (short/medium/long) recommendations for tw
 * **Cost model**: optimizes for resource savings (p60 CPU / p95 memory)
 * **Performance model**: optimizes for headroom (p98 CPU / p100 memory)
 
-Each recommendation includes CPU/memory requests and limits, notifications, and usage distribution box plots (min, Q1, median, Q3, max).
+Each recommendation includes CPU/memory requests and limits, notifications, and usage distribution plots under `recommendation_terms.<term>.plots.plots_data`. Each time bucket maps to `cpuUsage` and `memoryUsage` objects with percentile fields (`p50`, `p95`, `p99`, `max`) and a `format` (`cores` for CPU, `MiB` for memory). Values are assembled from daily digests (not raw samples).
+
+Example plot bucket:
+
+[source,json]
+----
+{
+  "cpuUsage": { "p50": 0.12, "p95": 0.45, "p99": 0.67, "max": 0.89, "format": "cores" },
+  "memoryUsage": { "p50": 256.0, "p95": 384.0, "p99": 420.0, "max": 512.0, "format": "MiB" }
+}
+----
 
 Detail responses nest both engines under each term:
 

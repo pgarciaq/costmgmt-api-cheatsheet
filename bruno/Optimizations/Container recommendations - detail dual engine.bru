@@ -25,6 +25,15 @@ docs {
   always returns both when data exists.
 
   To observe divergent cost vs performance sizing, ingest data from nise/examples/ocp_dual_engine/.
+
+  Usage plots (digest-based percentiles per time bucket):
+  recommendations.recommendation_terms.<term>.plots.plots_data.<iso-timestamp>
+
+  Example bucket:
+  {
+    "cpuUsage": { "p50": 0.12, "p95": 0.45, "p99": 0.67, "max": 0.89, "format": "cores" },
+    "memoryUsage": { "p50": 256.0, "p95": 384.0, "p99": 420.0, "max": 512.0, "format": "MiB" }
+  }
 }
 
 settings {

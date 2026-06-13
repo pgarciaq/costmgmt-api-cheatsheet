@@ -20,6 +20,13 @@ docs {
   Copy `id` from the list response (`GET .../namespaces`). Detail includes
   `recommendations.recommendation_terms` with cost/performance engines and optional
   `business_hours` blocks when configured.
+
+  Usage plots under `recommendation_terms.<term>.plots.plots_data` use digest-based
+  percentiles per time bucket (not raw-sample boxplots):
+  {
+    "cpuUsage": { "p50": 0.12, "p95": 0.45, "p99": 0.67, "max": 0.89, "format": "cores" },
+    "memoryUsage": { "p50": 256.0, "p95": 384.0, "p99": 420.0, "max": 512.0, "format": "MiB" }
+  }
 }
 
 settings {
