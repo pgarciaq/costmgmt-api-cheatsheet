@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/gpu/timeslicing?order_by=confidence&order_how=desc&limit=50&offset=0
+  url: {{baseURL}}/recommendations/openshift/gpu/timeslicing?order_by=node_name&order_how=asc&limit=50&offset=0
   body: none
   auth: inherit
 }
 
 params:query {
-  order_by: confidence
-  order_how: desc
+  order_by: node_name
+  order_how: asc
   limit: 50
   offset: 0
 }
@@ -22,9 +22,10 @@ headers {
 }
 
 docs {
-  Sort GPU time-slicing list by confidence descending.
+  Sort GPU time-slicing list by node name ascending.
 
-  Allowed `order_by` values: node_name, cluster_uuid, gpu_model, recommended_replicas, confidence, total_node_savings.
+  DB-backed `order_by` values: node_name, cluster_uuid, gpu_model (SQL ORDER BY on gpu_container_digests triples).
+  `recommended_replicas`, `confidence`, and `total_node_savings` return HTTP 400 (post-aggregate fields).
   `order_how`: asc or desc (default desc).
 }
 
