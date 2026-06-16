@@ -938,7 +938,7 @@ GET /api/cost-management/v1/recommendations/openshift/savings-summary?group_by[t
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>gpu</code> (time-slicing)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">N/A — node time-slicing dollars remain API read-time</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A — persisted as <code>estimated_savings_cents</code> at ingest (not via recalculate); run ingest or <a href="#Backfill GPU time-slicing">[Backfill GPU time-slicing]</a> after rate changes</p></td>
 </tr>
 </tbody>
 </table>
@@ -962,8 +962,38 @@ GET /api/cost-management/v1/recommendations/openshift/savings-summary?group_by[t
 <div class="paragraph">
 <p>Returns <code>202 Accepted</code> with <code>status: "accepted"</code>; work runs asynchronously.</p>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_backfill_gpu_time_slicing_internal">Backfill GPU time-slicing (internal)</h4>
+<div class="paragraph">
+<p>Populate <code>node_gpu_timeslicing_recommendations</code> for orgs that already have GPU digest data but no persisted time-slicing rows (for example, after enabling persistence on an existing deployment). Service-account bearer token required (same auth as tag sync). Requires the <code>gpu</code> plugin.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>POST /api/cost-management/v1/internal/backfill-gpu-timeslicing
+POST /api/cost-management/v1/internal/backfill-gpu-timeslicing?org_id=1234567
+POST /api/cost-management/v1/internal/backfill-gpu-timeslicing?org_id=1234567&amp;cluster_uuid=02059694-68ab-4d58-8809-de1e91f1d0e5</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Optional query params: <code>org_id</code>, <code>cluster_uuid</code> (omit both to backfill all orgs/clusters). Returns <code>200 OK</code> with <code>status: "completed"</code>, <code>orgs_processed</code>, and <code>clusters_processed</code>.</p>
+</div>
 <div class="paragraph">
 <p>Example response excerpt:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+  "status": "completed",
+  "org_id": "1234567",
+  "cluster_uuid": "02059694-68ab-4d58-8809-de1e91f1d0e5",
+  "orgs_processed": 1,
+  "clusters_processed": 1
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Savings summary response excerpt:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1403,7 +1433,7 @@ GET /api/cost-management/v1/recommendations/openshift/quality?order_by=stability
 <div class="ulist">
 <ul>
 <li>
-<p><code>ROS_HISTORY_RETENTION_DAYS</code> (default <strong>90</strong>) — <code>recommendation_history</code> and <code>recommendation_quality</code> partitions</p>
+<p><code>ROS_HISTORY_RETENTION_DAYS</code> (default <strong>90</strong>) — <code>recommendation_history</code>, <code>recommendation_quality</code>, and <code>node_gpu_timeslicing_recommendation_history</code> partitions</p>
 </li>
 <li>
 <p><code>ROS_STALE_CLEANUP_DAYS</code> (default <strong>30</strong>) — delete stale <code>recommendation_sets</code> rows (not archived to history first)</p>
@@ -1661,6 +1691,9 @@ GET /api/cost-management/v1/recommendations/openshift/settings/thresholds?recomm
 <div class="paragraph">
 <p>Node-level GPU time-slicing consolidation guidance. Evaluates how many containers could share each physical GPU via <code>nvidia.com/gpu.replicas</code>. Uses recommendation <strong>terms</strong> (<code>short</code>/<code>medium</code>/<code>long</code>), not the cost/performance dual engine (<code>filter[engine]=cost|performance</code> applies to container, namespace, and node CPU/memory routes only).</p>
 </div>
+<div class="paragraph">
+<p>Recommendations are <strong>computed and persisted at ingest</strong> into <code>node_gpu_timeslicing_recommendations</code> (replicas, confidence, savings as <code>estimated_savings_cents</code>). The list endpoint reads from this table when the org has any persisted rows. Orgs without persisted data use a <strong>compute-at-read fallback</strong> (digest scan + engine) until the next ingest cycle or <a href="#Backfill GPU time-slicing">[Backfill GPU time-slicing]</a>.</p>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre>GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing
@@ -1694,7 +1727,7 @@ GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing?format=csv
 </ul>
 </div>
 <div class="paragraph">
-<p><code>order_by</code> values (DB-backed on <code>gpu_container_digests</code> triple pagination): <code>node_name</code> (default), <code>cluster_uuid</code>, <code>gpu_model</code>. <code>recommended_replicas</code>, <code>confidence</code>, and <code>total_node_savings</code> return HTTP 400 — savings and confidence are computed after aggregation and cannot be sorted at scale. Supports pagination (<code>limit</code>, <code>offset</code>) and <code>format=csv</code> (or <code>Accept: text/csv</code>). No <code>filter[project]</code> — node-level scope only.</p>
+<p><code>order_by</code> values: when persisted data exists — <code>node_name</code> (default), <code>cluster_uuid</code>, <code>gpu_model</code>, <code>recommended_replicas</code>, <code>confidence</code>, <code>total_node_savings</code>. On the compute-at-read fallback path, only <code>node_name</code>, <code>cluster_uuid</code>, and <code>gpu_model</code> are supported; <code>recommended_replicas</code>, <code>confidence</code>, and <code>total_node_savings</code> return HTTP 400 (post-aggregate fields that cannot be sorted at scale). Supports pagination (<code>limit</code>, <code>offset</code>) and <code>format=csv</code> (or <code>Accept: text/csv</code>). No <code>filter[project]</code> — node-level scope only.</p>
 </div>
 <div class="paragraph">
 <p><strong>Plugin gating:</strong> Same <code>gpu</code> plugin as MIG (<code>ROS_ENABLED_PLUGINS</code> / <code>ROS_DISABLED_PLUGINS</code>).</p>
@@ -1704,6 +1737,28 @@ GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing?format=csv
 </div>
 <div class="paragraph">
 <p><strong>Settings:</strong> Time-slicing thresholds on <code>GET &#8230;&#8203;/settings/gpu</code> include <code>timeslicing_min_replicas</code>, <code>timeslicing_max_replicas</code>, <code>timeslicing_majority_threshold</code>, <code>timeslicing_base_penalty</code>, and <code>timeslicing_impacted_weight</code>. Term windows: <code>GET &#8230;&#8203;/settings/terms?recommendation_type=gpu</code>.</p>
+</div>
+<div class="sect4">
+<h5 id="_gpu_time_slicing_history">GPU time-slicing history</h5>
+<div class="paragraph">
+<p>Append-only snapshots of how time-slicing recommendations evolved for a node × GPU model × term:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing/history
+GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing/history?cluster_uuid=&lt;cluster_uuid&gt;&amp;node_name=&lt;node_name&gt;
+GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing/history?cluster_uuid=&lt;cluster_uuid&gt;&amp;node_name=&lt;node_name&gt;&amp;gpu_model=T4&amp;term=medium&amp;limit=20&amp;offset=0&amp;order_by=recorded_at&amp;order_how=desc</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Required query params: <code>cluster_uuid</code>, <code>node_name</code>. Optional: <code>gpu_model</code>, <code>term</code>, <code>limit</code> (default 20), <code>offset</code>, <code>order_by</code> (<code>recorded_at</code> default, or <code>recommended_replicas</code>, <code>confidence</code>, <code>candidate_count</code>, <code>impacted_count</code>), <code>order_how</code> (<code>asc</code>|<code>desc</code>).</p>
+</div>
+<div class="paragraph">
+<p>Returns paginated rows from <code>node_gpu_timeslicing_recommendation_history</code> with <code>recommended_replicas</code>, <code>confidence</code>, <code>candidate_count</code>, <code>impacted_count</code>, <code>estimated_savings_cents</code>, and <code>recorded_at</code>. Retention: <strong>90 days</strong> (<code>ROS_HISTORY_RETENTION_DAYS</code>, default 90).</p>
+</div>
+<div class="paragraph">
+<p><strong>RBAC:</strong> Same <code>openshift.cluster</code> and <code>openshift.node</code> permissions as the time-slicing list. Unknown or out-of-scope <code>cluster_uuid</code> returns an empty list (HTTP 200).</p>
+</div>
 </div>
 </div>
 </div>
@@ -4461,7 +4516,7 @@ GET /api/cost-management/v1/reports/aws/costs/?group_by[account]=*&amp;exclude[a
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-06-14 23:20:43 +0200
+Last updated 2026-06-17 01:29:04 +0200
 </div>
 </div>
 </body>

@@ -1,0 +1,42 @@
+meta {
+  name: GPU time-slicing history
+  type: http
+  seq: 36
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/gpu/timeslicing/history?cluster_uuid={{cluster}}&node_name=gpu-ts-node-1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  cluster_uuid: {{cluster}}
+  node_name: gpu-ts-node-1
+  ~gpu_model:
+  ~term: medium
+  limit: 20
+  offset: 0
+  ~order_by: recorded_at
+  ~order_how: desc
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Paginated append-only history of node GPU time-slicing recommendations from
+  `node_gpu_timeslicing_recommendation_history`.
+
+  Required: `cluster_uuid`, `node_name`. Optional: `gpu_model`, `term`, `limit`,
+  `offset`, `order_by` (`recorded_at`, `recommended_replicas`, `confidence`,
+  `candidate_count`, `impacted_count`), `order_how`.
+
+  Retention: 90 days (`ROS_HISTORY_RETENTION_DAYS`).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

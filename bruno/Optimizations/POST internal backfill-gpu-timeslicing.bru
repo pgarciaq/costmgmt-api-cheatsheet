@@ -1,0 +1,41 @@
+meta {
+  name: POST internal backfill-gpu-timeslicing
+  type: http
+  seq: 51
+}
+
+post {
+  url: {{baseURL}}/internal/backfill-gpu-timeslicing?org_id=1234567&cluster_uuid={{cluster}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{serviceAccountToken}}
+}
+
+params:query {
+  org_id: 1234567
+  cluster_uuid: {{cluster}}
+}
+
+docs {
+  Service-account only (same auth as tag sync). Backfills persisted node GPU
+  time-slicing recommendations for orgs with pre-existing GPU digest data.
+
+  Optional query params: `org_id`, `cluster_uuid` (omit both to process all orgs).
+
+  Requires the `gpu` plugin. Returns 200 with `status: "completed"`,
+  `orgs_processed`, and `clusters_processed`.
+
+  Set serviceAccountToken in environment (projected SA JWT or ROS_SERVICE_TOKEN).
+}
+
+vars:pre-request {
+  serviceAccountToken: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

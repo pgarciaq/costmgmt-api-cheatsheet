@@ -25,6 +25,8 @@ headers {
 
 docs {
   Node-level GPU time-slicing recommendations. Evaluates how many containers could share each physical GPU via `nvidia.com/gpu.replicas`. Previously served at `/recommendations/openshift/nodes` (now repurposed for CPU/memory utilization).
+
+  Recommendations are persisted at ingest; orgs without persisted rows use compute-at-read until ingest or backfill.
 }
 
 settings {

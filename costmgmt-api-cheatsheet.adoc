@@ -459,7 +459,7 @@ OpenShift Virtualization (VM) monthly savings are **not** refreshed by this endp
 | `container` (GPU MIG/idle) | Included when `container` is in `recommendation_types` — refreshes `estimated_gpu_savings_cents`
 | `vm` | N/A — computed at ingestion (not via recalculate)
 | `snapshot` | N/A — snapshot totals are term-independent; uses settings/env rate chain
-| `gpu` (time-slicing) | N/A — node time-slicing dollars remain API read-time
+| `gpu` (time-slicing) | N/A — persisted as `estimated_savings_cents` at ingest (not via recalculate); run ingest or <<Backfill GPU time-slicing>> after rate changes
 |===
 
 ----
@@ -479,7 +479,32 @@ Example body:
 
 Returns `202 Accepted` with `status: "accepted"`; work runs asynchronously.
 
+==== Backfill GPU time-slicing (internal)
+
+Populate `node_gpu_timeslicing_recommendations` for orgs that already have GPU digest data but no persisted time-slicing rows (for example, after enabling persistence on an existing deployment). Service-account bearer token required (same auth as tag sync). Requires the `gpu` plugin.
+
+----
+POST /api/cost-management/v1/internal/backfill-gpu-timeslicing
+POST /api/cost-management/v1/internal/backfill-gpu-timeslicing?org_id=1234567
+POST /api/cost-management/v1/internal/backfill-gpu-timeslicing?org_id=1234567&cluster_uuid=02059694-68ab-4d58-8809-de1e91f1d0e5
+----
+
+Optional query params: `org_id`, `cluster_uuid` (omit both to backfill all orgs/clusters). Returns `200 OK` with `status: "completed"`, `orgs_processed`, and `clusters_processed`.
+
 Example response excerpt:
+
+[source,json]
+----
+{
+  "status": "completed",
+  "org_id": "1234567",
+  "cluster_uuid": "02059694-68ab-4d58-8809-de1e91f1d0e5",
+  "orgs_processed": 1,
+  "clusters_processed": 1
+}
+----
+
+Savings summary response excerpt:
 
 [source,json]
 ----
@@ -739,7 +764,7 @@ Quality defaults to the cost engine when `filter[engine]` is omitted.
 
 Retention and lifecycle (native engine):
 
-* `ROS_HISTORY_RETENTION_DAYS` (default **90**) — `recommendation_history` and `recommendation_quality` partitions
+* `ROS_HISTORY_RETENTION_DAYS` (default **90**) — `recommendation_history`, `recommendation_quality`, and `node_gpu_timeslicing_recommendation_history` partitions
 * `ROS_STALE_CLEANUP_DAYS` (default **30**) — delete stale `recommendation_sets` rows (not archived to history first)
 * `ROS_STALENESS_THRESHOLD_HOURS` (default **48**) — mark recommendations stale when the cluster stops reporting
 
@@ -902,6 +927,8 @@ Returns fields such as `idle_threshold`, `underutilized_sm_threshold`, `fb_headr
 
 Node-level GPU time-slicing consolidation guidance. Evaluates how many containers could share each physical GPU via `nvidia.com/gpu.replicas`. Uses recommendation *terms* (`short`/`medium`/`long`), not the cost/performance dual engine (`filter[engine]=cost|performance` applies to container, namespace, and node CPU/memory routes only).
 
+Recommendations are **computed and persisted at ingest** into `node_gpu_timeslicing_recommendations` (replicas, confidence, savings as `estimated_savings_cents`). The list endpoint reads from this table when the org has any persisted rows. Orgs without persisted data use a **compute-at-read fallback** (digest scan + engine) until the next ingest cycle or <<Backfill GPU time-slicing>>.
+
 ----
 GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing
 GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing?limit=25&offset=0
@@ -921,13 +948,29 @@ Returns per-node recommendations with:
 * `savings_per_gpu` / `total_node_savings` — estimated cost savings (`{value, units}` [`MoneyAmount`])
 * `notification_codes` — includes **36** when time-slicing is recommended
 
-`order_by` values (DB-backed on `gpu_container_digests` triple pagination): `node_name` (default), `cluster_uuid`, `gpu_model`. `recommended_replicas`, `confidence`, and `total_node_savings` return HTTP 400 — savings and confidence are computed after aggregation and cannot be sorted at scale. Supports pagination (`limit`, `offset`) and `format=csv` (or `Accept: text/csv`). No `filter[project]` — node-level scope only.
+`order_by` values: when persisted data exists — `node_name` (default), `cluster_uuid`, `gpu_model`, `recommended_replicas`, `confidence`, `total_node_savings`. On the compute-at-read fallback path, only `node_name`, `cluster_uuid`, and `gpu_model` are supported; `recommended_replicas`, `confidence`, and `total_node_savings` return HTTP 400 (post-aggregate fields that cannot be sorted at scale). Supports pagination (`limit`, `offset`) and `format=csv` (or `Accept: text/csv`). No `filter[project]` — node-level scope only.
 
 *Plugin gating:* Same `gpu` plugin as MIG (`ROS_ENABLED_PLUGINS` / `ROS_DISABLED_PLUGINS`).
 
 *RBAC:* Same `openshift.cluster` permission as other ROS GPU routes; node-scoped rows also require `openshift.node`. A `filter[cluster]` for a cluster outside the caller's scope returns an empty list (HTTP 200), not 403.
 
 *Settings:* Time-slicing thresholds on `GET .../settings/gpu` include `timeslicing_min_replicas`, `timeslicing_max_replicas`, `timeslicing_majority_threshold`, `timeslicing_base_penalty`, and `timeslicing_impacted_weight`. Term windows: `GET .../settings/terms?recommendation_type=gpu`.
+
+===== GPU time-slicing history
+
+Append-only snapshots of how time-slicing recommendations evolved for a node × GPU model × term:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing/history
+GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing/history?cluster_uuid=<cluster_uuid>&node_name=<node_name>
+GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing/history?cluster_uuid=<cluster_uuid>&node_name=<node_name>&gpu_model=T4&term=medium&limit=20&offset=0&order_by=recorded_at&order_how=desc
+----
+
+Required query params: `cluster_uuid`, `node_name`. Optional: `gpu_model`, `term`, `limit` (default 20), `offset`, `order_by` (`recorded_at` default, or `recommended_replicas`, `confidence`, `candidate_count`, `impacted_count`), `order_how` (`asc`|`desc`).
+
+Returns paginated rows from `node_gpu_timeslicing_recommendation_history` with `recommended_replicas`, `confidence`, `candidate_count`, `impacted_count`, `estimated_savings_cents`, and `recorded_at`. Retention: **90 days** (`ROS_HISTORY_RETENTION_DAYS`, default 90).
+
+*RBAC:* Same `openshift.cluster` and `openshift.node` permissions as the time-slicing list. Unknown or out-of-scope `cluster_uuid` returns an empty list (HTTP 200).
 
 === Node CPU/memory utilization recommendations
 
