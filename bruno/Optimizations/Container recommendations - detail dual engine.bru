@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/{{recommendationUuid}}
+  url: {{baseURL}}/recommendations/openshift/{{recommendationUuid}}?include=explanation
   body: none
   auth: inherit
 }
@@ -23,6 +23,9 @@ docs {
   Cost engine uses P60 CPU / P95 memory; performance engine uses P98 CPU / P100 memory.
   List endpoints accept filter[engine] to return only one engine block per term; detail
   always returns both when data exists.
+
+  Optional `?include=explanation` adds a nested `explanation` object under each engine
+  with percentile, margin, OOM, and confidence factors (ADR-0296).
 
   To observe divergent cost vs performance sizing, ingest data from nise/examples/ocp_dual_engine/.
 
