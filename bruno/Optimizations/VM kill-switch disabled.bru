@@ -15,7 +15,7 @@ headers {
 }
 
 docs {
-  Use when ROS_ENABLE_VM_RECS=false (or vm not in enabledPlugins).
+  Use when vm plugin is disabled (vm listed in ROS_DISABLED_PLUGINS, or not in enabledPlugins).
 
   - Plugin enabled: expect 200 with meta/data envelope.
   - Plugin disabled: expect 404 (VM routes not registered).

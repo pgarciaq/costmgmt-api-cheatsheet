@@ -1592,7 +1592,7 @@ Filter the catalog with
 
 === OpenShift Virtualization (VM) recommendations
 
-VM-level CPU, memory, disk, and GPU sizing for KubeVirt workloads. Requires the ROS `vm` plugin (`ROS_ENABLE_VM_RECS` / Helm `enabledPlugins` includes `vm`). When disabled, VM routes return `404`.
+VM-level CPU, memory, disk, and GPU sizing for KubeVirt workloads. Requires the ROS `vm` plugin (ensure `vm` is not in `ROS_DISABLED_PLUGINS` / Helm `enabledPlugins` includes `vm`). When disabled, VM routes return `404`.
 
 Business hours are not applicable to VM recommendations (they apply to container and namespace recommendations only).
 

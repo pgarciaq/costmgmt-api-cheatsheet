@@ -2711,7 +2711,7 @@ DELETE /api/cost-management/v1/recommendations/openshift/settings/snapshot</pre>
 <div class="sect2">
 <h3 id="_openshift_virtualization_vm_recommendations">OpenShift Virtualization (VM) recommendations</h3>
 <div class="paragraph">
-<p>VM-level CPU, memory, disk, and GPU sizing for KubeVirt workloads. Requires the ROS <code>vm</code> plugin (<code>ROS_ENABLE_VM_RECS</code> / Helm <code>enabledPlugins</code> includes <code>vm</code>). When disabled, VM routes return <code>404</code>.</p>
+<p>VM-level CPU, memory, disk, and GPU sizing for KubeVirt workloads. Requires the ROS <code>vm</code> plugin (ensure <code>vm</code> is not in <code>ROS_DISABLED_PLUGINS</code> / Helm <code>enabledPlugins</code> includes <code>vm</code>). When disabled, VM routes return <code>404</code>.</p>
 </div>
 <div class="paragraph">
 <p>Business hours are not applicable to VM recommendations (they apply to container and namespace recommendations only).</p>
