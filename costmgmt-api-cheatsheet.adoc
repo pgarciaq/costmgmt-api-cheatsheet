@@ -2487,7 +2487,7 @@ Omit `idle_recommendation` when `idle_state=active`. Omit `estimated_monthly_was
 
 ==== GPU idle filter
 
-Filter by GPU idle state (`active`, `idle`, or `zombie`; comma-separated values are ORed). GPU idle fields on container rows: `gpu_idle_state`, `gpu_idle_since`, `gpu_idle_duration_days`, `gpu_estimated_waste_cents`.
+Filter by GPU idle state (`active`, `idle`, or `zombie`; comma-separated values are ORed). GPU idle fields on container rows: `gpu_idle_state`, `gpu_idle_since`, `gpu_idle_duration_days`, `estimated_monthly_gpu_waste`.
 
 ----
 GET /api/cost-management/v1/recommendations/openshift?filter[gpu_idle_state]=idle,zombie
