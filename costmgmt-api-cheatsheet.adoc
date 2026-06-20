@@ -436,7 +436,7 @@ When current resource requests are already below the recommended target, `estima
 ROS does not expose a standalone cost-rate API. During ingestion (and savings recalculation), ros-processor fetches rates from Koku Masu:
 
 ----
-GET /api/cost-management/v1/effective_rates/?cluster_uuid=<cluster-uuid>&org_id=<org-id>&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
+GET /api/cost-management/v1/effective_rates/?cluster_id=<cluster-id>&org_id=<org-id>&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
 ----
 
 Returns the cluster cost model rates used for savings: CPU/memory request and usage rates per hour, storage rates per month, `node_cost_per_month`, optional `gpu_cost_per_month`, markup, `distribution_type`, and per-namespace aggregates (`cost_model_cpu_cost`, `infrastructure_cost`, `distributed_cost`, etc.). ROS caches the response per cluster for the ingest cycle.
