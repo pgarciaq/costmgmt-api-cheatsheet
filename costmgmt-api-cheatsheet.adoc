@@ -636,6 +636,20 @@ NOTE: The API uses `idle_state=zombie` which the UI displays as "Abandoned".
 GET /api/cost-management/v1/recommendations/openshift/?filter[idle_state]=zombie,idle
 ----
 
+Filter by stale data (`false` = fresh only (default), `true` = include stale and fresh, `only` = stale rows only). A recommendation is stale when the cluster has not reported within `ROS_STALENESS_THRESHOLD_HOURS` (default 48). Legacy `?stale=` accepted:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/?filter[stale]=false
+GET /api/cost-management/v1/recommendations/openshift/?filter[stale]=only
+----
+
+Exact-match and exclude filters are supported on `cluster`, `project`, `workload`, and `container`:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/?filter[exact:cluster]=EXACT_UUID
+GET /api/cost-management/v1/recommendations/openshift/?exclude[project]=openshift-monitoring
+----
+
 Filter by OpenShift labels (requires `ROS_TAGS_ENABLED=true`; tags synced from Koku):
 
 ----
@@ -689,11 +703,16 @@ GET /api/cost-management/v1/recommendations/openshift/?limit=20&after=<meta.next
 ==== Sorting
 
 Allowed `order_by` values: `cluster`, `project`, `workload_type`, `workload`, `container`,
-`last_reported`, `cpu_request_current`, `memory_request_current`, and per-term variation fields:
+`last_reported`, `cpu_request_current`, `memory_request_current`,
+`estimated_monthly_savings`, `estimated_monthly_waste`, `idle_state`, `idle_duration_days`,
+and per-term variation fields:
 `cpu_variation_short_cost`, `cpu_variation_short_performance`, `cpu_variation_medium_cost`,
 `cpu_variation_medium_performance`, `cpu_variation_long_cost`, `cpu_variation_long_performance`,
 `memory_variation_short_cost`, `memory_variation_short_performance`, `memory_variation_medium_cost`,
 `memory_variation_medium_performance`, `memory_variation_long_cost`, `memory_variation_long_performance`.
+
+`estimated_monthly_savings` sorts by persisted dollar savings (nullable; `NULLS LAST` applies in both directions).
+`estimated_monthly_waste` sorts by estimated monthly waste for idle/abandoned workloads.
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/?order_by=last_reported&order_how=desc
@@ -712,8 +731,12 @@ GET /api/cost-management/v1/recommendations/openshift/?format=csv&limit=100&orde
 Prefer `Accept: text/csv` for explicit content negotiation. Response `Content-Type`
 is `text/csv`. The export is capped at 1000 list records (up to 6000 CSV rows when
 all three terms and both engines are present). Columns include cluster, project,
-workload, container, savings, idle state, and per-term CPU/memory requests and limits.
+workload, container, savings (`estimated_monthly_savings`, `cpu_savings`, `memory_savings`),
+idle state, and per-term CPU/memory requests and limits.
 Use the same filters and `order_by` parameters as the JSON list endpoint.
+
+`cpu_savings` and `memory_savings` are the per-resource CPU and memory breakdowns of
+`estimated_monthly_savings`. All three are empty when cost data is unavailable (code 25).
 
 ==== Container notification codes
 

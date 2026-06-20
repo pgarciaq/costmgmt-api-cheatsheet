@@ -22,10 +22,14 @@ docs {
 
   Each active row may include estimated_monthly_savings — a currency object, not a bare number:
 
-    "estimated_monthly_savings": { "value": "12500.75", "units": "USD" }
+    "estimated_monthly_savings": { "value": "12500.75", "units": "USD" },
+    "cpu_savings": { "value": "7500.50", "units": "USD" },
+    "memory_savings": { "value": "5000.25", "units": "USD" }
 
   - value — decimal string (rightsizing delta for the row's recommendation term/engine)
   - units — ISO 4217 currency code (matches tenant currency settings)
+  - cpu_savings + memory_savings are the breakdown of estimated_monthly_savings
+  - All three are null when cost data is unavailable (notification code 25 / COST_DATA_UNAVAILABLE)
 
   Negative values are valid (current allocation is already below the recommendation).
 
