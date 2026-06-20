@@ -1,0 +1,39 @@
+meta {
+  name: VM filter - guest_os
+  type: http
+  seq: 110
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm?filter[guest_os]=windows&limit=20&offset=0
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+params:query {
+  filter[guest_os]: windows
+  limit: 20
+  offset: 0
+}
+
+docs {
+  filter[guest_os]=windows — list only VMs with a Windows guest OS.
+
+  Substring match, case-insensitive. Comma-separated values are ORed:
+  filter[guest_os]=linux,windows returns both Linux and Windows VMs.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.data: isArray
+}
