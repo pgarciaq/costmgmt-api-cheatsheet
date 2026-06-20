@@ -1354,7 +1354,7 @@ Example response snippet:
 [source,json]
 ----
 {
-  "meta": { "count": 1, "limit": 10, "offset": 0, "has_next": false },
+  "meta": { "count": 1, "limit": 10, "offset": 0, "has_next": false, "currency": "USD" },
   "links": { "first": "...", "last": "..." },
   "data": [
     {
