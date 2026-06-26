@@ -19,14 +19,14 @@ params:query {
 docs {
   filter[workload_type] — exact match on the workload controller kind (lowercase).
 
-  Supported values (mirrors sorted_workloadtype DB enum):
-    daemonset, deployment, deploymentconfig, replicaset,
-    replicationcontroller, statefulset
+  Any valid Kubernetes workload kind is accepted (no fixed allowlist).
+  Common values: daemonset, deployment, deploymentconfig, replicaset,
+    replicationcontroller, statefulset, domain, kafkanodepool, etc.
 
   Comma-separated values are ORed: filter[workload_type]=deployment,statefulset
 
   Legacy flat form ?workload_type=deployment is also accepted.
-  Invalid values return 400 with an error listing allowed types.
+  Invalid formats (empty, special characters) return 400.
 }
 
 settings {

@@ -594,10 +594,10 @@ GET /api/cost-management/v1/recommendations/openshift/?filter[container]=my-cont
 `filter[namespace]` is an alias for `filter[project]` (both filter by OpenShift namespace).
 Legacy flat forms (`cluster_uuid`, `project`, `namespace`, `container`) are also accepted.
 
-`filter[workload_type]` accepts lowercase Kubernetes controller kinds (exact match;
-comma-separated values are ORed): `daemonset`, `deployment`, `deploymentconfig`,
-`replicaset`, `replicationcontroller`, `statefulset`. Legacy flat form
-`?workload_type=deployment` is also accepted.
+`filter[workload_type]` accepts any lowercase Kubernetes workload kind (exact match;
+comma-separated values are ORed), e.g. `deployment`, `statefulset`, `domain`.
+Legacy flat form `?workload_type=deployment` is also accepted.
+Invalid formats return 400; any syntactically valid kind string is accepted.
 
 Filter by recommendation engine (limits nested `recommendation_engines` to cost or performance; omits the non-selected engine from each item):
 
@@ -868,6 +868,8 @@ DELETE /api/cost-management/v1/recommendations/openshift/settings/terms?recommen
 Business hours: when `ROS_BUSINESS_HOURS_ENABLED=true` and a schedule applies (org, cluster, or namespace scope), detail payloads include `recommendation_engines.{cost|performance}.business_hours` after reship completes. See <<Business hours settings>>.
 
 Notification codes on namespace rows: **1** (low confidence), **2** (stale data), **7** (new workload), **9** (memory trending up), **77** (sparse data — limited observation days). Catalog: `GET .../notification-codes?filter[plugin]=namespace`.
+
+Savings fields on namespace responses: `recommendations.estimated_monthly_savings` (total, `{value, units}`), `recommendations.cpu_savings` (CPU portion, `{value, units}`), `recommendations.memory_savings` (memory portion, `{value, units}`), and top-level `estimated_monthly_waste` for idle/zombie namespaces (`{value, units}`). Requires `ROS_SAVINGS_ESTIMATES_ENABLED=true` (default) and cost model rates from Koku Masu. When cost data is unavailable, savings fields are omitted.
 
 Detail for a specific namespace recommendation:
 
