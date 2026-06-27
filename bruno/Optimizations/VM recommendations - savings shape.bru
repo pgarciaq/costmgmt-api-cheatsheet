@@ -21,15 +21,17 @@ headers {
 }
 
 docs {
-  VM list rows may include `savings` — structured currency object or null when estimates are disabled:
+  VM list rows include `estimated_monthly_savings` — structured currency object or null when estimates are disabled:
 
-    "savings": { "value": "42.50", "units": "USD" }
+    "estimated_monthly_savings": { "value": "42.50", "units": "USD" }
 
   - value — decimal string (monthly rightsizing delta for the row term/engine)
   - units — ISO 4217 currency code
   - null — ROS_SAVINGS_ESTIMATES_ENABLED=false or no Masu rates at ingestion
 
   Negative values mean additional monthly cost (upsize recommendation).
+
+  Note: `savings` is accepted as a deprecated alias for `order_by` but the response field is `estimated_monthly_savings`.
 }
 
 settings {
@@ -44,9 +46,9 @@ assert {
 }
 
 tests {
-  test("savings is structured object or null", function() {
+  test("estimated_monthly_savings is structured object or null", function() {
     if (res.body.data && res.body.data.length > 0) {
-      var savings = res.body.data[0].savings;
+      var savings = res.body.data[0].estimated_monthly_savings;
       if (savings !== null && savings !== undefined) {
         expect(savings).to.be.an('object');
         expect(Number(savings.value)).to.not.be.NaN;
