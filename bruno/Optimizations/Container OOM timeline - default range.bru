@@ -1,0 +1,23 @@
+meta {
+  name: Container OOM timeline - default range
+  type: http
+  seq: 221
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/containers/{{recommendation_uuid}}/oom-timeline
+  body: none
+  auth: inherit
+}
+
+docs {
+  GET /recommendations/openshift/containers/{id}/oom-timeline — OOM timeline with default 6-month range.
+
+  When no start_date / end_date is specified, defaults to last 6 months.
+  Useful for seeing all recent OOM events without specifying date params.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

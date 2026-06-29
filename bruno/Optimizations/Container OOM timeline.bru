@@ -1,0 +1,33 @@
+meta {
+  name: Container OOM timeline
+  type: http
+  seq: 220
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/containers/{{recommendation_uuid}}/oom-timeline?start_date={{start_date}}&end_date={{end_date}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  start_date: 2026-01-01
+  end_date: 2026-06-29
+}
+
+docs {
+  GET /recommendations/openshift/containers/{id}/oom-timeline — per-day OOM kill counts for a container.
+
+  Returns only days with oom_count_sum > 0 (sparse response).
+  meta.count is the total sum of all oom_kill_count values.
+  Empty data array when no OOM events occurred in the date range.
+
+  Query parameters:
+    start_date (optional, YYYY-MM-DD) — defaults to 6 months ago
+    end_date (optional, YYYY-MM-DD) — defaults to today
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

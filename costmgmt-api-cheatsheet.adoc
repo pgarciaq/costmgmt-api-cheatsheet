@@ -542,7 +542,7 @@ The detail response includes per-term (short/medium/long) recommendations for tw
 * **Cost model**: optimizes for resource savings (p60 CPU / p95 memory)
 * **Performance model**: optimizes for headroom (p98 CPU / p100 memory)
 
-Each recommendation includes CPU/memory requests and limits, per-engine notifications on detail, and usage distribution plots under `recommendation_terms.<term>.plots.plots_data`. Each time bucket maps to `cpuUsage` and `memoryUsage` objects with percentile fields (`p50`, `p95`, `p99`, `max`) and a `format` (`cores` for CPU, `MiB` for memory). Values are assembled from daily digests (not raw samples).
+Each recommendation includes CPU/memory requests and limits, per-engine notifications on detail, and usage distribution plots under `recommendation_terms.<term>.plots.plots_data`. Each time bucket maps to `cpuUsage` and `memoryUsage` objects with percentile fields (`p50`, `p95`, `p99`, `max`) and a `format` (`cores` for CPU, `MiB` for memory). Container boxplots also include an optional `cpuThrottle` object (P95 + Max in cores); omitted when no throttling occurred. Values are assembled from daily digests (not raw samples).
 
 *Notifications:* Detail responses emit `notifications` maps only on `recommendation_engines.<engine>` (not at term or top-level). List rows expose `recommendations.notification_codes` (deduplicated integer array); resolve badge text via `GET .../notification-codes`.
 
@@ -552,9 +552,13 @@ Example plot bucket:
 ----
 {
   "cpuUsage": { "p50": 0.12, "p95": 0.45, "p99": 0.67, "max": 0.89, "format": "cores" },
+  "cpuThrottle": { "p95": 0.03, "max": 0.12, "format": "cores" },
   "memoryUsage": { "p50": 256.0, "p95": 384.0, "p99": 420.0, "max": 512.0, "format": "MiB" }
 }
 ----
+
+NOTE: `cpuThrottle` is only present for container recommendations (not namespace).
+It is omitted entirely when both P95 and Max are zero (no throttling in that bucket).
 
 Detail responses nest both engines under each term:
 
@@ -577,6 +581,44 @@ To generate cluster data where cost and performance sizing intentionally diverge
 ==== Testing divergence
 
 After ingesting `nise/examples/ocp_dual_engine/` data, container cost vs performance sizing will differ under `recommendation_terms.*.recommendation_engines` (higher CPU/memory on performance for spike-prone workloads). Use that fixture in your test cluster to verify dual-engine divergence in E2E, IQE, or Bruno manual runs; generic fixtures may return identical sizing while still exposing both engine blocks.
+
+==== OOM Timeline
+
+Per-day OOM (Out of Memory) kill counts for a container. Returns only days with at least one OOM event (sparse response). Defaults to the last 6 months.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/containers/{recommendation_uuid}/oom-timeline
+GET /api/cost-management/v1/recommendations/openshift/containers/{recommendation_uuid}/oom-timeline?start_date=2026-01-01&end_date=2026-06-29
+----
+
+Example curl:
+
+----
+curl -s -H "x-rh-identity: $IDENTITY" \
+  'https://console.redhat.com/api/cost-management/v1/recommendations/openshift/containers/RECOMMENDATION_UUID/oom-timeline?start_date=2026-01-01' \
+  | python3 -m json.tool
+----
+
+Example response:
+
+[source,json]
+----
+{
+  "meta": {
+    "count": 9,
+    "container_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "start_date": "2026-01-01",
+    "end_date": "2026-06-29"
+  },
+  "data": [
+    {"date": "2026-03-15", "oom_kill_count": 3},
+    {"date": "2026-03-22", "oom_kill_count": 1},
+    {"date": "2026-04-01", "oom_kill_count": 5}
+  ]
+}
+----
+
+`meta.count` is the sum of all `oom_kill_count` values (total OOM events, not total days). Empty `data` array when no OOM events occurred in the range.
 
 ==== Filtering and sorting
 
