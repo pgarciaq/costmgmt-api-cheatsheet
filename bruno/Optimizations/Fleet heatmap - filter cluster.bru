@@ -1,0 +1,16 @@
+meta {
+  name: Fleet heatmap - filter cluster
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/fleet-heatmap?filter[cluster]=<cluster-uuid>
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,16 @@
+meta {
+  name: Fleet heatmap - memory
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/fleet-heatmap?metric=memory
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
