@@ -1,0 +1,39 @@
+meta {
+  name: Node utilization detail - daily digests
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes/worker-0?cluster_uuid=CLUSTER_UUID&start_date=2026-06-01&end_date=2026-06-30
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Node detail with daily_digests (CPU/memory utilization trend data).
+
+  Requires ROS_VISUAL_INSIGHTS_ENABLED=true on the backend.
+
+  The response includes a `daily_digests` array with per-day P50/P95 usage
+  and allocatable capacity values for rendering utilization trend charts.
+
+  Query params:
+  - cluster_uuid: filter by cluster (required for disambiguation)
+  - start_date: YYYY-MM-DD (default: 14 days ago)
+  - end_date: YYYY-MM-DD (default: today)
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.node: isString
+}
