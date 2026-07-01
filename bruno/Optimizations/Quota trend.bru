@@ -1,0 +1,41 @@
+meta {
+  name: Quota trend
+  type: http
+  seq: 225
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/quota/{{quota_uuid}}/trend?start_date={{start_date}}&end_date={{end_date}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~start_date: 2026-06-01
+  ~end_date: 2026-06-30
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  GET /recommendations/openshift/quota/{quota-id}/trend — per-day quota headroom trend (hard limit vs actual used for CPU and memory requests).
+
+  Requires Visual Insights enabled (ROS_VISUAL_INSIGHTS_ENABLED=true) and the quota plugin.
+
+  Path parameter: quota-id (quota recommendation UUID).
+  Optional query: start_date (YYYY-MM-DD, default 30 days ago), end_date (YYYY-MM-DD, default today).
+
+  Each data point returns: date, cpu_request_hard_millicores, cpu_request_used_millicores, memory_request_hard_bytes, memory_request_used_bytes. Values are nullable.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+}

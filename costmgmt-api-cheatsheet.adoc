@@ -445,6 +445,18 @@ When rates are missing or Masu is unreachable, recommendations still persist but
 
 Requires `KOKU_MASU_URL` on ros-processor/ros-api and `ROS_SAVINGS_ESTIMATES_ENABLED=true` (default).
 
+==== Fleet heatmap
+
+CPU and memory utilization heatmap across all clusters, showing hourly resource usage patterns. Requires Visual Insights enabled (`ROS_VISUAL_INSIGHTS_ENABLED=true`).
+
+----
+GET /api/cost-management/v1/recommendations/openshift/fleet-heatmap
+GET /api/cost-management/v1/recommendations/openshift/fleet-heatmap?metric=memory
+GET /api/cost-management/v1/recommendations/openshift/fleet-heatmap?filter[cluster]=CLUSTER_UUID
+----
+
+Default metric is `cpu`. Use `?metric=memory` for memory heatmap. Response returns a matrix of hourly utilization data points across nodes.
+
 ==== Savings recalculation (internal)
 
 After a Koku cost model update, masu notifies ROS to refresh persisted dollar savings without re-ingestion. Supported types: `container`, `node`, `pvc`, `quota`, `cluster-quota`. Service-account bearer token required (same auth as tag sync). Requires `ROS_SAVINGS_ESTIMATES_ENABLED` and `ROS_SAVINGS_RECALCULATION_ENABLED`.
@@ -1107,6 +1119,19 @@ GET /api/cost-management/v1/recommendations/openshift/nodes/utilization
 
 *Deprecated* alias for `GET /api/cost-management/v1/recommendations/openshift/nodes`. Prefer the canonical `/nodes` URL. Responses include `Deprecation: true` and a `Link` header to `/nodes`. IQE and new integrations should call `/nodes` only.
 
+==== Node hourly utilization
+
+Hourly CPU and memory utilization digests for a single node, enabling heatmap and time-of-day charts. Requires Visual Insights enabled (`ROS_VISUAL_INSIGHTS_ENABLED=true`) and hourly node digests enabled (`ROS_HOURLY_NODE_DIGESTS_ENABLED=true`).
+
+----
+GET /api/cost-management/v1/recommendations/openshift/node/{node-name}/hourly-utilization?cluster_uuid=CLUSTER_UUID
+GET /api/cost-management/v1/recommendations/openshift/node/{node-name}/hourly-utilization?cluster_uuid=CLUSTER_UUID&days=30
+----
+
+Required: path parameter `node-name`, query parameter `cluster_uuid` (or `filter[cluster]`). Optional: `days` (default 14, max 90).
+
+Each data point returns `report_date`, `hour` (0–23), `cpu_usage_p95_mc`, `mem_usage_p95_kib`, `sample_count`, `max_pod_count`. Data is stored in `hourly_node_digests`; retention controlled by `ROS_HOURLY_NODE_DIGESTS_RETENTION_DAYS` (default 90).
+
 === PVC (Persistent Volume Claim) recommendations
 
 Right-sizing recommendations for persistent volumes — oversized, near-full, orphaned, healthy, and growth trend projection. List returns one row per PVC for the selected **term** (default `medium`). Use the detail endpoint for all terms plus daily usage history.
@@ -1353,6 +1378,19 @@ Example GET/PUT body:
 ----
 
 PUT validation: `headroom_percent` 0–100; `high_risk_threshold_percent` 1–100 and greater than `medium_risk_threshold_percent`; `medium_risk_threshold_percent` 1–99. DELETE removes per-org overrides (falls back to `ROS_QUOTA_*` env or defaults 10/90/70).
+
+==== Quota headroom trend
+
+Per-day quota hard limit vs actual usage for CPU requests and memory requests, enabling headroom trend charts. Requires Visual Insights enabled (`ROS_VISUAL_INSIGHTS_ENABLED=true`) and the quota plugin.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/quota/{quota-id}/trend
+GET /api/cost-management/v1/recommendations/openshift/quota/{quota-id}/trend?start_date=2026-06-01&end_date=2026-06-30
+----
+
+Path parameter: `quota-id` (quota recommendation UUID). Optional query: `start_date` (YYYY-MM-DD, default 30 days ago), `end_date` (YYYY-MM-DD, default today).
+
+Each data point returns `date`, `cpu_request_hard_millicores`, `cpu_request_used_millicores`, `memory_request_hard_bytes`, `memory_request_used_bytes`. Values are nullable when the metric was not collected on that date. Data is sourced from `daily_namespace_quota_digests`.
 
 === ClusterResourceQuota recommendations
 
@@ -1659,6 +1697,29 @@ Filter the catalog with
 
 `active` classifications emit no snapshot notification code. List rows use a `notifications` map keyed by code string.
 
+==== Snapshot age distribution
+
+Histogram of snapshot counts grouped by age buckets. Requires Visual Insights enabled (`ROS_VISUAL_INSIGHTS_ENABLED=true`) and the snapshot plugin.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/snapshots/age-distribution
+GET /api/cost-management/v1/recommendations/openshift/snapshots/age-distribution?bucket_boundaries=14,60
+----
+
+Optional: `bucket_boundaries` (comma-separated day thresholds, e.g. `14,60` creates `0–14`, `14–60`, `60+` buckets; defaults to `7,30,90` when omitted).
+
+Response contains `buckets[]` (each with `label`, `min_days`, `max_days` — `null` for the last unbounded bucket — and `count`) and a `total` field.
+
+==== Snapshot cost by type
+
+Snapshot holding costs grouped by recommendation type. Requires Visual Insights enabled (`ROS_VISUAL_INSIGHTS_ENABLED=true`) and the snapshot plugin.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/snapshots/cost-by-type
+----
+
+Response `data[]` contains `recommendation_type` (orphaned, stale, never_restored, redundant, managed, active), `total_cost_cents` (integer monthly holding cost), and `count`.
+
 === OpenShift Virtualization (VM) recommendations
 
 VM-level CPU, memory, disk, and GPU sizing for KubeVirt workloads. Requires the ROS `vm` plugin (ensure `vm` is not in `ROS_DISABLED_PLUGINS` / Helm `enabledPlugins` includes `vm`). When disabled, VM routes return `404`.
@@ -1832,6 +1893,19 @@ GET /api/cost-management/v1/recommendations/openshift/vms/{vm_name}/history?clus
 Required query params: `cluster_uuid` (or `cluster_id`), `namespace`. Path param: `vm_name`. Optional: `term` (default `short_term`), `engine` (default `cost`), `limit`, `offset`.
 
 Retention: `ROS_VM_REC_HISTORY_RETENTION_DAYS` (default **90** days) controls how long `vm_recommendation_history` snapshots are kept.
+
+==== VM hourly activity
+
+Hourly CPU, memory, and disk I/O digests for a single VM, enabling heatmap and activity pattern charts. Requires Visual Insights enabled (`ROS_VISUAL_INSIGHTS_ENABLED=true`) and hourly VM digests enabled (`ROS_HOURLY_VM_DIGESTS_ENABLED=true`).
+
+----
+GET /api/cost-management/v1/recommendations/openshift/vm/hourly-activity?cluster_uuid=CLUSTER_UUID&vm_name=my-vm&namespace=my-namespace
+GET /api/cost-management/v1/recommendations/openshift/vm/hourly-activity?cluster_uuid=CLUSTER_UUID&vm_name=my-vm&namespace=my-namespace&days=30
+----
+
+Required: `cluster_uuid` (or `filter[cluster]`), `vm_name`, `namespace`. Optional: `days` (default 14, max 90).
+
+Each data point returns `report_date`, `hour` (0–23), `cpu_usage_p95_mc`, `mem_usage_p95_kib`, `sample_count`, `disk_read_iops_p95`, `disk_write_iops_p95`. Data is stored in `hourly_vm_digests`; retention controlled by `ROS_HOURLY_VM_DIGESTS_RETENTION_DAYS` (default 90).
 
 ==== CSV export
 

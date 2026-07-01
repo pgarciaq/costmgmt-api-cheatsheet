@@ -1,0 +1,43 @@
+meta {
+  name: VM hourly activity
+  type: http
+  seq: 222
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/vm/hourly-activity?cluster_uuid=CLUSTER_UUID&vm_name=my-vm&namespace=my-namespace&days=14
+  body: none
+  auth: inherit
+}
+
+params:query {
+  cluster_uuid: CLUSTER_UUID
+  vm_name: my-vm
+  namespace: my-namespace
+  ~days: 14
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  GET /recommendations/openshift/vm/hourly-activity — hourly CPU, memory, and disk I/O digests for a single VM.
+
+  Requires Visual Insights enabled (ROS_VISUAL_INSIGHTS_ENABLED=true) and hourly VM digests enabled (ROS_HOURLY_VM_DIGESTS_ENABLED=true).
+
+  Required query: cluster_uuid (or filter[cluster]), vm_name, namespace.
+  Optional query: days (default 14, max 90).
+
+  Each data point returns: report_date, hour (0–23), cpu_usage_p95_mc, mem_usage_p95_kib, sample_count, disk_read_iops_p95, disk_write_iops_p95.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+}

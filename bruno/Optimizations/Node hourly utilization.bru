@@ -1,0 +1,43 @@
+meta {
+  name: Node hourly utilization
+  type: http
+  seq: 221
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/node/worker-0/hourly-utilization?cluster_uuid=CLUSTER_UUID&days=14
+  body: none
+  auth: inherit
+}
+
+params:query {
+  cluster_uuid: CLUSTER_UUID
+  ~days: 14
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  GET /recommendations/openshift/node/{id}/hourly-utilization — hourly CPU/memory utilization digests for a single node.
+
+  Requires Visual Insights enabled (ROS_VISUAL_INSIGHTS_ENABLED=true) and hourly node digests enabled (ROS_HOURLY_NODE_DIGESTS_ENABLED=true).
+
+  Path parameter: node name (e.g. worker-0).
+
+  Required query: cluster_uuid (or filter[cluster]).
+  Optional query: days (default 14, max 90).
+
+  Each data point returns: report_date, hour (0–23), cpu_usage_p95_mc, mem_usage_p95_kib, sample_count, max_pod_count.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+}

@@ -1,0 +1,39 @@
+meta {
+  name: Snapshot age distribution
+  type: http
+  seq: 223
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/snapshots/age-distribution
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~bucket_boundaries: 14,60
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  GET /recommendations/openshift/snapshots/age-distribution — histogram of snapshot counts grouped by age buckets.
+
+  Requires Visual Insights enabled (ROS_VISUAL_INSIGHTS_ENABLED=true) and the snapshot plugin.
+
+  Optional query: bucket_boundaries (comma-separated day thresholds, e.g. 14,60 creates 0–14, 14–60, 60+ buckets; defaults to 7,30,90).
+
+  Response contains buckets[] with label, min_days, max_days (null for last bucket), count, and a total field.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.total: isNumber
+}

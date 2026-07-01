@@ -1,0 +1,33 @@
+meta {
+  name: Snapshot cost by type
+  type: http
+  seq: 224
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/snapshots/cost-by-type
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  GET /recommendations/openshift/snapshots/cost-by-type — snapshot holding costs grouped by recommendation type (orphaned, stale, etc.).
+
+  Requires Visual Insights enabled (ROS_VISUAL_INSIGHTS_ENABLED=true) and the snapshot plugin.
+
+  Response data[] contains: recommendation_type, total_cost_cents, count.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.data: isArray
+}
