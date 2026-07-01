@@ -816,8 +816,7 @@ Container notification codes (catalog filter `filter[plugin]=container`):
 
 ==== History and quality
 
-Node recommendations do not expose a history or quality API. Per-node history is N/A;
-`GET .../quality` applies to container recommendations only (stability, adoption, OOM after rec).
+Node recommendations do not expose a history or quality API. Per-node history is N/A.
 
 Recommendation snapshot history (fleet-wide, native engine — containers):
 
@@ -829,13 +828,61 @@ GET /api/cost-management/v1/recommendations/openshift/history?filter[tag:environ
 
 History accepts `filter[engine]=cost|performance` (preferred) or legacy flat `?engine=cost`.
 
-Recommendation quality metrics (stability, adoption, OOM after rec):
+Recommendation quality metrics are available for 5 entity types, each with its own endpoint and entity-specific columns:
+
+**Container quality** (stability, adoption, OOM events):
 
 ----
-GET /api/cost-management/v1/recommendations/openshift/quality?limit=10
-GET /api/cost-management/v1/recommendations/openshift/quality?filter[engine]=cost&limit=10
-GET /api/cost-management/v1/recommendations/openshift/quality?order_by=stability&order_how=desc
+GET /api/cost-management/v1/recommendations/openshift/quality/containers?limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality/containers?filter[engine]=cost&limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality/containers?order_by=stability&order_how=desc
 ----
+
+The legacy path `/quality` is a backward-compatible alias for `/quality/containers`.
+
+**PVC quality** (stability, adoption, days_above_threshold):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/quality/pvcs?limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality/pvcs?filter[engine]=cost&order_by=days_above_threshold&order_how=desc
+----
+
+**VM quality** (stability, adoption, saturation_days):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/quality/vms?limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality/vms?filter[engine]=performance&order_by=saturation_days&order_how=desc
+----
+
+**GPU MIG quality** (binary stability, profile adoption, contention_days):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/quality/gpu?limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality/gpu?filter[engine]=cost&order_by=contention_days&order_how=desc
+----
+
+**Snapshot quality** (adoption via disappearance — no stability, no bad outcome):
+
+----
+GET /api/cost-management/v1/recommendations/openshift/quality/snapshots?limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality/snapshots?order_by=adoption&order_how=desc
+----
+
+Example curl for GPU quality:
+
+----
+curl -s -H "x-rh-identity: $IDENTITY" \
+  'http://localhost:8000/api/cost-management/v1/recommendations/openshift/quality/gpu?filter[engine]=cost&limit=5' \
+  | python3 -m json.tool
+----
+
+Entity-specific columns by endpoint:
+
+* `/quality/containers` — `oom_events_after_rec` (integer)
+* `/quality/pvcs` — `days_above_threshold` (integer; days usage ratio exceeded 95% of capacity)
+* `/quality/vms` — `saturation_days` (integer; days CPU/memory exceeded 95% of allocated)
+* `/quality/gpu` — `contention_days` (integer; days SM active exceeded profile capacity)
+* `/quality/snapshots` — adoption only (no stability_pct, no bad-outcome column)
 
 Quality defaults to the cost engine when `filter[engine]` is omitted.
 
