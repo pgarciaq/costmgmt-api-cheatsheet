@@ -1,0 +1,33 @@
+meta {
+  name: Workload types
+  type: http
+  seq: 230
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/workload-types
+  body: none
+  auth: inherit
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  GET /recommendations/openshift/workload-types — distinct Kubernetes owner kinds for the authenticated org.
+
+  Returns an array of workload_type strings (e.g. Deployment, StatefulSet, DaemonSet) observed in org_container_keys. Useful for populating filter dropdowns.
+
+  No query parameters required.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.data: isArray
+}

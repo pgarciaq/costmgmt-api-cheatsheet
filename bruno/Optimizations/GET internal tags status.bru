@@ -1,0 +1,39 @@
+meta {
+  name: GET internal tags status
+  type: http
+  seq: 231
+}
+
+get {
+  url: {{baseURL}}/internal/tags/status?org_id=1234567
+  body: none
+  auth: inherit
+}
+
+params:query {
+  org_id: 1234567
+}
+
+headers {
+  Authorization: Bearer {{serviceAccountToken}}
+}
+
+docs {
+  GET /internal/tags/status — per-org tag catalog metadata.
+
+  Returns the list of known tag keys for the specified org and the last sync timestamp (API mode) or a note indicating live DB reads (DB mode).
+
+  Requires service-account bearer token auth. Gated by ROS_TAGS_ENABLED.
+
+  Required query: org_id.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.org_id: eq 1234567
+}

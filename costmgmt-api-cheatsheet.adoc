@@ -516,6 +516,16 @@ Example response excerpt:
 }
 ----
 
+==== Tag sync status (internal)
+
+Per-org tag catalog metadata: which tag keys are known and the last sync time. Service-account bearer token required (same auth as tag sync). Requires `ROS_TAGS_ENABLED`.
+
+----
+GET /api/cost-management/v1/internal/tags/status?org_id=1234567
+----
+
+Required: `org_id`. Response includes `tag_keys` (array of known keys), `source` (`"api"` or `"db"`), and `synced_at` timestamp (API mode only).
+
 Savings summary response excerpt:
 
 [source,json]
@@ -535,9 +545,24 @@ Savings summary response excerpt:
 }
 ----
 
-=== Container recommendations
+==== Workload types (metadata)
 
-All container-level CPU/memory right-sizing recommendations:
+Returns the distinct Kubernetes owner-kind values (e.g., `Deployment`, `StatefulSet`, `DaemonSet`) observed for the authenticated org. Useful for populating workload-type filter dropdowns in the UI.
+
+----
+GET /api/cost-management/v1/recommendations/openshift/workload-types
+----
+
+Response:
+
+[source,json]
+----
+{
+  "data": ["DaemonSet", "Deployment", "StatefulSet"]
+}
+----
+
+=== Container recommendations
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/
