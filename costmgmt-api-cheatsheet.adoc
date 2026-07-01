@@ -822,11 +822,13 @@ Recommendation snapshot history (fleet-wide, native engine — containers):
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/history?limit=10
-GET /api/cost-management/v1/recommendations/openshift/history?container=my-container&filter[engine]=cost&term=medium
+GET /api/cost-management/v1/recommendations/openshift/history?container=my-container&filter[engine]=cost&term=short_term
 GET /api/cost-management/v1/recommendations/openshift/history?filter[tag:environment]=production&limit=10
 ----
 
 History accepts `filter[engine]=cost|performance` (preferred) or legacy flat `?engine=cost`.
+Term filter accepts canonical forms (`short_term`, `medium_term`, `long_term`); legacy values (`short`, `medium`, `long`) are also accepted and normalized.
+Response includes 21 `expl_*` explanation columns (nullable, omitted when nil) providing recommendation context: data days, decay half-life, CPU/memory cost/perf percentiles, usage statistics, adaptive margins, trend slopes, OOM counts, floor flags, and idle state.
 
 Recommendation quality metrics are available for 5 entity types, each with its own endpoint and entity-specific columns:
 

@@ -1,0 +1,46 @@
+meta {
+  name: Container recommendation history (with expl columns)
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/history?cluster={{clusterUuid}}&container=grafana&filter[engine]=cost&term=short_term&limit=5
+  body: none
+  auth: inherit
+}
+
+params:query {
+  cluster: {{clusterUuid}}
+  container: grafana
+  filter[engine]: cost
+  term: short_term
+  limit: 5
+}
+
+docs {
+  Container recommendation history with explanation columns exposed.
+
+  The response now includes 21 expl_* columns providing context for each
+  recommendation snapshot:
+  - expl_data_days, expl_decay_half_life_hours
+  - expl_cpu_cost_pct_mc, expl_cpu_perf_pct_mc, expl_cpu_usage_p95_mc,
+    expl_cpu_usage_p50_mc, expl_cpu_usage_mean_mc, expl_cpu_adaptive_margin_bp,
+    expl_cpu_trend_slope
+  - expl_mem_cost_pct_kib, expl_mem_perf_pct_kib, expl_mem_usage_p95_kib,
+    expl_mem_usage_p50_kib, expl_mem_usage_mean_kib, expl_mem_adaptive_margin_bp,
+    expl_mem_trend_slope
+  - expl_oom_count_sum, expl_oom_bump_applied, expl_cpu_floor_applied,
+    expl_mem_floor_applied, expl_is_idle
+
+  Term filter accepts canonical forms: short_term, medium_term, long_term.
+  Legacy values (short, medium, long) are also normalized automatically.
+  Response always returns the canonical form.
+
+  Used by the frontend Container Recommendation History Chart (issue #49).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
