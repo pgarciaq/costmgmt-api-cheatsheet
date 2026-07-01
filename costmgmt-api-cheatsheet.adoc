@@ -1023,6 +1023,8 @@ Returns per-node recommendations with:
 
 *Settings:* Time-slicing thresholds on `GET .../settings/gpu` include `timeslicing_min_replicas`, `timeslicing_max_replicas`, `timeslicing_majority_threshold`, `timeslicing_base_penalty`, and `timeslicing_impacted_weight`. Term windows: `GET .../settings/terms?recommendation_type=gpu`.
 
+*Cold-start signal:* `meta.data_days_available` (integer) reports distinct days of `daily_node_digests` data for the queried cluster(s). Compare against `min_data_days` from `GET .../settings/terms?recommendation_type=gpu` to distinguish cold-start (insufficient data) from genuine "no recommendations".
+
 ===== GPU time-slicing history
 
 Append-only snapshots of how time-slicing recommendations evolved for a node × GPU model × term:

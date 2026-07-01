@@ -1,0 +1,51 @@
+meta {
+  name: Node utilization - cold start check
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/nodes
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 1
+  filter[term]: short
+  filter[engine]: cost
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Demonstrates the `meta.data_days_available` field used to detect a cold-start
+  (insufficient data) state for node recommendations.
+
+  Response meta includes:
+  - data_days_available: integer — distinct days of node digest data currently stored.
+
+  Compare against `min_data_days` from the terms settings endpoint:
+    GET .../recommendations/openshift/settings/terms?recommendation_type=node
+
+  Cold-start condition:
+    meta.data_days_available < settings.min_data_days
+
+  When in cold-start, the UI displays a "Collecting data" empty state with a
+  message like "X of Y days of data collected" instead of the recommendations table.
+
+  Related issue: ros-ocp-backend#84 (node recommendation cold-start null state).
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.count: isNumber
+  res.body.meta.data_days_available: isNumber
+}
