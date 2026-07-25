@@ -1,11 +1,11 @@
 meta {
-  name: Node utilization - filter zombie
+  name: Node utilization - filter idle (formerly zombie)
   type: http
   seq: 8.2
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/nodes?filter[idle_state]=zombie
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[category]=idle
   body: none
   auth: inherit
 }
@@ -16,6 +16,11 @@ headers {
 
 docs {
   Near-empty nodes (very low CPU P95 and few pods). Often paired with notification code 15.
+
+  Note: The former filter[idle_state]=zombie for nodes is now covered by filter[category]=idle.
+  Node categories do not have a separate "zombie" value — idle encompasses both states.
+
+  Valid node categories: idle, overcommitted, stranded_cpu, stranded_memory, underutilized, optimized.
 }
 
 settings {

@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/nodes?filter[idle_state]=idle
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[category]=idle
   body: none
   auth: inherit
 }
@@ -16,6 +16,9 @@ headers {
 
 docs {
   Nodes classified as idle (low CPU/memory utilization vs allocatable, moderate pod count).
+
+  Uses unified filter[category] parameter. Valid node categories:
+  idle, overcommitted, stranded_cpu, stranded_memory, underutilized, optimized.
 }
 
 settings {

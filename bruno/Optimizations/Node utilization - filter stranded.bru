@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/nodes?filter[stranded_resource]=cpu
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[category]=stranded_cpu
   body: none
   auth: inherit
 }
@@ -15,7 +15,13 @@ headers {
 }
 
 docs {
-  Filter nodes by stranded resource type (cpu, memory, both, none).
+  Filter nodes by stranded resource category.
+
+  Uses unified filter[category] parameter. Stranded values:
+  - stranded_cpu: node has stranded CPU capacity
+  - stranded_memory: node has stranded memory capacity
+
+  Comma-separate for both: filter[category]=stranded_cpu,stranded_memory
 }
 
 settings {

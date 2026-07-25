@@ -1,19 +1,26 @@
 meta {
-  name: Filter by idle state
+  name: Filter by category
   type: http
   seq: 6
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift?filter[idle_state]=zombie,idle&order_by=last_reported&order_how=desc
+  url: {{baseURL}}/recommendations/openshift?filter[category]=zombie,idle&order_by=last_reported&order_how=desc
   body: none
   auth: inherit
 }
 
 params:query {
-  filter[idle_state]: zombie,idle
+  filter[category]: zombie,idle
   order_by: last_reported
   order_how: desc
+}
+
+docs {
+  Unified category filter replacing the former filter[idle_state].
+
+  Valid container/namespace categories: idle, zombie, undersized, oversized, optimized.
+  Comma-separated values are ORed.
 }
 
 settings {

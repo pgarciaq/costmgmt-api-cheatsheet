@@ -19,10 +19,10 @@ params:query {
   ~filter[term]: long
   ~filter[cluster]: 
   ~filter[node]: 
-  ~filter[is_underutilized]: true
-  ~filter[is_overcommitted]: 
-  ~filter[idle_state]: zombie,idle
-  ~filter[stranded_resource]: cpu
+  ~filter[category]: idle
+  ~filter[category]: overcommitted
+  ~filter[category]: stranded_cpu,stranded_memory
+  ~filter[category]: underutilized
   ~filter[instance_type]: m5.2xlarge
   ~filter[machineset_name]: worker
 }
@@ -36,7 +36,12 @@ docs {
 
   filter[term]: `short`, `medium`, or `long` (see also "Node utilization - filter term short/long" requests).
 
-  Filters: stranded_resource (cpu|memory|none), instance_type, machineset_name, idle_state, term, engine.
+  filter[category]: unified classification filter replacing the former filter[is_underutilized],
+  filter[is_overcommitted], filter[stranded_resource], and filter[idle_state] parameters.
+  Valid values: idle, overcommitted, stranded_cpu, stranded_memory, underutilized, optimized.
+  Comma-separated values are ORed.
+
+  Other filters: instance_type, machineset_name, term, engine.
 
   Response fields: pod_capacity, pod_scheduling_headroom, machineset_name, suggested_instance_type,
   instance_type_reason (when stranded and another instance type exists in the cluster).

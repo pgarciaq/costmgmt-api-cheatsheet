@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift?filter[idle_state]=idle&order_by=last_reported&order_how=desc&limit=20&offset=0
+  url: {{baseURL}}/recommendations/openshift?filter[category]=idle&order_by=last_reported&order_how=desc&limit=20&offset=0
   body: none
   auth: inherit
 }
 
 params:query {
-  filter[idle_state]: idle
+  filter[category]: idle
   order_by: last_reported
   order_how: desc
   limit: 20
@@ -19,10 +19,13 @@ params:query {
 }
 
 docs {
-  filter[idle_state] — comma-separated include list: active, idle, zombie.
+  filter[category] — unified classification filter for containers/namespaces.
+  Valid values: idle, zombie, undersized, oversized, optimized.
 
   Idle rows expose estimated_monthly_waste and idle_recommendation; rightsizing
-  estimated_monthly_savings is omitted when idle_state is not active.
+  estimated_monthly_savings is omitted when category is idle or zombie.
+
+  Replaces the former filter[idle_state] parameter.
 }
 
 settings {

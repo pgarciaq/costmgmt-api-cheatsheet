@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/nodes?filter[is_overcommitted]=true
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[category]=overcommitted
   body: none
   auth: inherit
 }
@@ -15,7 +15,10 @@ headers {
 }
 
 docs {
-  Filter nodes where resource requests exceed allocatable capacity (overcommitted).
+  Filter nodes classified as overcommitted (resource requests exceed allocatable capacity).
+
+  Uses unified filter[category] parameter. Valid node categories:
+  idle, overcommitted, stranded_cpu, stranded_memory, underutilized, optimized.
 }
 
 settings {

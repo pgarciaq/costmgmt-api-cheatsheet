@@ -1,11 +1,11 @@
 meta {
-  name: Node utilization - filter idle_state multi
+  name: Node utilization - filter category multi
   type: http
   seq: 8.3
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/nodes?filter[idle_state]=active,zombie
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[category]=idle,overcommitted
   body: none
   auth: inherit
 }
@@ -15,8 +15,10 @@ headers {
 }
 
 docs {
-  Comma-separated idle_state filter returns nodes matching ANY of the specified states.
-  Example: filter[idle_state]=active,zombie includes both active and zombie nodes.
+  Comma-separated category filter returns nodes matching ANY of the specified categories.
+  Example: filter[category]=idle,overcommitted includes both idle and overcommitted nodes.
+
+  Valid node categories: idle, overcommitted, stranded_cpu, stranded_memory, underutilized, optimized.
 }
 
 settings {

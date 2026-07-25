@@ -1,17 +1,17 @@
 meta {
-  name: Container recommendations - filter idle state active
+  name: Container recommendations - filter category optimized
   type: http
   seq: 65
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift?filter[idle_state]=active&order_by=last_reported&order_how=desc&limit=20&offset=0
+  url: {{baseURL}}/recommendations/openshift?filter[category]=undersized,oversized,optimized&order_by=last_reported&order_how=desc&limit=20&offset=0
   body: none
   auth: inherit
 }
 
 params:query {
-  filter[idle_state]: active
+  filter[category]: undersized,oversized,optimized
   order_by: last_reported
   order_how: desc
   limit: 20
@@ -19,13 +19,14 @@ params:query {
 }
 
 docs {
-  filter[idle_state]=active — workloads with normal usage above idle thresholds.
+  filter[category]=undersized,oversized,optimized — workloads with active usage that
+  receive right-sizing recommendations.
 
-  Active containers receive full right-sizing recommendations and may include
-  estimated_monthly_savings when Masu cost model rates are available.
-  Rightsizing savings are omitted when idle_state is idle or zombie.
+  Active containers (non-idle, non-zombie) are now represented by these category values.
+  They may include estimated_monthly_savings when Masu cost model rates are available.
 
-  Other values: idle (low usage), zombie (zero usage / abandoned).
+  Valid container/namespace categories: idle, zombie, undersized, oversized, optimized.
+  Comma-separated values are ORed.
 }
 
 settings {

@@ -17,9 +17,9 @@ params:query {
   filter[engine]: cost
   ~filter[cluster]: 
   ~filter[node]: 
-  ~filter[is_underutilized]: 
-  ~filter[is_overcommitted]: 
-  ~filter[idle_state]: zombie
+  ~filter[category]: idle
+  ~filter[category]: overcommitted
+  ~filter[category]: underutilized
 }
 
 headers {
@@ -29,12 +29,16 @@ headers {
 docs {
   Canonical path for node CPU and memory utilization recommendations (deprecated alias: `/nodes/utilization`).
 
-  Filters: filter[term] (short|medium|long), filter[engine], filter[stranded_resource],
-  filter[instance_type], filter[machineset_name], filter[idle_state], filter[is_underutilized],
-  filter[is_overcommitted], filter[tag:<key>]=<value>.
+  Filters: filter[term] (short|medium|long), filter[engine], filter[category],
+  filter[instance_type], filter[machineset_name], filter[tag:<key>]=<value>.
+
+  filter[category] is the unified classification filter replacing the former
+  filter[is_underutilized], filter[is_overcommitted], filter[stranded_resource],
+  and filter[idle_state] parameters.
+  Valid node categories: idle, overcommitted, stranded_cpu, stranded_memory, underutilized, optimized.
 
   Nested response shape (per node):
-  - classification: is_underutilized, is_overcommitted, idle_state, stranded_resource
+  - classification: category (unified field)
   - metrics: cpu_util_p50, cpu_util_p95, mem_util_p50, mem_util_p95
   - recommendation_terms.medium_term.recommendation_engines.cost|performance:
       recommended_cpu_cores, recommended_memory_gib, node_count_reduction,

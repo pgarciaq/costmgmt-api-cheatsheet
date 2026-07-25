@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/recommendations/openshift/nodes?filter[is_underutilized]=true&filter[term]=medium&filter[engine]=cost&limit=20
+  url: {{baseURL}}/recommendations/openshift/nodes?filter[category]=underutilized&filter[term]=medium&filter[engine]=cost&limit=20
   body: none
   auth: inherit
 }
 
 params:query {
-  filter[is_underutilized]: true
+  filter[category]: underutilized
   filter[term]: medium
   filter[engine]: cost
   limit: 20
@@ -24,9 +24,9 @@ headers {
 docs {
   Fleet consolidation and per-node reduction opportunities.
 
-  Underutilized nodes often expose `node_count_reduction` on cost/performance engine blocks
-  under `recommendation_terms.medium_term.recommendation_engines`. Values are integers
-  (nodes that could be removed from the fleet group).
+  Underutilized nodes (filter[category]=underutilized) often expose `node_count_reduction`
+  on cost/performance engine blocks under `recommendation_terms.medium_term.recommendation_engines`.
+  Values are integers (nodes that could be removed from the fleet group).
 
   Example jq path:
   `.data[0].recommendation_terms.medium_term.recommendation_engines.cost.node_count_reduction`
