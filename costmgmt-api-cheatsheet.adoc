@@ -2540,7 +2540,7 @@ When `ROS_SETTINGS_LOCKED_BUSINESS_HOURS=true` (default when the global settings
 
 PUT returns `202 Accepted` and triggers asynchronous digest reship (`reship_ros`). Cluster GET responses may include `reship_status`: `complete`, `pending`, or `forward_only` (degraded — forward data only). Org-level GET does not include `reship_status`.
 
-Overnight windows are not supported: `schedule.end_time` must be strictly after `schedule.start_time` on the same calendar day (for example `08:00`–`17:00`). Requests with `end_time` before `start_time` return `400`.
+Overnight windows are allowed: `schedule.end_time` may be before `schedule.start_time` (for example Mon–Fri `22:00`–`06:00`). The window is half-open `[start, end)` in the IANA timezone; samples after midnight belong to the previous calendar day's shift (Friday's shift includes Saturday morning until `end_time`). Equal start and end times return `400`. `08:00`–`17:00` in the example below is a typical office window, not the only legal window. PUT may include a non-fatal wrap warning.
 
 `enabled: false` keeps the override row but disables business-hours digest generation for that scope. DELETE removes the override so the scope inherits from cluster or org default.
 
