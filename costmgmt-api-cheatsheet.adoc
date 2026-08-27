@@ -1057,6 +1057,7 @@ see ros-ocp-backend `docs/features/gpu-mig.md` for MIG fixture columns (`gpu_mod
 
 Returns container-term rows with `recommended_gpu_profile` (MIG slice, not `full_gpu`).
 Uses recommendation *terms* (`short`/`medium`/`long`), not `filter[engine]=cost|performance`.
+Each row includes `id` (container recommendation id for `GET .../recommendations/openshift/{id}`) and `workload_type`. Duplicate `id` values across term (and GPU-model) rows for the same container are expected. Group-by rows omit `id`. CSV adds trailing `id` and `workload_type` columns.
 
 *Plugin gating:* GPU MIG routes are served by the `gpu` recommendation plugin. Use deployment env vars `ROS_ENABLED_PLUGINS` (allowlist) or `ROS_DISABLED_PLUGINS` (denylist when allowlist is empty) to enable or disable plugins; omit `gpu` from the enabled set (or add `gpu` to the disabled set) to turn off GPU recommendations. When the `gpu` plugin is disabled, `GET .../recommendations/openshift/gpu/mig` and related `/gpu/*` paths return *404* (`plugin 'gpu' is not enabled`), not an empty list. `GET .../settings/gpu` follows the same gating.
 `order_by` values: `cluster_uuid`, `namespace`, `workload`, `container`, `term`, `gpu_model`, `confidence`.

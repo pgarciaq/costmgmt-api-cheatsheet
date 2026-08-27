@@ -887,7 +887,7 @@ GET /api/cost-management/v1/recommendations/openshift/savings-summary?group_by[t
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>GET /api/cost-management/v1/effective_rates/?cluster_uuid=&lt;cluster-uuid&gt;&amp;org_id=&lt;org-id&gt;&amp;start_date=YYYY-MM-DD&amp;end_date=YYYY-MM-DD</pre>
+<pre>GET /api/cost-management/v1/effective_rates/?cluster_id=&lt;cluster-id&gt;&amp;org_id=&lt;org-id&gt;&amp;start_date=YYYY-MM-DD&amp;end_date=YYYY-MM-DD</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -901,12 +901,28 @@ GET /api/cost-management/v1/recommendations/openshift/savings-summary?group_by[t
 </div>
 </div>
 <div class="sect3">
+<h4 id="_fleet_heatmap">Fleet heatmap</h4>
+<div class="paragraph">
+<p>CPU and memory utilization heatmap across all clusters, showing hourly resource usage patterns. Requires Visual Insights enabled (<code>ROS_VISUAL_INSIGHTS_ENABLED=true</code>).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/fleet-heatmap
+GET /api/cost-management/v1/recommendations/openshift/fleet-heatmap?metric=memory
+GET /api/cost-management/v1/recommendations/openshift/fleet-heatmap?filter[cluster]=CLUSTER_UUID</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Default metric is <code>cpu</code>. Use <code>?metric=memory</code> for memory heatmap. Response returns a matrix of hourly utilization data points across nodes.</p>
+</div>
+</div>
+<div class="sect3">
 <h4 id="_savings_recalculation_internal">Savings recalculation (internal)</h4>
 <div class="paragraph">
 <p>After a Koku cost model update, masu notifies ROS to refresh persisted dollar savings without re-ingestion. Supported types: <code>container</code>, <code>node</code>, <code>pvc</code>, <code>quota</code>, <code>cluster-quota</code>. Service-account bearer token required (same auth as tag sync). Requires <code>ROS_SAVINGS_ESTIMATES_ENABLED</code> and <code>ROS_SAVINGS_RECALCULATION_ENABLED</code>.</p>
 </div>
 <div class="paragraph">
-<p>OpenShift Virtualization (VM) monthly savings are <strong>not</strong> refreshed by this endpoint. VM <code>savings</code> on list/detail and <code>by_plugin.vm</code> in <code>GET /savings-summary</code> are computed during VM recommendation ingestion when <code>ROS_SAVINGS_ESTIMATES_ENABLED=true</code> and <code>KOKU_MASU_URL</code> is available; a new ingest cycle is required after cost model rate changes.</p>
+<p>OpenShift Virtualization (VM) monthly savings are <strong>not</strong> refreshed by this endpoint. VM <code>estimated_monthly_savings</code> on list/detail and <code>by_plugin.vm</code> in <code>GET /savings-summary</code> are computed during VM recommendation ingestion when <code>ROS_SAVINGS_ESTIMATES_ENABLED=true</code> and <code>KOKU_MASU_URL</code> is available; a new ingest cycle is required after cost model rate changes.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -992,6 +1008,20 @@ POST /api/cost-management/v1/internal/backfill-gpu-timeslicing?org_id=1234567&am
 }</code></pre>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_tag_sync_status_internal">Tag sync status (internal)</h4>
+<div class="paragraph">
+<p>Per-org tag catalog metadata: which tag keys are known and the last sync time. Service-account bearer token required (same auth as tag sync). Requires <code>ROS_TAGS_ENABLED</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/internal/tags/status?org_id=1234567</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Required: <code>org_id</code>. Response includes <code>tag_keys</code> (array of known keys), <code>source</code> (<code>"api"</code> or <code>"db"</code>), and <code>synced_at</code> timestamp (API mode only).</p>
+</div>
 <div class="paragraph">
 <p>Savings summary response excerpt:</p>
 </div>
@@ -1013,12 +1043,30 @@ POST /api/cost-management/v1/internal/backfill-gpu-timeslicing?org_id=1234567&am
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_workload_types_metadata">Workload types (metadata)</h4>
+<div class="paragraph">
+<p>Returns the distinct Kubernetes owner-kind values (e.g., <code>Deployment</code>, <code>StatefulSet</code>, <code>DaemonSet</code>) observed for the authenticated org. Useful for populating workload-type filter dropdowns in the UI.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/workload-types</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Response:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+  "data": ["DaemonSet", "Deployment", "StatefulSet"]
+}</code></pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_container_recommendations">Container recommendations</h3>
-<div class="paragraph">
-<p>All container-level CPU/memory right-sizing recommendations:</p>
-</div>
 <div class="listingblock">
 <div class="content">
 <pre>GET /api/cost-management/v1/recommendations/openshift/</pre>
@@ -1046,7 +1094,7 @@ POST /api/cost-management/v1/internal/backfill-gpu-timeslicing?org_id=1234567&am
 </ul>
 </div>
 <div class="paragraph">
-<p>Each recommendation includes CPU/memory requests and limits, per-engine notifications on detail, and usage distribution plots under <code>recommendation_terms.&lt;term&gt;.plots.plots_data</code>. Each time bucket maps to <code>cpuUsage</code> and <code>memoryUsage</code> objects with percentile fields (<code>p50</code>, <code>p95</code>, <code>p99</code>, <code>max</code>) and a <code>format</code> (<code>cores</code> for CPU, <code>MiB</code> for memory). Values are assembled from daily digests (not raw samples).</p>
+<p>Each recommendation includes CPU/memory requests and limits, per-engine notifications on detail, and usage distribution plots under <code>recommendation_terms.&lt;term&gt;.plots.plots_data</code>. Each time bucket maps to <code>cpuUsage</code> and <code>memoryUsage</code> objects with percentile fields (<code>p50</code>, <code>p95</code>, <code>p99</code>, <code>max</code>) and a <code>format</code> (<code>cores</code> for CPU, <code>MiB</code> for memory). Container boxplots also include an optional <code>cpuThrottle</code> object (P95 + Max in cores); omitted when no throttling occurred. Values are assembled from daily digests (not raw samples).</p>
 </div>
 <div class="paragraph">
 <p><strong>Notifications:</strong> Detail responses emit <code>notifications</code> maps only on <code>recommendation_engines.&lt;engine&gt;</code> (not at term or top-level). List rows expose <code>recommendations.notification_codes</code> (deduplicated integer array); resolve badge text via <code>GET &#8230;&#8203;/notification-codes</code>.</p>
@@ -1058,9 +1106,23 @@ POST /api/cost-management/v1/internal/backfill-gpu-timeslicing?org_id=1234567&am
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
   "cpuUsage": { "p50": 0.12, "p95": 0.45, "p99": 0.67, "max": 0.89, "format": "cores" },
+  "cpuThrottle": { "p95": 0.03, "max": 0.12, "format": "cores" },
   "memoryUsage": { "p50": 256.0, "p95": 384.0, "p99": 420.0, "max": 512.0, "format": "MiB" }
 }</code></pre>
 </div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<code>cpuThrottle</code> is only present for container recommendations (not namespace).
+It is omitted entirely when both P95 and Max are zero (no throttling in that bucket).
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>Detail responses nest both engines under each term:</p>
@@ -1099,6 +1161,51 @@ When the filter is omitted, both engines are returned.</p>
 </div>
 </div>
 <div class="sect3">
+<h4 id="_oom_timeline">OOM Timeline</h4>
+<div class="paragraph">
+<p>Per-day OOM (Out of Memory) kill counts for a container. Returns only days with at least one OOM event (sparse response). Defaults to the last 6 months.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/containers/{recommendation_uuid}/oom-timeline
+GET /api/cost-management/v1/recommendations/openshift/containers/{recommendation_uuid}/oom-timeline?start_date=2026-01-01&amp;end_date=2026-06-29</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example curl:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>curl -s -H "x-rh-identity: $IDENTITY" \
+  'https://console.redhat.com/api/cost-management/v1/recommendations/openshift/containers/RECOMMENDATION_UUID/oom-timeline?start_date=2026-01-01' \
+  | python3 -m json.tool</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example response:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+  "meta": {
+    "count": 9,
+    "container_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "start_date": "2026-01-01",
+    "end_date": "2026-06-29"
+  },
+  "data": [
+    {"date": "2026-03-15", "oom_kill_count": 3},
+    {"date": "2026-03-22", "oom_kill_count": 1},
+    {"date": "2026-04-01", "oom_kill_count": 5}
+  ]
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>meta.count</code> is the sum of all <code>oom_kill_count</code> values (total OOM events, not total days). Empty <code>data</code> array when no OOM events occurred in the range.</p>
+</div>
+</div>
+<div class="sect3">
 <h4 id="_filtering_and_sorting">Filtering and sorting</h4>
 <div class="paragraph">
 <p>Filter by cluster, project, workload, workload type, or container:</p>
@@ -1118,10 +1225,10 @@ GET /api/cost-management/v1/recommendations/openshift/?filter[container]=my-cont
 Legacy flat forms (<code>cluster_uuid</code>, <code>project</code>, <code>namespace</code>, <code>container</code>) are also accepted.</p>
 </div>
 <div class="paragraph">
-<p><code>filter[workload_type]</code> accepts lowercase Kubernetes controller kinds (exact match;
-comma-separated values are ORed): <code>daemonset</code>, <code>deployment</code>, <code>deploymentconfig</code>,
-<code>replicaset</code>, <code>replicationcontroller</code>, <code>statefulset</code>. Legacy flat form
-<code>?workload_type=deployment</code> is also accepted.</p>
+<p><code>filter[workload_type]</code> accepts any lowercase Kubernetes workload kind (exact match;
+comma-separated values are ORed), e.g. <code>deployment</code>, <code>statefulset</code>, <code>domain</code>.
+Legacy flat form <code>?workload_type=deployment</code> is also accepted.
+Invalid formats return 400; any syntactically valid kind string is accepted.</p>
 </div>
 <div class="paragraph">
 <p>Filter by recommendation engine (limits nested <code>recommendation_engines</code> to cost or performance; omits the non-selected engine from each item):</p>
@@ -1180,6 +1287,24 @@ The API uses <code>idle_state=zombie</code> which the UI displays as "Abandoned"
 <div class="listingblock">
 <div class="content">
 <pre>GET /api/cost-management/v1/recommendations/openshift/?filter[idle_state]=zombie,idle</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Filter by stale data (<code>false</code> = fresh only (default), <code>true</code> = include stale and fresh, <code>only</code> = stale rows only). A recommendation is stale when the cluster has not reported within <code>ROS_STALENESS_THRESHOLD_HOURS</code> (default 48). Legacy <code>?stale=</code> accepted:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/?filter[stale]=false
+GET /api/cost-management/v1/recommendations/openshift/?filter[stale]=only</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Exact-match and exclude filters are supported on <code>cluster</code>, <code>project</code>, <code>workload</code>, and <code>container</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/?filter[exact:cluster]=EXACT_UUID
+GET /api/cost-management/v1/recommendations/openshift/?exclude[project]=openshift-monitoring</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1281,11 +1406,17 @@ GET /api/cost-management/v1/recommendations/openshift/?limit=20&amp;after=&lt;me
 <h4 id="_sorting">Sorting</h4>
 <div class="paragraph">
 <p>Allowed <code>order_by</code> values: <code>cluster</code>, <code>project</code>, <code>workload_type</code>, <code>workload</code>, <code>container</code>,
-<code>last_reported</code>, <code>cpu_request_current</code>, <code>memory_request_current</code>, and per-term variation fields:
+<code>last_reported</code>, <code>cpu_request_current</code>, <code>memory_request_current</code>,
+<code>estimated_monthly_savings</code>, <code>estimated_monthly_waste</code>, <code>idle_state</code>, <code>idle_duration_days</code>,
+and per-term variation fields:
 <code>cpu_variation_short_cost</code>, <code>cpu_variation_short_performance</code>, <code>cpu_variation_medium_cost</code>,
 <code>cpu_variation_medium_performance</code>, <code>cpu_variation_long_cost</code>, <code>cpu_variation_long_performance</code>,
 <code>memory_variation_short_cost</code>, <code>memory_variation_short_performance</code>, <code>memory_variation_medium_cost</code>,
 <code>memory_variation_medium_performance</code>, <code>memory_variation_long_cost</code>, <code>memory_variation_long_performance</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>estimated_monthly_savings</code> sorts by persisted dollar savings (nullable; <code>NULLS LAST</code> applies in both directions).
+<code>estimated_monthly_waste</code> sorts by estimated monthly waste for idle/abandoned workloads.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1309,8 +1440,13 @@ GET /api/cost-management/v1/recommendations/openshift/?format=csv&amp;limit=100&
 <p>Prefer <code>Accept: text/csv</code> for explicit content negotiation. Response <code>Content-Type</code>
 is <code>text/csv</code>. The export is capped at 1000 list records (up to 6000 CSV rows when
 all three terms and both engines are present). Columns include cluster, project,
-workload, container, savings, idle state, and per-term CPU/memory requests and limits.
+workload, container, savings (<code>estimated_monthly_savings</code>, <code>cpu_savings</code>, <code>memory_savings</code>),
+idle state, and per-term CPU/memory requests and limits.
 Use the same filters and <code>order_by</code> parameters as the JSON list endpoint.</p>
+</div>
+<div class="paragraph">
+<p><code>cpu_savings</code> and <code>memory_savings</code> are the per-resource CPU and memory breakdowns of
+<code>estimated_monthly_savings</code>. All three are empty when cost data is unavailable (code 25).</p>
 </div>
 </div>
 <div class="sect3">
@@ -1398,8 +1534,7 @@ Use the same filters and <code>order_by</code> parameters as the JSON list endpo
 <div class="sect3">
 <h4 id="_history_and_quality">History and quality</h4>
 <div class="paragraph">
-<p>Node recommendations do not expose a history or quality API. Per-node history is N/A;
-<code>GET &#8230;&#8203;/quality</code> applies to container recommendations only (stability, adoption, OOM after rec).</p>
+<p>Node recommendations do not expose a history or quality API. Per-node history is N/A.</p>
 </div>
 <div class="paragraph">
 <p>Recommendation snapshot history (fleet-wide, native engine — containers):</p>
@@ -1407,22 +1542,98 @@ Use the same filters and <code>order_by</code> parameters as the JSON list endpo
 <div class="listingblock">
 <div class="content">
 <pre>GET /api/cost-management/v1/recommendations/openshift/history?limit=10
-GET /api/cost-management/v1/recommendations/openshift/history?container=my-container&amp;filter[engine]=cost&amp;term=medium
+GET /api/cost-management/v1/recommendations/openshift/history?container=my-container&amp;filter[engine]=cost&amp;term=short_term
 GET /api/cost-management/v1/recommendations/openshift/history?filter[tag:environment]=production&amp;limit=10</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>History accepts <code>filter[engine]=cost|performance</code> (preferred) or legacy flat <code>?engine=cost</code>.</p>
+<p>History accepts <code>filter[engine]=cost|performance</code> (preferred) or legacy flat <code>?engine=cost</code>.
+Term filter accepts canonical forms (<code>short_term</code>, <code>medium_term</code>, <code>long_term</code>); legacy values (<code>short</code>, <code>medium</code>, <code>long</code>) are also accepted and normalized.
+Response includes 21 <code>expl_*</code> explanation columns (nullable, omitted when nil) providing recommendation context: data days, decay half-life, CPU/memory cost/perf percentiles, usage statistics, adaptive margins, trend slopes, OOM counts, floor flags, and idle state.</p>
 </div>
 <div class="paragraph">
-<p>Recommendation quality metrics (stability, adoption, OOM after rec):</p>
+<p>Recommendation quality metrics are available for 5 entity types, each with its own endpoint and entity-specific columns:</p>
+</div>
+<div class="paragraph">
+<p><strong>Container quality</strong> (stability, adoption, OOM events):</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>GET /api/cost-management/v1/recommendations/openshift/quality?limit=10
-GET /api/cost-management/v1/recommendations/openshift/quality?filter[engine]=cost&amp;limit=10
-GET /api/cost-management/v1/recommendations/openshift/quality?order_by=stability&amp;order_how=desc</pre>
+<pre>GET /api/cost-management/v1/recommendations/openshift/quality/containers?limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality/containers?filter[engine]=cost&amp;limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality/containers?order_by=stability&amp;order_how=desc</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>The legacy path <code>/quality</code> is a backward-compatible alias for <code>/quality/containers</code>.</p>
+</div>
+<div class="paragraph">
+<p><strong>PVC quality</strong> (stability, adoption, days_above_threshold):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/quality/pvcs?limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality/pvcs?filter[engine]=cost&amp;order_by=days_above_threshold&amp;order_how=desc</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>VM quality</strong> (stability, adoption, saturation_days):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/quality/vms?limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality/vms?filter[engine]=performance&amp;order_by=saturation_days&amp;order_how=desc</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>GPU MIG quality</strong> (binary stability, profile adoption, contention_days):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/quality/gpu?limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality/gpu?filter[engine]=cost&amp;order_by=contention_days&amp;order_how=desc</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Snapshot quality</strong> (adoption via disappearance — no stability, no bad outcome):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/quality/snapshots?limit=10
+GET /api/cost-management/v1/recommendations/openshift/quality/snapshots?order_by=adoption&amp;order_how=desc</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example curl for GPU quality:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>curl -s -H "x-rh-identity: $IDENTITY" \
+  'http://localhost:8000/api/cost-management/v1/recommendations/openshift/quality/gpu?filter[engine]=cost&amp;limit=5' \
+  | python3 -m json.tool</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Entity-specific columns by endpoint:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>/quality/containers</code> — <code>oom_events_after_rec</code> (integer)</p>
+</li>
+<li>
+<p><code>/quality/pvcs</code> — <code>days_above_threshold</code> (integer; days usage ratio exceeded 95% of capacity)</p>
+</li>
+<li>
+<p><code>/quality/vms</code> — <code>saturation_days</code> (integer; days CPU/memory exceeded 95% of allocated)</p>
+</li>
+<li>
+<p><code>/quality/gpu</code> — <code>contention_days</code> (integer; days SM active exceeded profile capacity)</p>
+</li>
+<li>
+<p><code>/quality/snapshots</code> — adoption only (no stability_pct, no bad-outcome column)</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>Quality defaults to the cost engine when <code>filter[engine]</code> is omitted.</p>
@@ -1575,6 +1786,9 @@ DELETE /api/cost-management/v1/recommendations/openshift/settings/terms?recommen
 <p>Notification codes on namespace rows: <strong>1</strong> (low confidence), <strong>2</strong> (stale data), <strong>7</strong> (new workload), <strong>9</strong> (memory trending up), <strong>77</strong> (sparse data — limited observation days). Catalog: <code>GET &#8230;&#8203;/notification-codes?filter[plugin]=namespace</code>.</p>
 </div>
 <div class="paragraph">
+<p>Savings fields on namespace responses: <code>recommendations.estimated_monthly_savings</code> (total, <code>{value, units}</code>), <code>recommendations.cpu_savings</code> (CPU portion, <code>{value, units}</code>), <code>recommendations.memory_savings</code> (memory portion, <code>{value, units}</code>), and top-level <code>estimated_monthly_waste</code> for idle/zombie namespaces (<code>{value, units}</code>). Requires <code>ROS_SAVINGS_ESTIMATES_ENABLED=true</code> (default) and cost model rates from Koku Masu. When cost data is unavailable, savings fields are omitted.</p>
+</div>
+<div class="paragraph">
 <p>Detail for a specific namespace recommendation:</p>
 </div>
 <div class="listingblock">
@@ -1659,7 +1873,8 @@ see ros-ocp-backend <code>docs/features/gpu-mig.md</code> for MIG fixture column
 </div>
 <div class="paragraph">
 <p>Returns container-term rows with <code>recommended_gpu_profile</code> (MIG slice, not <code>full_gpu</code>).
-Uses recommendation <strong>terms</strong> (<code>short</code>/<code>medium</code>/<code>long</code>), not <code>filter[engine]=cost|performance</code>.</p>
+Uses recommendation <strong>terms</strong> (<code>short</code>/<code>medium</code>/<code>long</code>), not <code>filter[engine]=cost|performance</code>.
+Each row includes <code>id</code> (container recommendation id for <code>GET &#8230;&#8203;/recommendations/openshift/{id}</code>) and <code>workload_type</code>. Duplicate <code>id</code> values across term (and GPU-model) rows for the same container are expected. Group-by rows omit <code>id</code>. CSV adds trailing <code>id</code> and <code>workload_type</code> columns.</p>
 </div>
 <div class="paragraph">
 <p><strong>Plugin gating:</strong> GPU MIG routes are served by the <code>gpu</code> recommendation plugin. Use deployment env vars <code>ROS_ENABLED_PLUGINS</code> (allowlist) or <code>ROS_DISABLED_PLUGINS</code> (denylist when allowlist is empty) to enable or disable plugins; omit <code>gpu</code> from the enabled set (or add <code>gpu</code> to the disabled set) to turn off GPU recommendations. When the <code>gpu</code> plugin is disabled, <code>GET &#8230;&#8203;/recommendations/openshift/gpu/mig</code> and related <code>/gpu/<strong></code> paths return *404</strong> (<code>plugin 'gpu' is not enabled</code>), not an empty list. <code>GET &#8230;&#8203;/settings/gpu</code> follows the same gating.
@@ -1737,6 +1952,9 @@ GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing?format=csv
 </div>
 <div class="paragraph">
 <p><strong>Settings:</strong> Time-slicing thresholds on <code>GET &#8230;&#8203;/settings/gpu</code> include <code>timeslicing_min_replicas</code>, <code>timeslicing_max_replicas</code>, <code>timeslicing_majority_threshold</code>, <code>timeslicing_base_penalty</code>, and <code>timeslicing_impacted_weight</code>. Term windows: <code>GET &#8230;&#8203;/settings/terms?recommendation_type=gpu</code>.</p>
+</div>
+<div class="paragraph">
+<p><strong>Cold-start signal:</strong> <code>meta.data_days_available</code> (integer) reports distinct days of <code>daily_node_digests</code> data for the queried cluster(s). Compare against <code>min_data_days</code> from <code>GET &#8230;&#8203;/settings/terms?recommendation_type=gpu</code> to distinguish cold-start (insufficient data) from genuine "no recommendations".</p>
 </div>
 <div class="sect4">
 <h5 id="_gpu_time_slicing_history">GPU time-slicing history</h5>
@@ -1848,6 +2066,24 @@ GET /api/cost-management/v1/recommendations/openshift/machinesets?filter[machine
 </div>
 <div class="paragraph">
 <p><strong>Deprecated</strong> alias for <code>GET /api/cost-management/v1/recommendations/openshift/nodes</code>. Prefer the canonical <code>/nodes</code> URL. Responses include <code>Deprecation: true</code> and a <code>Link</code> header to <code>/nodes</code>. IQE and new integrations should call <code>/nodes</code> only.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_node_hourly_utilization">Node hourly utilization</h4>
+<div class="paragraph">
+<p>Hourly CPU and memory utilization digests for a single node, enabling heatmap and time-of-day charts. Requires Visual Insights enabled (<code>ROS_VISUAL_INSIGHTS_ENABLED=true</code>) and hourly node digests enabled (<code>ROS_HOURLY_NODE_DIGESTS_ENABLED=true</code>).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/node/{node-name}/hourly-utilization?cluster_uuid=CLUSTER_UUID
+GET /api/cost-management/v1/recommendations/openshift/node/{node-name}/hourly-utilization?cluster_uuid=CLUSTER_UUID&amp;days=30</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Required: path parameter <code>node-name</code>, query parameter <code>cluster_uuid</code> (or <code>filter[cluster]</code>). Optional: <code>days</code> (default 14, max 90).</p>
+</div>
+<div class="paragraph">
+<p>Each data point returns <code>report_date</code>, <code>hour</code> (0–23), <code>cpu_usage_p95_mc</code>, <code>mem_usage_p95_kib</code>, <code>sample_count</code>, <code>max_pod_count</code>. Data is stored in <code>hourly_node_digests</code>; retention controlled by <code>ROS_HOURLY_NODE_DIGESTS_RETENTION_DAYS</code> (default 90).</p>
 </div>
 </div>
 </div>
@@ -2239,6 +2475,24 @@ DELETE /api/cost-management/v1/recommendations/openshift/settings/quota</pre>
 <p>PUT validation: <code>headroom_percent</code> 0–100; <code>high_risk_threshold_percent</code> 1–100 and greater than <code>medium_risk_threshold_percent</code>; <code>medium_risk_threshold_percent</code> 1–99. DELETE removes per-org overrides (falls back to <code>ROS_QUOTA_*</code> env or defaults 10/90/70).</p>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_quota_headroom_trend">Quota headroom trend</h4>
+<div class="paragraph">
+<p>Per-day quota hard limit vs actual usage for CPU requests and memory requests, enabling headroom trend charts. Requires Visual Insights enabled (<code>ROS_VISUAL_INSIGHTS_ENABLED=true</code>) and the quota plugin.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/quota/{quota-id}/trend
+GET /api/cost-management/v1/recommendations/openshift/quota/{quota-id}/trend?start_date=2026-06-01&amp;end_date=2026-06-30</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Path parameter: <code>quota-id</code> (quota recommendation UUID). Optional query: <code>start_date</code> (YYYY-MM-DD, default 30 days ago), <code>end_date</code> (YYYY-MM-DD, default today).</p>
+</div>
+<div class="paragraph">
+<p>Each data point returns <code>date</code>, <code>cpu_request_hard_millicores</code>, <code>cpu_request_used_millicores</code>, <code>memory_request_hard_bytes</code>, <code>memory_request_used_bytes</code>. Values are nullable when the metric was not collected on that date. Data is sourced from <code>daily_namespace_quota_digests</code>.</p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_clusterresourcequota_recommendations">ClusterResourceQuota recommendations</h3>
@@ -2317,7 +2571,7 @@ GET /api/cost-management/v1/recommendations/openshift/cluster-quota/detail?clust
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "meta": { "count": 1, "limit": 10, "offset": 0, "has_next": false },
+  "meta": { "count": 1, "limit": 10, "offset": 0, "has_next": false, "currency": "USD" },
   "links": { "first": "...", "last": "..." },
   "data": [
     {
@@ -2707,6 +2961,38 @@ DELETE /api/cost-management/v1/recommendations/openshift/settings/snapshot</pre>
 <p><code>active</code> classifications emit no snapshot notification code. List rows use a <code>notifications</code> map keyed by code string.</p>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_snapshot_age_distribution">Snapshot age distribution</h4>
+<div class="paragraph">
+<p>Histogram of snapshot counts grouped by age buckets. Requires Visual Insights enabled (<code>ROS_VISUAL_INSIGHTS_ENABLED=true</code>) and the snapshot plugin.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/snapshots/age-distribution
+GET /api/cost-management/v1/recommendations/openshift/snapshots/age-distribution?bucket_boundaries=14,60</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Optional: <code>bucket_boundaries</code> (comma-separated day thresholds, e.g. <code>14,60</code> creates <code>0–14</code>, <code>14–60</code>, <code>60+</code> buckets; defaults to <code>7,30,90</code> when omitted).</p>
+</div>
+<div class="paragraph">
+<p>Response contains <code>buckets[]</code> (each with <code>label</code>, <code>min_days</code>, <code>max_days</code> — <code>null</code> for the last unbounded bucket — and <code>count</code>) and a <code>total</code> field.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_snapshot_cost_by_type">Snapshot cost by type</h4>
+<div class="paragraph">
+<p>Snapshot holding costs grouped by recommendation type. Requires Visual Insights enabled (<code>ROS_VISUAL_INSIGHTS_ENABLED=true</code>) and the snapshot plugin.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/snapshots/cost-by-type</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Response <code>data[]</code> contains <code>recommendation_type</code> (orphaned, stale, never_restored, redundant, managed, active), <code>total_cost_cents</code> (integer monthly holding cost), and <code>count</code>.</p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_openshift_virtualization_vm_recommendations">OpenShift Virtualization (VM) recommendations</h3>
@@ -2717,7 +3003,7 @@ DELETE /api/cost-management/v1/recommendations/openshift/settings/snapshot</pre>
 <p>Business hours are not applicable to VM recommendations (they apply to container and namespace recommendations only).</p>
 </div>
 <div class="paragraph">
-<p>Monthly <code>savings</code> on list/detail requires <code>ROS_SAVINGS_ESTIMATES_ENABLED=true</code> (default) and <code>KOKU_MASU_URL</code> with cost model rates at ingestion. When disabled or masu is unreachable, <code>savings</code> is JSON <code>null</code>. Values are fixed at generation time until the next recommendation cycle (rate or currency changes are not retroactive). VM savings are <strong>not</strong> updated by <code>POST /internal/recalculate-savings</code> (see <a href="#_savings_recalculation_internal">Savings recalculation (internal)</a>); only a new VM ingest recalculates persisted dollar fields.</p>
+<p>Monthly <code>estimated_monthly_savings</code> on list/detail requires <code>ROS_SAVINGS_ESTIMATES_ENABLED=true</code> (default) and <code>KOKU_MASU_URL</code> with cost model rates at ingestion. When disabled or masu is unreachable, <code>estimated_monthly_savings</code> is JSON <code>null</code>. Values are fixed at generation time until the next recommendation cycle (rate or currency changes are not retroactive). VM savings are <strong>not</strong> updated by <code>POST /internal/recalculate-savings</code> (see <a href="#_savings_recalculation_internal">Savings recalculation (internal)</a>); only a new VM ingest recalculates persisted dollar fields.</p>
 </div>
 <div class="sect3">
 <h4 id="_vm_recommendations_list">VM recommendations list</h4>
@@ -2738,6 +3024,8 @@ GET /api/cost-management/v1/recommendations/openshift/vm?filter[has_gpu]=true
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[gpu_classification]=underutilized
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[engine]=cost
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[engine]=performance
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[guest_os]=windows
+GET /api/cost-management/v1/recommendations/openshift/vm?filter[is_network_bound]=true
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[tag:environment]=production
 GET /api/cost-management/v1/recommendations/openshift/vm?filter[tag:environment]=production,staging&amp;filter[tag:team]=platform
 GET /api/cost-management/v1/recommendations/openshift/vm?limit=20&amp;after=&lt;meta.next_cursor&gt;</pre>
@@ -2792,12 +3080,16 @@ GET /api/cost-management/v1/recommendations/openshift/vm?limit=20&amp;after=&lt;
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>high</code>, <code>moderate</code>, or <code>low</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>is_idle</code>, <code>is_abandoned</code>, <code>is_oversized</code>, <code>guest_agent_detected</code>, <code>has_gpu</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>is_idle</code>, <code>is_abandoned</code>, <code>is_oversized</code>, <code>guest_agent_detected</code>, <code>has_gpu</code>, <code>is_network_bound</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code> or <code>false</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>gpu_classification</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Comma-separated GPU classes (e.g. <code>idle</code>, <code>underutilized</code>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>guest_os</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Guest OS substring match, case-insensitive; comma-separated values are ORed (e.g. <code>linux</code>, <code>windows</code>, <code>linux,windows</code>)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>tag:&lt;key&gt;</code></p></td>
@@ -2809,10 +3101,13 @@ GET /api/cost-management/v1/recommendations/openshift/vm?limit=20&amp;after=&lt;
 <p>Each list item includes <code>metadata.is_network_bound</code> (<code>true</code> when sustained network metrics qualify the VM for <strong>n1</strong> network-optimized instance types). Use <code>filter[is_network_bound]=true</code> or <code>false</code> to narrow the list server-side.</p>
 </div>
 <div class="paragraph">
+<p>Power-off metadata: <code>metadata.is_power_off_candidate</code> (code <strong>64</strong>) — VM is idle on many observed days but not permanently abandoned; <code>metadata.power_off_idle_pct</code> (integer, nullable) — percent of observed days classified as idle.</p>
+</div>
+<div class="paragraph">
 <p>Placement metadata (no list filters yet): <code>metadata.is_redundant_placement</code> (code <strong>60</strong>), <code>metadata.has_shared_storage</code> (code <strong>62</strong>), <code>metadata.numa_oversized</code> (code <strong>63</strong>). Code <strong>61</strong> is uneven node distribution (notification only).</p>
 </div>
 <div class="paragraph">
-<p><code>order_by</code> (default <code>vm_name</code>): <code>vm_name</code>, <code>namespace</code>, <code>current_vcpu</code>, <code>current_memory_gib</code>, <code>guest_os</code>, <code>recommended_vcpu</code>, <code>recommended_memory_gib</code>, <code>is_idle</code>, <code>is_abandoned</code>, <code>is_oversized</code>, <code>confidence</code>, <code>savings</code>, <code>last_recommended_at</code>. Use <code>order_how=asc</code> or <code>desc</code>.</p>
+<p><code>order_by</code> (default <code>vm_name</code>): <code>vm_name</code>, <code>namespace</code>, <code>current_vcpu</code>, <code>current_memory_gib</code>, <code>guest_os</code>, <code>recommended_vcpu</code>, <code>recommended_memory_gib</code>, <code>is_idle</code>, <code>is_abandoned</code>, <code>is_oversized</code>, <code>confidence</code>, <code>estimated_monthly_savings</code>, <code>last_recommended_at</code>. Use <code>order_how=asc</code> or <code>desc</code>. (<code>savings</code> and <code>savings_amount</code> accepted as deprecated aliases.)</p>
 </div>
 </div>
 <div class="sect3">
@@ -2859,6 +3154,7 @@ GET /api/cost-management/v1/recommendations/openshift/vm/detail?cluster_uuid=UUI
     "engine": "cost",
     "is_idle": false,
     "is_abandoned": false,
+    "is_power_off_candidate": false,
     "is_oversized": true,
     "is_network_bound": true,
     "is_redundant_placement": false,
@@ -2934,6 +3230,24 @@ GET /api/cost-management/v1/recommendations/openshift/vms/{vm_name}/history?clus
 </div>
 </div>
 <div class="sect3">
+<h4 id="_vm_hourly_activity">VM hourly activity</h4>
+<div class="paragraph">
+<p>Hourly CPU, memory, and disk I/O digests for a single VM, enabling heatmap and activity pattern charts. Requires Visual Insights enabled (<code>ROS_VISUAL_INSIGHTS_ENABLED=true</code>) and hourly VM digests enabled (<code>ROS_HOURLY_VM_DIGESTS_ENABLED=true</code>).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GET /api/cost-management/v1/recommendations/openshift/vm/hourly-activity?cluster_uuid=CLUSTER_UUID&amp;vm_name=my-vm&amp;namespace=my-namespace
+GET /api/cost-management/v1/recommendations/openshift/vm/hourly-activity?cluster_uuid=CLUSTER_UUID&amp;vm_name=my-vm&amp;namespace=my-namespace&amp;days=30</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Required: <code>cluster_uuid</code> (or <code>filter[cluster]</code>), <code>vm_name</code>, <code>namespace</code>. Optional: <code>days</code> (default 14, max 90).</p>
+</div>
+<div class="paragraph">
+<p>Each data point returns <code>report_date</code>, <code>hour</code> (0–23), <code>cpu_usage_p95_mc</code>, <code>mem_usage_p95_kib</code>, <code>sample_count</code>, <code>disk_read_iops_p95</code>, <code>disk_write_iops_p95</code>. Data is stored in <code>hourly_vm_digests</code>; retention controlled by <code>ROS_HOURLY_VM_DIGESTS_RETENTION_DAYS</code> (default 90).</p>
+</div>
+</div>
+<div class="sect3">
 <h4 id="_csv_export_2">CSV export</h4>
 <div class="paragraph">
 <p>Flattened CSV export for VM list and per-VM history (same filters as JSON):</p>
@@ -2941,7 +3255,7 @@ GET /api/cost-management/v1/recommendations/openshift/vms/{vm_name}/history?clus
 <div class="listingblock">
 <div class="content">
 <pre>GET /api/cost-management/v1/recommendations/openshift/vm?format=csv
-GET /api/cost-management/v1/recommendations/openshift/vm?format=csv&amp;limit=100&amp;order_by=savings&amp;order_how=desc
+GET /api/cost-management/v1/recommendations/openshift/vm?format=csv&amp;limit=100&amp;order_by=estimated_monthly_savings&amp;order_how=desc
 GET /api/cost-management/v1/recommendations/openshift/vms/{vm_name}/history?cluster_uuid=UUID&amp;namespace=NS&amp;format=csv</pre>
 </div>
 </div>
@@ -3884,7 +4198,7 @@ DELETE /api/cost-management/v1/recommendations/openshift/settings/idle-detection
 <div class="sect3">
 <h4 id="_gpu_idle_filter">GPU idle filter</h4>
 <div class="paragraph">
-<p>Filter by GPU idle state (<code>active</code>, <code>idle</code>, or <code>zombie</code>; comma-separated values are ORed). GPU idle fields on container rows: <code>gpu_idle_state</code>, <code>gpu_idle_since</code>, <code>gpu_idle_duration_days</code>, <code>gpu_estimated_waste_cents</code>.</p>
+<p>Filter by GPU idle state (<code>active</code>, <code>idle</code>, or <code>zombie</code>; comma-separated values are ORed). GPU idle fields on container rows: <code>gpu_idle_state</code>, <code>gpu_idle_since</code>, <code>gpu_idle_duration_days</code>, <code>estimated_monthly_gpu_waste</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -4516,7 +4830,7 @@ GET /api/cost-management/v1/reports/aws/costs/?group_by[account]=*&amp;exclude[a
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-06-17 01:29:04 +0200
+Last updated 2026-08-27 02:12:55 +0200
 </div>
 </div>
 </body>

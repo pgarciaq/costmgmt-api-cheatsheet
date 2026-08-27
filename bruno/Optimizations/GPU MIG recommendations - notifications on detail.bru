@@ -18,8 +18,10 @@ docs {
   Container detail for a GPU MIG-enriched workload (`has_gpu=true` on the list).
 
   Set `recommendationUuid` from `GET .../recommendations/openshift?has_gpu=true` or from
-  a row on `GET .../recommendations/openshift/gpu/mig` (match cluster, namespace, workload,
-  container on the container list).
+  `id` on a `GET .../recommendations/openshift/gpu/mig` list row (same container
+  recommendation id). Duplicate MIG list `id` values across term (and GPU-model) rows for the
+  same container are expected. MIG-only containers with no `recommendation_sets` row
+  return 404 on this detail route.
 
   GPU MIG advisories appear under `gpu.<term>.notifications` (not on the MIG list endpoint):
 

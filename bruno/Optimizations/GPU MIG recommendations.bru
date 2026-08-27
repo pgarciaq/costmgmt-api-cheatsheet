@@ -24,7 +24,9 @@ headers {
 docs {
   Lists containers with MIG profile recommendations (non-full_gpu MIG profiles).
   Allowed order_by: cluster_uuid, namespace, workload, container, term, gpu_model, confidence.
-  Dollar savings are on container detail (GET .../recommendations/openshift/{uuid}), not this list.
+  Each row includes `id` (container recommendation id for GET .../recommendations/openshift/{id})
+  and `workload_type`. Duplicate ids across term (and GPU-model) rows for the same container are expected.
+  Group-by rows omit id. Dollar savings are on container detail, not this list.
   Filters: filter[cluster], filter[project], filter[gpu_idle_state], filter[tag:key], format=csv.
 }
 
