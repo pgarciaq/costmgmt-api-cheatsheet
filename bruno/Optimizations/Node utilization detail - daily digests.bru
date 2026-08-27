@@ -21,6 +21,8 @@ docs {
 
   The response includes a `daily_digests` array with per-day P50/P95 usage
   and allocatable capacity values for rendering utilization trend charts.
+  When business-hours digests exist, sibling `daily_digests_business_hours`
+  has the same row shape (omitted when empty; never merged into `daily_digests`).
 
   Query params:
   - cluster_uuid: filter by cluster (required for disambiguation)

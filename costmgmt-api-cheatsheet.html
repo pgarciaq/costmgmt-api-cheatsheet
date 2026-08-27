@@ -1986,7 +1986,7 @@ GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing/history?cl
 <p>Node-level right-sizing based on CPU and memory utilization patterns — identifies underutilized, overcommitted, stranded-resource, idle, and zombie nodes. One JSON object per node with nested <code>recommendation_terms</code> and dual engines (<code>cost</code>, <code>performance</code>).</p>
 </div>
 <div class="paragraph">
-<p>Business hours are not applicable to node recommendations (they apply to container and namespace recommendations only).</p>
+<p>List stays all-hours. Node <strong>detail</strong> may nest <code>recommendation_engines.{cost|performance}.business_hours</code> (cores/GiB) when an org or cluster schedule is enabled (code <strong>79</strong>). Visual Insights may include sibling <code>daily_digests_business_hours</code> (same shape as <code>daily_digests</code>; omitted when empty; never merged). Namespace-only schedules do not apply to nodes.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -3125,7 +3125,7 @@ GET /api/cost-management/v1/recommendations/openshift/vm/detail?cluster_uuid=UUI
 <p><code>io_profile.pattern</code> classifies disk I/O from peak p95 throughput and IOPS: <code>sequential</code>, <code>random</code>, <code>mixed</code>, <code>low-io</code>, or empty when metrics are missing. Codes <strong>58</strong> and <strong>59</strong> align with <code>sequential</code> and <code>random</code> patterns.</p>
 </div>
 <div class="paragraph">
-<p>Example detail response (CPU/memory/disk sizing in <code>current</code> / <code>recommended</code>; GPU in <code>gpu</code>; time series in <code>daily_digests</code>):</p>
+<p>Example detail response (CPU/memory/disk sizing in <code>current</code> / <code>recommended</code>; GPU in <code>gpu</code>; time series in <code>daily_digests</code>; optional sibling <code>daily_digests_business_hours</code> when Visual Insights is on):</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -4830,7 +4830,7 @@ GET /api/cost-management/v1/reports/aws/costs/?group_by[account]=*&amp;exclude[a
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-08-27 02:12:55 +0200
+Last updated 2026-08-27 03:22:11 +0200
 </div>
 </div>
 </body>

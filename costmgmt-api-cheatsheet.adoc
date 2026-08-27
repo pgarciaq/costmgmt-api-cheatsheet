@@ -1132,7 +1132,7 @@ Returns paginated rows from `node_gpu_timeslicing_recommendation_history` with `
 
 Node-level right-sizing based on CPU and memory utilization patterns — identifies underutilized, overcommitted, stranded-resource, idle, and zombie nodes. One JSON object per node with nested `recommendation_terms` and dual engines (`cost`, `performance`).
 
-Business hours are not applicable to node recommendations (they apply to container and namespace recommendations only).
+List stays all-hours. Node **detail** may nest `recommendation_engines.{cost|performance}.business_hours` (cores/GiB) when an org or cluster schedule is enabled (code **79**). Visual Insights may include sibling `daily_digests_business_hours` (same shape as `daily_digests`; omitted when empty; never merged). Namespace-only schedules do not apply to nodes.
 
 ----
 GET /api/cost-management/v1/recommendations/openshift/nodes
@@ -1871,7 +1871,7 @@ Required: `cluster_uuid`, `vm_name`, `namespace`. Optional: `term` (default `med
 
 `io_profile.pattern` classifies disk I/O from peak p95 throughput and IOPS: `sequential`, `random`, `mixed`, `low-io`, or empty when metrics are missing. Codes **58** and **59** align with `sequential` and `random` patterns.
 
-Example detail response (CPU/memory/disk sizing in `current` / `recommended`; GPU in `gpu`; time series in `daily_digests`):
+Example detail response (CPU/memory/disk sizing in `current` / `recommended`; GPU in `gpu`; time series in `daily_digests`; optional sibling `daily_digests_business_hours` when Visual Insights is on):
 
 [source,json]
 ----
