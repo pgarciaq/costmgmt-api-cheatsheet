@@ -13,9 +13,9 @@ get {
 docs {
   Namespace-level CPU/memory quota recommendations.
 
-  When business hours is enabled (`ROS_BUSINESS_HOURS_ENABLED`) and reship is complete,
-  each engine may include a `business_hours` block (same shape as container recommendations)
-  alongside the default all-hours `config`.
+  List stays all-hours: nested `business_hours` is omitted (including unfiltered
+  requests without filter[term]/filter[engine]). Fetch GET .../namespaces/{id}
+  for the Peak hours nest when ROS_BUSINESS_HOURS_ENABLED and reship is complete.
 }
 
 settings {
