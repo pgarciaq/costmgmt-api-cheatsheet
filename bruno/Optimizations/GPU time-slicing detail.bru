@@ -1,0 +1,49 @@
+meta {
+  name: GPU time-slicing detail
+  type: http
+  seq: 7.5
+}
+
+get {
+  url: {{baseURL}}/recommendations/openshift/gpu/timeslicing/{{nodeName}}?cluster_uuid={{cluster}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  cluster_uuid: {{cluster}}
+  ~filter[gpu_model]: Tesla T4
+  ~filter[term]: medium
+}
+
+vars:pre-request {
+  nodeName: gpu-ts-node-1
+}
+
+headers {
+  x-rh-identity: {{xRhIdentity}}
+}
+
+docs {
+  Node GPU time-slicing **detail** (`GET .../gpu/timeslicing/{node}`).
+
+  Copy `node_name` from the list (`GET .../gpu/timeslicing`) into `nodeName`.
+  Same row shape as the list; nested `business_hours` is here only.
+
+  When an org⊕cluster (not namespace-only) business-hours schedule is enabled
+  and BH replica sizing is present, `business_hours.notifications` includes
+  code **81** (`GPU_TS_BH_CLUSTER_WINDOW`). Parent `notification_codes` stay
+  all-hours (**36**). List, history, and GPU summary never carry 81.
+  Reason-only insufficient-data nests omit 81. Heterogeneous namespace windows
+  omit the nested object.
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+assert {
+  res.status: eq 200
+  res.body.data: isArray
+}

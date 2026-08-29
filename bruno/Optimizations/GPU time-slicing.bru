@@ -27,6 +27,8 @@ docs {
   Node-level GPU time-slicing recommendations. Evaluates how many containers could share each physical GPU via `nvidia.com/gpu.replicas`. Previously served at `/recommendations/openshift/nodes` (now repurposed for CPU/memory utilization).
 
   Recommendations are persisted at ingest; orgs without persisted rows use compute-at-read until ingest or backfill.
+
+  All-hours parent `notification_codes` include **36**. Peak hours replica sizing and catalog **81** (`GPU_TS_BH_CLUSTER_WINDOW`) are on the detail request (`GPU time-slicing detail`), not this list.
 }
 
 settings {

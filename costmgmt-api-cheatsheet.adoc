@@ -1112,6 +1112,18 @@ Returns per-node recommendations with:
 
 *Cold-start signal:* `meta.data_days_available` (integer) reports distinct days of `daily_node_digests` data for the queried cluster(s). Compare against `min_data_days` from `GET .../settings/terms?recommendation_type=gpu` to distinguish cold-start (insufficient data) from genuine "no recommendations".
 
+===== GPU time-slicing detail
+
+Peak hours replica sizing lives on the **detail** route, not the list:
+
+----
+GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing/{node}
+GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing/{node}?cluster_uuid=<cluster_uuid>
+GET /api/cost-management/v1/recommendations/openshift/gpu/timeslicing/{node}?cluster_uuid=<cluster_uuid>&filter[gpu_model]=T4&filter[term]=medium
+----
+
+Requires an **org ⊕ cluster** business-hours schedule (namespace-only schedules omit the nest). When nested `business_hours.recommended_replicas` is present, `business_hours.notifications` includes code **81** (`GPU_TS_BH_CLUSTER_WINDOW`) — overnight training and off-hours bursts are excluded. Parent `notification_codes` stay all-hours (**36**). Code **81** is not on the list, history, GPU summary `timeslicing.count`, or parent codes. Reason-only insufficient-data nests omit 81.
+
 ===== GPU time-slicing history
 
 Append-only snapshots of how time-slicing recommendations evolved for a node × GPU model × term:
