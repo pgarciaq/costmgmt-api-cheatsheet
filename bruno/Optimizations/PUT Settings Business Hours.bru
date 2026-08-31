@@ -32,8 +32,9 @@ docs {
   PUT returns 202 Accepted and triggers asynchronous digest reship (reship_ros).
 
   Overnight windows are allowed: schedule.end_time may be before schedule.start_time
-  (for example 22:00–06:00). The window is half-open [start, end) in the IANA timezone;
-  samples after midnight belong to the previous calendar day's shift. Equal start and
+  (for example 22:00–06:00). The window is half-open [start, end) on the local wall
+  clock in the IANA timezone (not elapsed duration; DST may skip or repeat an hour).
+  Samples after midnight belong to the previous calendar day's shift. Equal start and
   end times return 400. 08:00–17:00 in this body is a typical office example, not the
   only legal window. PUT may include a non-fatal wrap warning.
 }
